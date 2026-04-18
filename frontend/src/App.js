@@ -1,51 +1,57 @@
-import { useEffect } from "react";
+import React from "react";
 import "@/App.css";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import axios from "axios";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import ProtectedRoute from "@/components/ProtectedRoute";
+import DashboardLayout from "@/components/DashboardLayout";
+import Landing from "@/pages/Landing";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+import UserOverview from "@/pages/UserOverview";
+import CalculatorPage from "@/pages/CalculatorPage";
+import AdminDashboard from "@/pages/AdminDashboard";
+import AdminUsers from "@/pages/admin/Users";
+import AdminPackages from "@/pages/admin/Packages";
+import AdminPromos from "@/pages/admin/Promos";
+import AdminTransactions from "@/pages/admin/Transactions";
+import { AdminNews, AdminEvents } from "@/pages/admin/Cms";
+import PaymentConfig from "@/pages/admin/PaymentConfig";
+import MarketingDashboard from "@/pages/MarketingDashboard";
 
-const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
-const API = `${BACKEND_URL}/api`;
-
-const Home = () => {
-  const helloWorldApi = async () => {
-    try {
-      const response = await axios.get(`${API}/`);
-      console.log(response.data.message);
-    } catch (e) {
-      console.error(e, `errored out requesting / api`);
-    }
-  };
-
-  useEffect(() => {
-    helloWorldApi();
-  }, []);
-
-  return (
-    <div>
-      <header className="App-header">
-        <a
-          className="App-link"
-          href="https://emergent.sh"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <img src="https://avatars.githubusercontent.com/in/1201222?s=120&u=2686cf91179bbafbc7a71bfbc43004cf9ae1acea&v=4" />
-        </a>
-        <p className="mt-5">Building something incredible ~!</p>
-      </header>
-    </div>
-  );
-};
+function AppHome() {
+  const { user } = useAuth();
+  if (!user) return null;
+  if (user.role === "marketing") return <Navigate to="/app/marketing" replace />;
+  if (user.role === "admin" || user.role === "superadmin") return <Navigate to="/app/admin" replace />;
+  return <UserOverview />;
+}
 
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Home />}>
-            <Route index element={<Home />} />
-          </Route>
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Landing />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+
+            <Route path="/app" element={<ProtectedRoute><DashboardLayout><AppHome /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/calculator" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><CalculatorPage /></DashboardLayout></ProtectedRoute>} />
+
+            <Route path="/app/admin" element={<ProtectedRoute roles={["admin", "superadmin"]}><DashboardLayout><AdminDashboard /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/admin/users" element={<ProtectedRoute roles={["admin", "superadmin"]}><DashboardLayout><AdminUsers /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/admin/packages" element={<ProtectedRoute roles={["admin", "superadmin"]}><DashboardLayout><AdminPackages /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/admin/promos" element={<ProtectedRoute roles={["admin", "superadmin", "marketing"]}><DashboardLayout><AdminPromos /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/admin/transactions" element={<ProtectedRoute roles={["admin", "superadmin"]}><DashboardLayout><AdminTransactions /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/admin/news" element={<ProtectedRoute roles={["admin", "superadmin"]}><DashboardLayout><AdminNews /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/admin/events" element={<ProtectedRoute roles={["admin", "superadmin"]}><DashboardLayout><AdminEvents /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/admin/payment" element={<ProtectedRoute roles={["superadmin"]}><DashboardLayout><PaymentConfig /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/marketing" element={<ProtectedRoute roles={["marketing", "admin", "superadmin"]}><DashboardLayout><MarketingDashboard /></DashboardLayout></ProtectedRoute>} />
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </div>
   );
