@@ -55,6 +55,21 @@ User had a single HTML page for a Top Eleven (football manager game) training ca
 - ✅ Expiry/trial popups on user dashboard
 - ✅ 100% backend test pass (30/30) + all frontend flows verified
 
+## What's Been Implemented (2026-01-19 — Iteration 2: Indo Timezone Rebrand)
+- ✅ Indo Timezone Football Community logo integrated (public/assets/itz-logo.png) + shared Logo component
+- ✅ Palette shift: navy `#0A182B` + gold `#D4AF37` dominant + cream text, matching logo
+- ✅ Tagline "Unity in Time — We Suffer, We Grow, We Achieve" on landing hero
+- ✅ Logo watermark on landing hero + auth pages + sidebar
+- ✅ **Calculator split into "Modul Latihan" hub** → `/app/training`
+  - Sub-module 1: **Full Latihan** (`/app/training/full`) — multi-priority sniper engine
+  - Sub-module 2: **Single Drill** (`/app/training/single`) — pick 1 drill, targets auto-populate from drill's attrs
+- ✅ Single Drill UX: drill picker cards show attr pills (green=kuncian, red=gelap) + kuncian/gelap count + cost; cards with no kuncian are disabled
+- ✅ Legacy `/app/calculator` route → redirects to `/app/training`
+- ✅ Visual polish: page-enter fade+slide, hover-lift on cards, glow-gold CTAs, brand-gradient text, soft shadows, softer pulsing alerts
+- ✅ Added Cormorant Garamond serif for italic tagline, kept Barlow Condensed for display
+- ✅ Favicon + browser title updated to Indo Timezone branding
+- ✅ 100% iteration-2 frontend tests passed (12/12 scenarios)
+
 ## Prioritized Backlog (P0/P1/P2)
 - **P1** — Forgot-password flow (endpoint stub exists in playbook, not yet implemented)
 - **P1** — Event registrations page on user dashboard (list + status)
