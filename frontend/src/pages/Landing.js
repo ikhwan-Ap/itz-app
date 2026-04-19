@@ -39,10 +39,14 @@ export default function Landing() {
 
       {/* Hero */}
       <section className="relative overflow-hidden">
-        {/* Logo watermark backdrop */}
-        <div className="absolute right-[-6%] top-[10%] w-[min(560px,80vw)] h-[min(560px,80vw)] opacity-[0.08] pointer-events-none hidden lg:block">
-          <img src="/assets/itz-logo.png" alt="" className="w-full h-full object-contain" />
-        </div>
+        {/* Soft gold glow backdrop */}
+        <div
+          className="absolute right-[-10%] top-[5%] w-[min(680px,80vw)] h-[min(680px,80vw)] pointer-events-none hidden lg:block"
+          style={{
+            background: "radial-gradient(circle at center, rgba(212,175,55,0.22) 0%, rgba(30,58,107,0.15) 35%, transparent 70%)",
+            filter: "blur(40px)",
+          }}
+        />
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#060F1F]/30 to-[#060F1F]" />
 
         <div className="relative max-w-[1300px] mx-auto px-5 py-24 lg:py-36">

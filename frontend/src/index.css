@@ -340,6 +340,9 @@ tr.hover-row:hover { background: rgba(212, 175, 55, 0.04); }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* Hide Emergent preview badge (we want to see full preview) */
+#emergent-badge { display: none !important; }
+
 .spinner {
   width: 46px; height: 46px;
   border: 3px solid var(--bg-elevated);

@@ -56,7 +56,7 @@ export default function DashboardLayout({ children }) {
   );
 
   const UserFooter = () => (
-    <div className="p-3 border-t border-white/5">
+    <div className="p-3 border-t border-white/5 shrink-0">
       <div className="text-[10px] tracking-widest text-[#D4AF37] font-bold px-2 mb-1 uppercase">Signed in</div>
       <div className="px-2 mb-3">
         <div className="text-sm font-bold truncate text-white" data-testid="sidebar-user-name">{user?.name}</div>
@@ -75,8 +75,8 @@ export default function DashboardLayout({ children }) {
   return (
     <div className="min-h-screen flex bg-ambient bg-grain relative overflow-x-hidden">
       {/* Desktop sidebar */}
-      <aside className="w-64 hidden lg:flex flex-col border-r border-white/5 bg-[#060F1F]/85 backdrop-blur-md shrink-0">
-        <Link to="/app" className="p-5 flex items-center border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+      <aside className="w-64 hidden lg:flex flex-col border-r border-white/5 bg-[#060F1F]/85 backdrop-blur-md shrink-0 sticky top-0 h-screen">
+        <Link to="/app" className="p-5 flex items-center border-b border-white/5 hover:bg-white/[0.02] transition-colors shrink-0">
           <Logo size={40} showText={true} compact={true} />
         </Link>
         <NavItems />

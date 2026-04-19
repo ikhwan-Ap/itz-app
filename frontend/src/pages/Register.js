@@ -62,10 +62,15 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen relative py-6 sm:py-10 bg-ambient bg-grain px-4 overflow-hidden">
-      <div className="absolute left-1/2 top-[8%] -translate-x-1/2 w-[min(560px,92vw)] h-[min(560px,92vw)] opacity-[0.05] pointer-events-none">
-        <img src="/assets/itz-logo.png" alt="" className="w-full h-full object-contain" />
-      </div>
+    <div className="min-h-screen relative flex flex-col items-center py-6 sm:py-10 bg-ambient bg-grain px-4 overflow-hidden">
+      {/* Soft gradient aurora glow - centered */}
+      <div
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(720px,95vw)] h-[min(720px,95vw)] pointer-events-none"
+        style={{
+          background: "radial-gradient(circle at center, rgba(212,175,55,0.16) 0%, rgba(30,58,107,0.12) 38%, transparent 72%)",
+          filter: "blur(30px)",
+        }}
+      />
       <div className="relative z-10 max-w-3xl w-full mx-auto">
         <Link to="/" className="flex items-center justify-center mb-6 sm:mb-8">
           <Logo size={52} />

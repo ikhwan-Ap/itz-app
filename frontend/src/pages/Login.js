@@ -32,9 +32,13 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen relative flex flex-col items-center justify-center bg-ambient bg-grain px-4 py-6 sm:py-10 overflow-hidden">
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(520px,92vw)] h-[min(520px,92vw)] opacity-[0.05] pointer-events-none">
-        <img src="/assets/itz-logo.png" alt="" className="w-full h-full object-contain" />
-      </div>
+      <div
+        className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(640px,95vw)] h-[min(640px,95vw)] pointer-events-none"
+        style={{
+          background: "radial-gradient(circle at center, rgba(212,175,55,0.18) 0%, rgba(30,58,107,0.12) 35%, transparent 70%)",
+          filter: "blur(30px)",
+        }}
+      />
       <div className="relative z-10 w-full max-w-[440px]">
         <Link to="/" className="flex items-center justify-center mb-6 sm:mb-8">
           <Logo size={52} />
