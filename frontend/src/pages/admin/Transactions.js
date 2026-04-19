@@ -41,22 +41,22 @@ export default function AdminTransactions() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs uppercase tracking-widest text-[#9BA4B5] border-b border-white/5">
+              <tr className="text-left text-xs uppercase tracking-widest text-[#9FB0CC] border-b border-white/5">
                 <th className="p-3">User</th><th>Package</th><th>Amount</th><th>Promo</th><th>Final</th><th>Status</th><th>Date</th><th>Actions</th>
               </tr>
             </thead>
             <tbody>
               {visible.map((t) => (
                 <tr key={t.id} className="hover-row border-b border-white/5" data-testid={`tx-row-${t.id}`}>
-                  <td className="p-3">{t.user_name}<div className="text-xs text-[#9BA4B5]">{t.user_email}</div></td>
+                  <td className="p-3">{t.user_name}<div className="text-xs text-[#9FB0CC]">{t.user_email}</div></td>
                   <td>{t.package_name}</td>
                   <td>{formatRupiah(t.amount)}</td>
                   <td>
                     {t.promo_code ? <span className="badge badge-gold">{t.promo_code}<span className="ml-1 text-[10px]">-{formatRupiah(t.discount_amount)}</span></span> : "-"}
                   </td>
-                  <td className="font-bold text-[#00D05E]">{formatRupiah(t.final_amount)}</td>
+                  <td className="font-bold text-[#D4AF37]">{formatRupiah(t.final_amount)}</td>
                   <td><span className={`badge ${t.status === "approved" ? "badge-green" : t.status === "pending" ? "badge-gold" : "badge-red"}`}>{t.status}</span></td>
-                  <td className="text-xs text-[#9BA4B5]">{new Date(t.created_at).toLocaleDateString("id-ID")}</td>
+                  <td className="text-xs text-[#9FB0CC]">{new Date(t.created_at).toLocaleDateString("id-ID")}</td>
                   <td>
                     {t.status === "pending" && (
                       <div className="flex gap-1">

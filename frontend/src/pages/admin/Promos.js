@@ -51,7 +51,7 @@ export default function AdminPromos() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs uppercase tracking-widest text-[#9BA4B5] border-b border-white/5">
+              <tr className="text-left text-xs uppercase tracking-widest text-[#9FB0CC] border-b border-white/5">
                 <th className="p-3">Code</th><th>Type</th><th>Discount</th><th>Uses</th><th>Owner (Mkt)</th><th>Active</th><th>Actions</th>
               </tr>
             </thead>
@@ -62,7 +62,7 @@ export default function AdminPromos() {
                   <td><span className="badge badge-blue">{p.discount_type}</span></td>
                   <td>{p.discount_type === "percent" ? `${p.discount_value}%` : `Rp ${Number(p.discount_value).toLocaleString("id-ID")}`}</td>
                   <td>{p.uses || 0}{p.max_uses ? ` / ${p.max_uses}` : ""}</td>
-                  <td className="text-xs text-[#9BA4B5]">{p.owner_marketing_id ? (marketers.find((m) => m.id === p.owner_marketing_id)?.name || p.owner_marketing_id.slice(0, 6)) : "-"}</td>
+                  <td className="text-xs text-[#9FB0CC]">{p.owner_marketing_id ? (marketers.find((m) => m.id === p.owner_marketing_id)?.name || p.owner_marketing_id.slice(0, 6)) : "-"}</td>
                   <td><span className={`badge ${p.active ? "badge-green" : "badge-red"}`}>{p.active ? "ON" : "OFF"}</span></td>
                   <td>
                     <button onClick={() => setModal({ mode: "edit", data: p })} className="btn-outline !py-1 !px-2 mr-1"><Pencil size={12} /></button>

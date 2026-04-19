@@ -47,15 +47,15 @@ export default function AdminUsers() {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs uppercase tracking-widest text-[#9BA4B5] border-b border-white/5">
+              <tr className="text-left text-xs uppercase tracking-widest text-[#9FB0CC] border-b border-white/5">
                 <th className="p-3">Nama</th><th>Email</th><th>Role</th><th>Status</th><th>Expires</th><th>Clicks</th><th className="w-32">Actions</th>
               </tr>
             </thead>
             <tbody>
               {users.map((u) => (
                 <tr key={u.id} className="hover-row border-b border-white/5" data-testid={`user-row-${u.email}`}>
-                  <td className="p-3">{u.name}<div className="text-xs text-[#9BA4B5]">{u.association || "-"}</div></td>
-                  <td className="text-[#9BA4B5]">{u.email}</td>
+                  <td className="p-3">{u.name}<div className="text-xs text-[#9FB0CC]">{u.association || "-"}</div></td>
+                  <td className="text-[#9FB0CC]">{u.email}</td>
                   <td><span className="badge badge-blue uppercase">{u.role}</span></td>
                   <td><span className={`badge ${u.status === "active" ? "badge-green" : u.status === "pending" ? "badge-gold" : "badge-red"}`}>{u.status}</span></td>
                   <td className="text-xs">{u.expires_at ? new Date(u.expires_at).toLocaleDateString("id-ID") : "—"}</td>
@@ -107,7 +107,7 @@ function UserModal({ modal, packages, me, err, onClose, onSave }) {
       <div className="card-glass p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <div className="font-display font-bold text-xl">{modal.mode === "new" ? "Tambah User" : `Edit: ${form.name}`}</div>
-          <button onClick={onClose} className="text-[#9BA4B5] hover:text-white" data-testid="modal-close"><X size={20} /></button>
+          <button onClick={onClose} className="text-[#9FB0CC] hover:text-white" data-testid="modal-close"><X size={20} /></button>
         </div>
         <form onSubmit={submit} className="space-y-3">
           {modal.mode === "new" && (

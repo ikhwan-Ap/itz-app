@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { api, formatApiErrorDetail } from "@/lib/api";
-import { SoccerBall } from "@phosphor-icons/react";
+import Logo from "@/components/Logo";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -31,30 +31,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center bg-grain pitch-bg p-4">
-      <div
-        className="absolute inset-0 opacity-25"
-        style={{
-          backgroundImage: `url('https://images.unsplash.com/photo-1776160043138-52e2cf9c6e4e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHwxfHxmb290YmFsbCUyMHN0YWRpdW0lMjBsaWdodHMlMjBuaWdodHxlbnwwfHx8fDE3NzY1MzI0NzN8MA&ixlib=rb-4.1.0&q=85')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-          filter: "blur(3px)",
-        }}
-      />
+    <div className="min-h-screen relative flex items-center justify-center bg-ambient bg-grain p-4">
+      <div className="absolute left-1/2 top-[8%] -translate-x-1/2 w-[480px] h-[480px] opacity-[0.06] pointer-events-none">
+        <img src="/assets/itz-logo.png" alt="" className="w-full h-full object-contain" />
+      </div>
       <div className="relative z-10 w-full max-w-md">
-        <Link to="/" className="flex items-center gap-3 justify-center mb-8">
-          <div className="w-12 h-12 rounded-xl bg-[#00D05E] flex items-center justify-center glow-brand">
-            <SoccerBall size={26} weight="fill" color="#0b1221" />
-          </div>
-          <div>
-            <div className="font-display font-black text-2xl leading-none">TE SNIPER</div>
-            <div className="text-xs text-[#9BA4B5] tracking-widest uppercase mt-0.5">Training Calculator</div>
-          </div>
+        <Link to="/" className="flex items-center justify-center mb-8">
+          <Logo size={56} />
         </Link>
 
         <div className="card-glass p-8">
           <h1 className="section-title mb-2">Welcome Back</h1>
-          <p className="text-[#9BA4B5] text-sm mb-6">Login to continue your training session.</p>
+          <p className="text-[#9FB0CC] text-sm mb-6">Login untuk lanjut training session Anda.</p>
 
           <form onSubmit={submit} className="space-y-4" data-testid="login-form">
             <div>
@@ -77,8 +65,8 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-[#9BA4B5]">
-            Don't have an account? <Link to="/register" className="text-[#00D05E] font-bold hover:underline" data-testid="login-to-register-link">Register</Link>
+          <div className="mt-6 text-center text-sm text-[#9FB0CC]">
+            Belum punya akun? <Link to="/register" className="text-[#D4AF37] font-bold hover:text-[#E8C35A]" data-testid="login-to-register-link">Register</Link>
           </div>
         </div>
       </div>

@@ -1,0 +1,136 @@
+import React, { useEffect, useMemo, useState } from "react";
+import { api, formatApiErrorDetail } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
+import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Target, CaretLeft } from "@phosphor-icons/react";
+import { PlayerForm, TargetCard, ResultSection, runCalculator } from "./shared";
+
+export default function FullLatihan() {
+  const { refresh } = useAuth();
+  const [meta, setMeta] = useState(null);
+  const [activeRoles, setActiveRoles] = useState([]);
+  const [stats, setStats] = useState({});
+  const [bonus, setBonus] = useState(0);
+  const [greyLimit, setGreyLimit] = useState(40);
+  const [playerAge, setPlayerAge] = useState(18);
+  const [selectedTargets, setSelectedTargets] = useState({});
+  const [step, setStep] = useState(1);
+  const [result, setResult] = useState(null);
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    api.get("/calculator/meta").then((r) => {
+      setMeta(r.data);
+      const init = {};
+      r.data.all_attrs.forEach((a) => (init[a] = 1));
+      setStats(init);
+    });
+  }, []);
+
+  const whiteSet = useMemo(() => {
+    if (!meta) return new Set();
+    const s = new Set();
+    activeRoles.forEach((r) => (meta.roles[r] || []).forEach((a) => s.add(a)));
+    return s;
+  }, [activeRoles, meta]);
+
+  const nextTargets = () => {
+    setErr("");
+    if (whiteSet.size === 0) { setErr("Pilih minimal 1 posisi."); return; }
+    setSelectedTargets({});
+    setStep(2);
+  };
+
+  const toggleTarget = (a) => {
+    setSelectedTargets((prev) => {
+      const copy = { ...prev };
+      if (copy[a]) delete copy[a];
+      else copy[a] = { prio: 1, goal: 300 };
+      return copy;
+    });
+  };
+
+  const updateTarget = (a, f, v) => {
+    setSelectedTargets((prev) => ({ ...prev, [a]: { ...prev[a], [f]: v } }));
+  };
+
+  const run = async () => {
+    setErr(""); setResult(null);
+    const targets = Object.entries(selectedTargets).map(([name, v]) => ({
+      name, prio: parseInt(v.prio), goal: parseInt(v.goal) || 300,
+    }));
+    if (!targets.length) { setErr("Pilih minimal 1 atribut target."); return; }
+    setLoading(true);
+    try {
+      const data = await runCalculator({ activeRoles, stats, bonus, greyLimit, targets, playerAge });
+      setResult(data);
+      setStep(3);
+      setTimeout(() => document.getElementById("result-section")?.scrollIntoView({ behavior: "smooth" }), 100);
+      await refresh();
+    } catch (e) {
+      setErr(formatApiErrorDetail(e.response?.data?.detail) || e.message);
+    } finally { setLoading(false); }
+  };
+
+  if (!meta) return <div className="min-h-[60vh] flex items-center justify-center"><div className="spinner" /></div>;
+
+  return (
+    <div className="space-y-6" data-testid="full-latihan-page">
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <Link to="/app/training" className="text-xs text-[#9FB0CC] font-semibold hover:text-[#D4AF37] inline-flex items-center gap-1 transition">
+            <CaretLeft size={12} /> Modul Latihan
+          </Link>
+          <div className="flex items-center gap-2 mt-1 mb-1">
+            <Target size={18} className="text-[#D4AF37]" weight="fill" />
+            <div className="badge badge-gold">FULL SEARCH</div>
+          </div>
+          <h1 className="section-title text-3xl">Full Latihan</h1>
+          <p className="text-[#9FB0CC] text-sm mt-1">Algoritma sniper multi-prioritas menemukan kombinasi drill paling hemat.</p>
+        </div>
+      </div>
+
+      <PlayerForm meta={meta} stats={stats} setStats={setStats}
+                  activeRoles={activeRoles} setActiveRoles={setActiveRoles}
+                  bonus={bonus} setBonus={setBonus} greyLimit={greyLimit} setGreyLimit={setGreyLimit}
+                  playerAge={playerAge} setPlayerAge={setPlayerAge}>
+        <button onClick={nextTargets} className="btn-primary w-full mt-6" data-testid="calc-next-target-btn">
+          Lanjut: Pilih Target →
+        </button>
+        {err && step === 1 && <div className="badge badge-red mt-3 w-full justify-center !py-2">{err}</div>}
+      </PlayerForm>
+
+      {step >= 2 && (
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card-solid p-5 sm:p-6" data-testid="target-section">
+          <div className="flex items-center gap-3 mb-5">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#A88527] text-[#0A182B] font-black flex items-center justify-center">2</div>
+            <div className="font-display font-bold text-xl">Pilih Target & Prioritas</div>
+          </div>
+          <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {Array.from(whiteSet).sort().map((a) => (
+              <TargetCard key={a} attr={a} stats={stats} bonus={bonus}
+                          selected={selectedTargets[a]}
+                          onToggle={() => toggleTarget(a)}
+                          onChange={(f, v) => updateTarget(a, f, v)} />
+            ))}
+          </div>
+          {err && <div className="badge badge-red mt-4 w-full justify-center !py-2" data-testid="calc-error">{err}</div>}
+          <button onClick={run} disabled={loading} className="btn-primary w-full mt-6" data-testid="calc-run-btn">
+            {loading ? "Calculating..." : "Jalankan Kalkulasi"}
+          </button>
+        </motion.div>
+      )}
+
+      {step === 3 && result && <ResultSection result={result} meta={meta} bonus={bonus} stats={stats} />}
+
+      {step === 3 && (
+        <div className="flex gap-3">
+          <button onClick={() => { setStep(1); setResult(null); }} className="btn-outline">Reset</button>
+          <button onClick={() => setStep(2)} className="btn-outline">Ubah Target</button>
+        </div>
+      )}
+    </div>
+  );
+}

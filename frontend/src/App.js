@@ -8,7 +8,9 @@ import Landing from "@/pages/Landing";
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import UserOverview from "@/pages/UserOverview";
-import CalculatorPage from "@/pages/CalculatorPage";
+import TrainingHub from "@/pages/TrainingHub";
+import FullLatihan from "@/pages/training/FullLatihan";
+import SingleDrill from "@/pages/training/SingleDrill";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminUsers from "@/pages/admin/Users";
 import AdminPackages from "@/pages/admin/Packages";
@@ -37,7 +39,11 @@ function App() {
             <Route path="/register" element={<Register />} />
 
             <Route path="/app" element={<ProtectedRoute><DashboardLayout><AppHome /></DashboardLayout></ProtectedRoute>} />
-            <Route path="/app/calculator" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><CalculatorPage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/training" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><TrainingHub /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/training/full" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><FullLatihan /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/training/single" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><SingleDrill /></DashboardLayout></ProtectedRoute>} />
+            {/* Legacy route → redirect to hub */}
+            <Route path="/app/calculator" element={<Navigate to="/app/training" replace />} />
 
             <Route path="/app/admin" element={<ProtectedRoute roles={["admin", "superadmin"]}><DashboardLayout><AdminDashboard /></DashboardLayout></ProtectedRoute>} />
             <Route path="/app/admin/users" element={<ProtectedRoute roles={["admin", "superadmin"]}><DashboardLayout><AdminUsers /></DashboardLayout></ProtectedRoute>} />

@@ -46,7 +46,7 @@ function makeCms(resource, label) {
                   {isEvents && n.event_date && <span className="badge badge-gold">{new Date(n.event_date).toLocaleDateString("id-ID")}</span>}
                 </div>
                 <div className="font-display font-bold text-lg">{n.title}</div>
-                <div className="text-sm text-[#9BA4B5] line-clamp-3 mt-1">{n.content}</div>
+                <div className="text-sm text-[#9FB0CC] line-clamp-3 mt-1">{n.content}</div>
                 <div className="flex gap-2 mt-3">
                   <button onClick={() => setModal({ mode: "edit", data: n })} className="btn-outline !py-1 !px-3 !text-xs"><Pencil size={12} /> Edit</button>
                   <button onClick={() => del(n.id)} className="btn-danger"><Trash size={12} /> Delete</button>
