@@ -358,6 +358,20 @@ tr.hover-row:hover { background: rgba(212, 175, 55, 0.04); }
   padding: 1rem;
   animation: fadeIn 0.22s ease;
 }
+@media (max-width: 640px) {
+  .popup-overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+  .popup-overlay > div {
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: 92vh !important;
+    border-radius: 18px 18px 0 0 !important;
+    animation: slideUp 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* Pulse */

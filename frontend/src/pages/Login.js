@@ -31,18 +31,18 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center bg-ambient bg-grain p-4 overflow-hidden">
-      <div className="absolute left-1/2 top-[8%] -translate-x-1/2 w-[min(480px,90vw)] h-[min(480px,90vw)] opacity-[0.06] pointer-events-none">
+    <div className="min-h-screen relative flex flex-col items-center justify-center bg-ambient bg-grain px-4 py-6 sm:py-10 overflow-hidden">
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(520px,92vw)] h-[min(520px,92vw)] opacity-[0.05] pointer-events-none">
         <img src="/assets/itz-logo.png" alt="" className="w-full h-full object-contain" />
       </div>
-      <div className="relative z-10 w-full max-w-md">
-        <Link to="/" className="flex items-center justify-center mb-8">
-          <Logo size={56} />
+      <div className="relative z-10 w-full max-w-[440px]">
+        <Link to="/" className="flex items-center justify-center mb-6 sm:mb-8">
+          <Logo size={52} />
         </Link>
 
-        <div className="card-glass p-8">
-          <h1 className="section-title mb-2">Welcome Back</h1>
-          <p className="text-[#9FB0CC] text-sm mb-6">Login untuk lanjut training session Anda.</p>
+        <div className="card-glass p-5 sm:p-8">
+          <h1 className="font-display font-black text-3xl sm:text-[2rem] leading-tight brand-gradient mb-2">Welcome Back</h1>
+          <p className="text-[#9FB0CC] text-sm mb-5 sm:mb-6">Login untuk lanjut training session Anda.</p>
 
           <form onSubmit={submit} className="space-y-4" data-testid="login-form">
             <div>

@@ -62,18 +62,18 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen relative py-10 bg-ambient bg-grain p-4 overflow-hidden">
-      <div className="absolute left-1/2 top-[5%] -translate-x-1/2 w-[min(520px,92vw)] h-[min(520px,92vw)] opacity-[0.05] pointer-events-none">
+    <div className="min-h-screen relative py-6 sm:py-10 bg-ambient bg-grain px-4 overflow-hidden">
+      <div className="absolute left-1/2 top-[8%] -translate-x-1/2 w-[min(560px,92vw)] h-[min(560px,92vw)] opacity-[0.05] pointer-events-none">
         <img src="/assets/itz-logo.png" alt="" className="w-full h-full object-contain" />
       </div>
-      <div className="relative z-10 max-w-3xl mx-auto">
-        <Link to="/" className="flex items-center justify-center mb-8">
-          <Logo size={56} />
+      <div className="relative z-10 max-w-3xl w-full mx-auto">
+        <Link to="/" className="flex items-center justify-center mb-6 sm:mb-8">
+          <Logo size={52} />
         </Link>
 
-        <div className="card-glass p-8">
-          <h1 className="section-title mb-2">Bergabung dengan Komunitas</h1>
-          <p className="text-[#9FB0CC] text-sm mb-6">Registrasi masuk antrian approval admin. Welcome to Indo Timezone.</p>
+        <div className="card-glass p-5 sm:p-8">
+          <h1 className="font-display font-black text-3xl sm:text-[2rem] leading-tight brand-gradient mb-2">Bergabung dengan Komunitas</h1>
+          <p className="text-[#9FB0CC] text-sm mb-5 sm:mb-6">Registrasi masuk antrian approval admin. Welcome to Indo Timezone.</p>
 
           <form onSubmit={submit} className="space-y-5" data-testid="register-form">
             <div className="grid md:grid-cols-2 gap-4">
