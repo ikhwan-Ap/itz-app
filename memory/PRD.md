@@ -90,9 +90,14 @@ User had a single HTML page for a Top Eleven (football manager game) training ca
 - ✅ MarketingDashboard Kode Promo + Konversi Terbaru: same pattern
 - ✅ 100% iteration-3 mobile tests passed (10/10 scenarios) + regression pass
 
-## Next Tasks
-1. User test full flow di HP + laptop sekarang: hamburger, tabel expand, login/register mobile
-2. Nanti bisa lanjut: forgot-password, event detail public, Xendit/Midtrans activation
+## What's Been Implemented (2026-01-19 — Iteration 4: Form UX Polish)
+- ✅ **Login/Register mobile fix**: form sekarang fill viewport width (358px di iPhone 390px), perfect centered kiri-kanan, title single line
+- ✅ Fix: parent container Login pakai `flex flex-col items-center justify-center` supaya `w-full` child bisa expand proper
+- ✅ **Modal bottom sheet mobile**: admin modals (Tambah User, Promo, Package dll) di HP jadi bottom sheet (slide up dari bawah, full width, rounded top) — jauh lebih natural di mobile
+- ✅ Desktop modal tetap centered seperti semula
+- ✅ Card padding responsive: `p-5 sm:p-8` (tidak sesak di mobile)
+- ✅ Title responsive: `text-3xl sm:text-[2rem]` pakai brand-gradient gold
+- ✅ 100% test pass (mobile + desktop login/register + mobile bottom sheet + desktop centered modal + regression)
 
 ## Deployment Notes
 - Supervisor manages backend (:8001) and frontend (:3000)
