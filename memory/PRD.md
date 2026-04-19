@@ -79,10 +79,20 @@ User had a single HTML page for a Top Eleven (football manager game) training ca
 - **P2** — Search/filter on user & transaction tables
 - **P2** — Email notifications on approval/rejection
 
+## What's Been Implemented (2026-01-19 — Iteration 3: Mobile UX)
+- ✅ **Hamburger menu** di header mobile dashboard — buka drawer dari kiri dengan semua nav items (filtered by role) + framer-motion animasi smooth + overlay backdrop
+- ✅ **Auto-close drawer** saat klik overlay atau saat navigasi
+- ✅ **Login/Register** no horizontal scroll — watermark sized dengan `min(Xpx, YVvw)` + `overflow-hidden` container
+- ✅ **ResponsiveTable** component baru — render `<table>` di desktop (md+) dan **expandable cards** di mobile. Primary cols selalu visible, secondary cols expand dengan caret toggle + framer-motion height animation
+- ✅ Applied ke **Users**, **Transactions**, **Promos** admin pages
+- ✅ AdminDashboard KPI grid: 2-col di mobile, 4-col di desktop
+- ✅ AdminDashboard Recent Transactions + Expiring list: inline stacked cards di mobile, `<table>` di desktop
+- ✅ MarketingDashboard Kode Promo + Konversi Terbaru: same pattern
+- ✅ 100% iteration-3 mobile tests passed (10/10 scenarios) + regression pass
+
 ## Next Tasks
-1. User asks for feature X → iterate quickly with search_replace
-2. If user provides Xendit/Midtrans API keys → activate integration (playbook call needed)
-3. Forgot-password flow (if user requests)
+1. User test full flow di HP + laptop sekarang: hamburger, tabel expand, login/register mobile
+2. Nanti bisa lanjut: forgot-password, event detail public, Xendit/Midtrans activation
 
 ## Deployment Notes
 - Supervisor manages backend (:8001) and frontend (:3000)
