@@ -19,7 +19,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-ambient bg-grain">
+    <div className="min-h-screen bg-ambient bg-grain overflow-x-hidden">
       {/* Top nav */}
       <header className="sticky top-0 z-40 bg-[#060F1F]/85 backdrop-blur-md border-b border-[#D4AF37]/15">
         <div className="max-w-[1300px] mx-auto px-5 py-3 flex items-center justify-between">
@@ -40,7 +40,7 @@ export default function Landing() {
       {/* Hero */}
       <section className="relative overflow-hidden">
         {/* Logo watermark backdrop */}
-        <div className="absolute right-[-6%] top-[10%] w-[560px] h-[560px] opacity-[0.08] pointer-events-none hidden lg:block">
+        <div className="absolute right-[-6%] top-[10%] w-[min(560px,80vw)] h-[min(560px,80vw)] opacity-[0.08] pointer-events-none hidden lg:block">
           <img src="/assets/itz-logo.png" alt="" className="w-full h-full object-contain" />
         </div>
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#060F1F]/30 to-[#060F1F]" />

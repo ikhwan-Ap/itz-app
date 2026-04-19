@@ -34,26 +34,26 @@ export default function AdminDashboard() {
         <p className="text-[#9FB0CC] text-sm mt-1">Global overview · Users · Revenue · Pending approvals</p>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {kpis.map((k, i) => (
-          <div key={i} className="card-solid p-5" data-testid={`kpi-${k.label.toLowerCase().replace(/\s+/g, "-")}`}>
+          <div key={i} className="card-solid p-4 sm:p-5" data-testid={`kpi-${k.label.toLowerCase().replace(/\s+/g, "-")}`}>
             <div className="flex items-center justify-between">
-              <div className="text-xs font-bold uppercase tracking-widest text-[#9FB0CC]">{k.label}</div>
+              <div className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#9FB0CC]">{k.label}</div>
               <k.icon size={18} color={k.color} weight="fill" />
             </div>
-            <div className="font-display font-black text-3xl mt-2" style={{ color: k.color }}>{k.value}</div>
+            <div className="font-display font-black text-2xl sm:text-3xl mt-2" style={{ color: k.color }}>{k.value}</div>
           </div>
         ))}
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         {fin.map((k, i) => (
-          <div key={i} className="card-solid p-5">
+          <div key={i} className="card-solid p-4 sm:p-5">
             <div className="flex items-center justify-between">
-              <div className="text-xs font-bold uppercase tracking-widest text-[#9FB0CC]">{k.label}</div>
+              <div className="text-[10px] sm:text-xs font-bold uppercase tracking-widest text-[#9FB0CC]">{k.label}</div>
               <k.icon size={18} color={k.color} weight="fill" />
             </div>
-            <div className="font-display font-black text-2xl mt-2">{k.value}</div>
+            <div className="font-display font-black text-lg sm:text-2xl mt-2 break-words">{k.value}</div>
           </div>
         ))}
       </div>
@@ -96,9 +96,10 @@ export default function AdminDashboard() {
             <div className="font-display font-bold text-lg flex items-center gap-2">
               <Warning size={20} className="text-[#F5C300]" weight="fill" /> Akan Expired dalam 7 Hari
             </div>
-            <Link to="/app/admin/users" className="btn-outline !py-1.5 !px-3 !text-xs">Kelola User</Link>
+            <Link to="/app/admin/users" className="btn-outline !py-1.5 !px-3 !text-xs">Kelola</Link>
           </div>
-          <div className="overflow-x-auto">
+          {/* Desktop */}
+          <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="text-left text-xs uppercase tracking-widest text-[#9FB0CC]">
@@ -116,15 +117,28 @@ export default function AdminDashboard() {
               </tbody>
             </table>
           </div>
+          {/* Mobile */}
+          <div className="md:hidden space-y-2">
+            {stats.expiring_list.map((u) => (
+              <div key={u.id} className="p-3 rounded-lg bg-white/[0.03] border border-white/5 flex items-center justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-white truncate">{u.name}</div>
+                  <div className="text-xs text-[#9FB0CC] truncate">{u.email}</div>
+                </div>
+                <span className="text-xs text-[#F5C300] font-bold whitespace-nowrap">{new Date(u.expires_at).toLocaleDateString("id-ID")}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
       <div className="card-solid p-6">
         <div className="flex items-center justify-between mb-4">
           <div className="font-display font-bold text-lg">Recent Transactions</div>
-          <Link to="/app/admin/transactions" className="btn-outline !py-1.5 !px-3 !text-xs">Lihat Semua</Link>
+          <Link to="/app/admin/transactions" className="btn-outline !py-1.5 !px-3 !text-xs">Semua</Link>
         </div>
-        <div className="overflow-x-auto">
+        {/* Desktop */}
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs uppercase tracking-widest text-[#9FB0CC]">
@@ -143,6 +157,24 @@ export default function AdminDashboard() {
               ))}
             </tbody>
           </table>
+        </div>
+        {/* Mobile */}
+        <div className="md:hidden space-y-2">
+          {stats.recent_tx.map((t) => (
+            <div key={t.id} className="p-3 rounded-lg bg-white/[0.03] border border-white/5">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-white truncate">{t.user_name}</div>
+                  <div className="text-xs text-[#9FB0CC] truncate">{t.package_name}</div>
+                </div>
+                <span className={`badge shrink-0 ${t.status === "approved" ? "badge-green" : t.status === "pending" ? "badge-gold" : "badge-red"}`}>{t.status}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs mt-1">
+                <span className="text-[#9FB0CC]">{new Date(t.created_at).toLocaleDateString("id-ID")}</span>
+                <span className="font-bold text-[#D4AF37]">{formatRupiah(t.final_amount)}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

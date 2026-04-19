@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { api, formatApiErrorDetail } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { Plus, Pencil, Trash, X } from "@phosphor-icons/react";
+import ResponsiveTable from "@/components/ResponsiveTable";
 
 export default function AdminPromos() {
   const { user } = useAuth();
@@ -35,9 +36,52 @@ export default function AdminPromos() {
     await api.delete(`/promos/${id}`); load();
   };
 
+  const columns = [
+    {
+      key: "code", label: "Code", primary: true,
+      render: (p) => <span className="font-mono font-bold text-[#D4AF37] text-base">{p.code}</span>,
+    },
+    {
+      key: "active", label: "Status", primary: true,
+      render: (p) => (
+        <div className="flex items-center gap-2 flex-wrap mt-1">
+          <span className={`badge ${p.active ? "badge-green" : "badge-red"}`}>{p.active ? "ON" : "OFF"}</span>
+          <span className="badge badge-blue">{p.discount_type}</span>
+        </div>
+      ),
+    },
+    {
+      key: "discount", label: "Discount",
+      render: (p) => p.discount_type === "percent" ? `${p.discount_value}%` : `Rp ${Number(p.discount_value).toLocaleString("id-ID")}`,
+    },
+    {
+      key: "uses", label: "Uses",
+      render: (p) => <>{p.uses || 0}{p.max_uses ? ` / ${p.max_uses}` : ""}</>,
+    },
+    {
+      key: "owner", label: "Owner (Mkt)",
+      render: (p) => p.owner_marketing_id ? (marketers.find((m) => m.id === p.owner_marketing_id)?.name || p.owner_marketing_id.slice(0, 6)) : "-",
+    },
+    {
+      key: "valid_until", label: "Valid Until",
+      render: (p) => p.valid_until ? new Date(p.valid_until).toLocaleDateString("id-ID") : "Tanpa batas",
+    },
+  ];
+
+  const actions = (p) => (
+    <div className="flex gap-2">
+      <button onClick={() => setModal({ mode: "edit", data: p })} className="btn-ghost !text-xs">
+        <Pencil size={12} className="inline mr-1" /> Edit
+      </button>
+      {isAdmin && (
+        <button onClick={() => del(p.id)} className="btn-danger"><Trash size={12} className="inline mr-1" /> Hapus</button>
+      )}
+    </div>
+  );
+
   return (
     <div className="space-y-6" data-testid="admin-promos-page">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <div className="badge badge-gold mb-2">PROMO CODES</div>
           <h1 className="section-title text-3xl">Promo Codes</h1>
@@ -47,33 +91,13 @@ export default function AdminPromos() {
         </button>
       </div>
 
-      <div className="card-solid overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs uppercase tracking-widest text-[#9FB0CC] border-b border-white/5">
-                <th className="p-3">Code</th><th>Type</th><th>Discount</th><th>Uses</th><th>Owner (Mkt)</th><th>Active</th><th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((p) => (
-                <tr key={p.id} className="hover-row border-b border-white/5" data-testid={`promo-row-${p.code}`}>
-                  <td className="p-3 font-mono font-bold text-[#F5C300]">{p.code}</td>
-                  <td><span className="badge badge-blue">{p.discount_type}</span></td>
-                  <td>{p.discount_type === "percent" ? `${p.discount_value}%` : `Rp ${Number(p.discount_value).toLocaleString("id-ID")}`}</td>
-                  <td>{p.uses || 0}{p.max_uses ? ` / ${p.max_uses}` : ""}</td>
-                  <td className="text-xs text-[#9FB0CC]">{p.owner_marketing_id ? (marketers.find((m) => m.id === p.owner_marketing_id)?.name || p.owner_marketing_id.slice(0, 6)) : "-"}</td>
-                  <td><span className={`badge ${p.active ? "badge-green" : "badge-red"}`}>{p.active ? "ON" : "OFF"}</span></td>
-                  <td>
-                    <button onClick={() => setModal({ mode: "edit", data: p })} className="btn-outline !py-1 !px-2 mr-1"><Pencil size={12} /></button>
-                    <button onClick={() => del(p.id)} className="btn-danger"><Trash size={12} /></button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <ResponsiveTable
+        columns={columns}
+        data={items}
+        rowKey={(p) => p.code}
+        actions={actions}
+        testIdPrefix="promo-row"
+      />
 
       {modal && (
         <PromoModal modal={modal} marketers={marketers} isAdmin={isAdmin} err={err} onClose={() => setModal(null)} onSave={save} />

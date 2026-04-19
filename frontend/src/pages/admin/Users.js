@@ -2,12 +2,13 @@ import React, { useEffect, useState } from "react";
 import { api, formatApiErrorDetail } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { Plus, Pencil, Trash, X } from "@phosphor-icons/react";
+import ResponsiveTable from "@/components/ResponsiveTable";
 
 export default function AdminUsers() {
   const { user: me } = useAuth();
   const [users, setUsers] = useState([]);
   const [packages, setPackages] = useState([]);
-  const [modal, setModal] = useState(null); // {mode: 'new'|'edit', data}
+  const [modal, setModal] = useState(null);
   const [err, setErr] = useState("");
 
   const load = async () => {
@@ -31,9 +32,66 @@ export default function AdminUsers() {
     catch (e) { alert(formatApiErrorDetail(e.response?.data?.detail)); }
   };
 
+  const columns = [
+    {
+      key: "name",
+      label: "Nama",
+      primary: true,
+      render: (u) => (
+        <div>
+          <div className="font-semibold text-white">{u.name}</div>
+          <div className="text-xs text-[#9FB0CC]">{u.email}</div>
+          {u.association && <div className="text-[10px] text-[#9FB0CC] mt-0.5">{u.association}</div>}
+        </div>
+      ),
+    },
+    {
+      key: "role",
+      label: "Role",
+      primary: true,
+      render: (u) => (
+        <div className="flex items-center gap-2 flex-wrap mt-1">
+          <span className="badge badge-blue uppercase">{u.role}</span>
+          <span className={`badge ${u.status === "active" ? "badge-green" : u.status === "pending" ? "badge-gold" : "badge-red"}`}>{u.status}</span>
+        </div>
+      ),
+    },
+    {
+      key: "expires",
+      label: "Expires",
+      render: (u) => u.expires_at ? new Date(u.expires_at).toLocaleDateString("id-ID") : "—",
+    },
+    {
+      key: "clicks",
+      label: "Clicks",
+      render: (u) => <>{u.clicks_used || 0} / {u.max_clicks ?? "∞"}</>,
+    },
+    {
+      key: "package_id",
+      label: "Package",
+      render: (u) => {
+        const p = packages.find((x) => x.id === u.package_id);
+        return p ? p.name : "—";
+      },
+    },
+  ];
+
+  const actions = (u) => (
+    <div className="flex gap-2">
+      <button onClick={() => setModal({ mode: "edit", data: u })} className="btn-ghost !text-xs" data-testid={`user-edit-${u.email}`}>
+        <Pencil size={12} className="inline mr-1" /> Edit
+      </button>
+      {me.role === "superadmin" && u.id !== me.id && (
+        <button onClick={() => del(u.id)} className="btn-danger" data-testid={`user-del-${u.email}`}>
+          <Trash size={12} className="inline mr-1" /> Hapus
+        </button>
+      )}
+    </div>
+  );
+
   return (
     <div className="space-y-6" data-testid="admin-users-page">
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
           <div className="badge badge-gold mb-2">USERS</div>
           <h1 className="section-title text-3xl">Manajemen User</h1>
@@ -43,35 +101,13 @@ export default function AdminUsers() {
         </button>
       </div>
 
-      <div className="card-solid overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs uppercase tracking-widest text-[#9FB0CC] border-b border-white/5">
-                <th className="p-3">Nama</th><th>Email</th><th>Role</th><th>Status</th><th>Expires</th><th>Clicks</th><th className="w-32">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u.id} className="hover-row border-b border-white/5" data-testid={`user-row-${u.email}`}>
-                  <td className="p-3">{u.name}<div className="text-xs text-[#9FB0CC]">{u.association || "-"}</div></td>
-                  <td className="text-[#9FB0CC]">{u.email}</td>
-                  <td><span className="badge badge-blue uppercase">{u.role}</span></td>
-                  <td><span className={`badge ${u.status === "active" ? "badge-green" : u.status === "pending" ? "badge-gold" : "badge-red"}`}>{u.status}</span></td>
-                  <td className="text-xs">{u.expires_at ? new Date(u.expires_at).toLocaleDateString("id-ID") : "—"}</td>
-                  <td className="text-xs">{u.clicks_used || 0} / {u.max_clicks ?? "∞"}</td>
-                  <td>
-                    <button onClick={() => setModal({ mode: "edit", data: u })} className="btn-outline !py-1 !px-2 mr-1" data-testid={`user-edit-${u.email}`}><Pencil size={14} /></button>
-                    {me.role === "superadmin" && u.id !== me.id && (
-                      <button onClick={() => del(u.id)} className="btn-danger" data-testid={`user-del-${u.email}`}><Trash size={14} /></button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <ResponsiveTable
+        columns={columns}
+        data={users}
+        rowKey={(u) => u.email}
+        actions={actions}
+        testIdPrefix="user-row"
+      />
 
       {modal && <UserModal modal={modal} packages={packages} me={me} err={err} onClose={() => setModal(null)} onSave={save} />}
     </div>
@@ -82,8 +118,6 @@ function UserModal({ modal, packages, me, err, onClose, onSave }) {
   const [form, setForm] = useState(modal.mode === "new"
     ? { email: "", password: "", password2: "", name: "", role: "user", association: "", package_id: "", max_clicks: 50, expires_at: "", is_trial: true }
     : { ...modal.data });
-
-  const isTrialForm = form.is_trial;
 
   const submit = (e) => {
     e.preventDefault();
@@ -143,7 +177,7 @@ function UserModal({ modal, packages, me, err, onClose, onSave }) {
             </select>
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="label-std">Expires (YYYY-MM-DD)</label>
+            <div><label className="label-std">Expires</label>
               <input type="date" className="input-std" value={form.expires_at ? form.expires_at.slice(0, 10) : ""}
                      onChange={(e) => setForm({ ...form, expires_at: e.target.value ? new Date(e.target.value).toISOString() : "" })} />
             </div>
@@ -153,7 +187,7 @@ function UserModal({ modal, packages, me, err, onClose, onSave }) {
           </div>
           {modal.mode === "new" && (
             <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={!!isTrialForm} onChange={(e) => setForm({ ...form, is_trial: e.target.checked })} /> Free Trial Account
+              <input type="checkbox" checked={!!form.is_trial} onChange={(e) => setForm({ ...form, is_trial: e.target.checked })} /> Free Trial Account
             </label>
           )}
           {err && <div className="badge badge-red w-full justify-center !py-2">{err}</div>}

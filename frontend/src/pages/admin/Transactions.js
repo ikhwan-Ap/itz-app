@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { api, formatApiErrorDetail, formatRupiah } from "@/lib/api";
 import { Check, X } from "@phosphor-icons/react";
+import ResponsiveTable from "@/components/ResponsiveTable";
 
 export default function AdminTransactions() {
   const [items, setItems] = useState([]);
@@ -22,55 +23,79 @@ export default function AdminTransactions() {
 
   const visible = items.filter((t) => filter === "all" ? true : t.status === filter);
 
+  const columns = [
+    {
+      key: "user",
+      label: "User",
+      primary: true,
+      render: (t) => (
+        <div>
+          <div className="font-semibold text-white">{t.user_name}</div>
+          <div className="text-xs text-[#9FB0CC]">{t.user_email}</div>
+        </div>
+      ),
+    },
+    {
+      key: "status",
+      label: "Status",
+      primary: true,
+      render: (t) => (
+        <div className="flex items-center gap-2 flex-wrap mt-1">
+          <span className={`badge ${t.status === "approved" ? "badge-green" : t.status === "pending" ? "badge-gold" : "badge-red"}`}>{t.status}</span>
+          <span className="text-xs text-[#D4AF37] font-bold">{formatRupiah(t.final_amount)}</span>
+        </div>
+      ),
+    },
+    { key: "package", label: "Package", render: (t) => t.package_name },
+    { key: "amount", label: "Amount", render: (t) => formatRupiah(t.amount) },
+    {
+      key: "promo",
+      label: "Promo",
+      render: (t) => t.promo_code
+        ? <span className="badge badge-gold">{t.promo_code} <span className="ml-1 text-[10px]">-{formatRupiah(t.discount_amount)}</span></span>
+        : "-",
+    },
+    { key: "final", label: "Final", render: (t) => <span className="font-bold text-[#D4AF37]">{formatRupiah(t.final_amount)}</span> },
+    { key: "date", label: "Date", render: (t) => new Date(t.created_at).toLocaleDateString("id-ID") },
+    { key: "note", label: "Note", render: (t) => t.note || "-" },
+  ];
+
+  const actions = (t) => {
+    if (t.status !== "pending") return null;
+    return (
+      <div className="flex gap-2">
+        <button onClick={() => approve(t.id)} className="btn-primary !py-1.5 !px-3 !text-xs" data-testid={`tx-approve-${t.id}`}>
+          <Check size={12} className="inline mr-1" /> Approve
+        </button>
+        <button onClick={() => reject(t.id)} className="btn-danger" data-testid={`tx-reject-${t.id}`}>
+          <X size={12} className="inline mr-1" /> Reject
+        </button>
+      </div>
+    );
+  };
+
   return (
     <div className="space-y-6" data-testid="admin-tx-page">
       <div>
         <div className="badge badge-gold mb-2">TRANSACTIONS</div>
         <h1 className="section-title text-3xl">Transaksi & Approval</h1>
       </div>
-      <div className="flex gap-2">
+      <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
         {["pending", "approved", "rejected", "all"].map((f) => (
           <button key={f}
                   onClick={() => setFilter(f)}
-                  className={`pill ${filter === f ? "active" : ""}`}
+                  className={`pill ${filter === f ? "active" : ""} shrink-0`}
                   data-testid={`tx-filter-${f}`}>{f}</button>
         ))}
       </div>
 
-      <div className="card-solid overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-xs uppercase tracking-widest text-[#9FB0CC] border-b border-white/5">
-                <th className="p-3">User</th><th>Package</th><th>Amount</th><th>Promo</th><th>Final</th><th>Status</th><th>Date</th><th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {visible.map((t) => (
-                <tr key={t.id} className="hover-row border-b border-white/5" data-testid={`tx-row-${t.id}`}>
-                  <td className="p-3">{t.user_name}<div className="text-xs text-[#9FB0CC]">{t.user_email}</div></td>
-                  <td>{t.package_name}</td>
-                  <td>{formatRupiah(t.amount)}</td>
-                  <td>
-                    {t.promo_code ? <span className="badge badge-gold">{t.promo_code}<span className="ml-1 text-[10px]">-{formatRupiah(t.discount_amount)}</span></span> : "-"}
-                  </td>
-                  <td className="font-bold text-[#D4AF37]">{formatRupiah(t.final_amount)}</td>
-                  <td><span className={`badge ${t.status === "approved" ? "badge-green" : t.status === "pending" ? "badge-gold" : "badge-red"}`}>{t.status}</span></td>
-                  <td className="text-xs text-[#9FB0CC]">{new Date(t.created_at).toLocaleDateString("id-ID")}</td>
-                  <td>
-                    {t.status === "pending" && (
-                      <div className="flex gap-1">
-                        <button onClick={() => approve(t.id)} className="btn-primary !py-1 !px-2 !text-xs" data-testid={`tx-approve-${t.id}`}><Check size={12} /></button>
-                        <button onClick={() => reject(t.id)} className="btn-danger" data-testid={`tx-reject-${t.id}`}><X size={12} /></button>
-                      </div>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+      <ResponsiveTable
+        columns={columns}
+        data={visible}
+        rowKey={(t) => t.id}
+        actions={actions}
+        testIdPrefix="tx-row"
+      />
     </div>
   );
 }

@@ -62,8 +62,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen relative py-10 bg-ambient bg-grain p-4">
-      <div className="absolute left-1/2 top-[5%] -translate-x-1/2 w-[520px] h-[520px] opacity-[0.05] pointer-events-none">
+    <div className="min-h-screen relative py-10 bg-ambient bg-grain p-4 overflow-hidden">
+      <div className="absolute left-1/2 top-[5%] -translate-x-1/2 w-[min(520px,92vw)] h-[min(520px,92vw)] opacity-[0.05] pointer-events-none">
         <img src="/assets/itz-logo.png" alt="" className="w-full h-full object-contain" />
       </div>
       <div className="relative z-10 max-w-3xl mx-auto">

@@ -31,8 +31,8 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen relative flex items-center justify-center bg-ambient bg-grain p-4">
-      <div className="absolute left-1/2 top-[8%] -translate-x-1/2 w-[480px] h-[480px] opacity-[0.06] pointer-events-none">
+    <div className="min-h-screen relative flex items-center justify-center bg-ambient bg-grain p-4 overflow-hidden">
+      <div className="absolute left-1/2 top-[8%] -translate-x-1/2 w-[min(480px,90vw)] h-[min(480px,90vw)] opacity-[0.06] pointer-events-none">
         <img src="/assets/itz-logo.png" alt="" className="w-full h-full object-contain" />
       </div>
       <div className="relative z-10 w-full max-w-md">

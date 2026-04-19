@@ -68,7 +68,7 @@ export default function MarketingDashboard() {
 
       <div className="card-solid p-6">
         <div className="font-display font-bold text-lg mb-4">Kode Promo Saya</div>
-        <div className="overflow-x-auto">
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs uppercase tracking-widest text-[#9FB0CC]">
@@ -88,11 +88,25 @@ export default function MarketingDashboard() {
             </tbody>
           </table>
         </div>
+        <div className="md:hidden space-y-2">
+          {stats.promos.map((p) => (
+            <div key={p.id} className="p-3 rounded-lg bg-white/[0.03] border border-white/5">
+              <div className="flex items-center justify-between gap-2 mb-1">
+                <span className="font-mono font-bold text-[#D4AF37]">{p.code}</span>
+                <span className={`badge ${p.active ? "badge-green" : "badge-red"}`}>{p.active ? "ON" : "OFF"}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs text-[#9FB0CC]">
+                <span>{p.discount_type === "percent" ? `${p.discount_value}%` : formatRupiah(p.discount_value)}</span>
+                <span>{p.uses || 0}{p.max_uses ? ` / ${p.max_uses}` : ""} uses</span>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div className="card-solid p-6">
         <div className="font-display font-bold text-lg mb-4">Konversi Terbaru</div>
-        <div className="overflow-x-auto">
+        <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left text-xs uppercase tracking-widest text-[#9FB0CC]">
@@ -111,6 +125,23 @@ export default function MarketingDashboard() {
               ))}
             </tbody>
           </table>
+        </div>
+        <div className="md:hidden space-y-2">
+          {stats.recent_tx.map((t) => (
+            <div key={t.id} className="p-3 rounded-lg bg-white/[0.03] border border-white/5">
+              <div className="flex items-start justify-between gap-2 mb-1">
+                <div className="min-w-0 flex-1">
+                  <div className="text-sm font-semibold text-white truncate">{t.user_name}</div>
+                  <div className="text-xs text-[#9FB0CC] truncate">{t.package_name}</div>
+                </div>
+                <span className="badge badge-gold shrink-0">{t.promo_code}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs mt-1">
+                <span className="text-[#9FB0CC]">{new Date(t.created_at).toLocaleDateString("id-ID")}</span>
+                <span className="font-bold text-[#D4AF37]">{formatRupiah(t.marketing_cut)}</span>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
