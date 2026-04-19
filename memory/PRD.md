@@ -90,14 +90,12 @@ User had a single HTML page for a Top Eleven (football manager game) training ca
 - ✅ MarketingDashboard Kode Promo + Konversi Terbaru: same pattern
 - ✅ 100% iteration-3 mobile tests passed (10/10 scenarios) + regression pass
 
-## What's Been Implemented (2026-01-19 — Iteration 4: Form UX Polish)
-- ✅ **Login/Register mobile fix**: form sekarang fill viewport width (358px di iPhone 390px), perfect centered kiri-kanan, title single line
-- ✅ Fix: parent container Login pakai `flex flex-col items-center justify-center` supaya `w-full` child bisa expand proper
-- ✅ **Modal bottom sheet mobile**: admin modals (Tambah User, Promo, Package dll) di HP jadi bottom sheet (slide up dari bawah, full width, rounded top) — jauh lebih natural di mobile
-- ✅ Desktop modal tetap centered seperti semula
-- ✅ Card padding responsive: `p-5 sm:p-8` (tidak sesak di mobile)
-- ✅ Title responsive: `text-3xl sm:text-[2rem]` pakai brand-gradient gold
-- ✅ 100% test pass (mobile + desktop login/register + mobile bottom sheet + desktop centered modal + regression)
+## What's Been Implemented (2026-01-19 — Iteration 5 + 6 + 7: Background, Badge, Sidebar)
+- ✅ **Watermark logo image → radial gradient glow** di Login, Register, Landing. Soft aurora gold+navy blur center (tidak ada image logo muncul sebagai background lagi)
+- ✅ **Emergent preview badge disembunyikan** (display:none di index.html + CSS safety rule)
+- ✅ **Sidebar dashboard fixed** (position:fixed left:0 top:0 bottom:0 w-64) dengan main `lg:ml-64` — sidebar tidak ikut scroll saat content panjang. Root cause bug: `.bg-grain > *` CSS rule override `position:fixed`; fix dengan `:not(aside)` selector
+- ✅ **Backend CORS/FRONTEND_URL** aligned ke domain preview aktual `drill-optimizer.preview.emergentagent.com`
+- ✅ 100% iteration-7 tests pass
 
 ## Deployment Notes
 - Supervisor manages backend (:8001) and frontend (:3000)
