@@ -73,9 +73,9 @@ export default function DashboardLayout({ children }) {
   );
 
   return (
-    <div className="min-h-screen flex bg-ambient bg-grain relative">
-      {/* Desktop sidebar */}
-      <aside className="w-64 hidden lg:flex flex-col border-r border-white/5 bg-[#060F1F]/85 backdrop-blur-md shrink-0 sticky top-0 h-screen z-20">
+    <div className="min-h-screen bg-ambient bg-grain relative">
+      {/* Desktop sidebar - fixed so it doesn't scroll with content */}
+      <aside className="hidden lg:flex flex-col border-r border-white/5 bg-[#060F1F]/85 backdrop-blur-md fixed left-0 top-0 bottom-0 w-64 z-20">
         <Link to="/app" className="p-5 flex items-center border-b border-white/5 hover:bg-white/[0.02] transition-colors shrink-0">
           <Logo size={40} showText={true} compact={true} />
         </Link>
@@ -117,7 +117,7 @@ export default function DashboardLayout({ children }) {
       </AnimatePresence>
 
       {/* Main */}
-      <main className="flex-1 min-w-0 relative z-10 overflow-x-hidden">
+      <main className="min-w-0 relative z-10 overflow-x-hidden lg:ml-64">
         <header className="lg:hidden flex items-center justify-between p-4 border-b border-white/5 bg-[#060F1F]/90 backdrop-blur-md sticky top-0 z-30">
           <button
             onClick={() => setDrawerOpen(true)}
