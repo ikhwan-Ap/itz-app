@@ -1,0 +1,100 @@
+{
+  "summary": "Iteration 8 testing complete. FORM VISIBILITY BUG FIXED. Found and fixed two root causes: (1) Login.js was not updated with the fix - still had justify-center and min-h-screen, (2) CSS rule '.bg-grain > *:not(aside)' was overriding absolute positioning on gradient div, causing it to take up space and push content down. Both issues fixed.",
+  "backend_issues": {
+    "critical": [],
+    "minor": []
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_8.json"
+  ],
+  "action_items": [],
+  "critical_code_review_comments": [
+    "ROOT CAUSE 1: Login.js was NOT updated with the fix. It still had 'justify-center' and 'min-h-screen' while Register.js was updated. Fixed by applying same changes to Login.js.",
+    "ROOT CAUSE 2: CSS rule '.bg-grain > *:not(aside)' in index.css was overriding the 'absolute' class on gradient divs, making them position:relative and taking up space in flex layout. Fixed by changing selector to '.bg-grain > *:not(aside):not(.absolute):not([class*=\"absolute\"])'."
+  ],
+  "updated_files": [
+    "/app/frontend/src/pages/Login.js",
+    "/app/frontend/src/index.css"
+  ],
+  "success_rate": {
+    "backend": "N/A (frontend only testing)",
+    "frontend": "100%"
+  },
+  "test_credentials": {
+    "superadmin": {
+      "email": "superadmin@tesniper.com",
+      "password": "SuperAdmin@2026"
+    }
+  },
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Form visibility bug is now resolved. The fix involved two changes: (1) Updated Login.js to use min-h-[100dvh], pt-6 pb-8 sm:pt-10, removed justify-center, Logo size=44, mb-4 sm:mb-6. (2) Updated CSS selector in index.css to exclude elements with 'absolute' class from the position:relative rule.",
+  "features_tested": {
+    "login_desktop_1440x900": {
+      "form_card_top": "108px (was 764px before fix)",
+      "within_ideal_range": "PASS - top <= 300px",
+      "justify_center_removed": "PASS",
+      "min_h_100dvh": "PASS",
+      "gradient_position_absolute": "PASS"
+    },
+    "login_mobile_390x844": {
+      "form_card_top": "84px",
+      "submit_button_visible": "PASS - no scrolling needed"
+    },
+    "login_mobile_375x667_iphoneSE": {
+      "form_card_top": "84px",
+      "submit_button_visible": "PASS - no scrolling needed (was 111px scroll before)"
+    },
+    "register_desktop_1440x900": {
+      "form_card_top": "108px (was 828px before fix)",
+      "first_fields_visible": "PASS - name/email at 243px",
+      "gradient_position_absolute": "PASS"
+    },
+    "register_mobile_390x844": {
+      "form_card_top": "84px",
+      "heading_visible": "PASS - at 105px",
+      "first_field_visible": "PASS - at 222px"
+    },
+    "radial_gradient_glow": {
+      "visible": "PASS",
+      "centered": "PASS",
+      "blur_applied": "PASS - blur(30px)"
+    },
+    "regression_login_flow": {
+      "superadmin_login": "PASS",
+      "redirect_to_admin": "PASS - /app/admin"
+    }
+  },
+  "bug_fix_details": {
+    "issue": "Login/Register forms showing empty white space at top, user has to scroll down to find form",
+    "root_causes": [
+      {
+        "cause": "Login.js not updated with fix - still had justify-center and min-h-screen",
+        "file": "/app/frontend/src/pages/Login.js",
+        "fix": "Changed to min-h-[100dvh], pt-6 pb-8 sm:pt-10, removed justify-center, Logo size=44, mb-4 sm:mb-6"
+      },
+      {
+        "cause": "CSS rule '.bg-grain > *:not(aside)' was overriding absolute positioning on gradient divs",
+        "file": "/app/frontend/src/index.css",
+        "line": "80",
+        "fix": "Changed selector to '.bg-grain > *:not(aside):not(.absolute):not([class*=\"absolute\"])'"
+      }
+    ],
+    "before_fix": {
+      "login_desktop_card_top": "764px (below 900px viewport)",
+      "register_desktop_card_top": "828px (below 900px viewport)",
+      "gradient_computed_position": "relative (should be absolute)"
+    },
+    "after_fix": {
+      "login_desktop_card_top": "108px",
+      "register_desktop_card_top": "108px",
+      "gradient_computed_position": "absolute"
+    }
+  }
+}
