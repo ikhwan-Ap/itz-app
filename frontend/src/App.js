@@ -4,9 +4,18 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import DashboardLayout from "@/components/DashboardLayout";
-import Landing from "@/pages/Landing";
+import PublicLayout from "@/components/public/PublicLayout";
+
+import Home from "@/pages/public/Home";
+import About from "@/pages/public/About";
+import Services from "@/pages/public/Services";
+import Tools from "@/pages/public/Tools";
+import Community from "@/pages/public/Community";
+import Contact from "@/pages/public/Contact";
+
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+
 import UserOverview from "@/pages/UserOverview";
 import TrainingHub from "@/pages/TrainingHub";
 import FullLatihan from "@/pages/training/FullLatihan";
@@ -29,22 +38,30 @@ function AppHome() {
   return <UserOverview />;
 }
 
+const Pub = ({ children }) => <PublicLayout>{children}</PublicLayout>;
+
 function App() {
   return (
     <div className="App">
       <BrowserRouter>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Landing />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
+            {/* Public site (with Navigation + Footer) */}
+            <Route path="/" element={<Pub><Home /></Pub>} />
+            <Route path="/about" element={<Pub><About /></Pub>} />
+            <Route path="/services" element={<Pub><Services /></Pub>} />
+            <Route path="/tools" element={<Pub><Tools /></Pub>} />
+            <Route path="/community" element={<Pub><Community /></Pub>} />
+            <Route path="/contact" element={<Pub><Contact /></Pub>} />
+            <Route path="/login" element={<Pub><Login /></Pub>} />
+            <Route path="/register" element={<Pub><Register /></Pub>} />
 
+            {/* Dashboard (no public Nav) */}
             <Route path="/app" element={<ProtectedRoute><DashboardLayout><AppHome /></DashboardLayout></ProtectedRoute>} />
             <Route path="/app/training" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><TrainingHub /></DashboardLayout></ProtectedRoute>} />
             <Route path="/app/training/full" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><FullLatihan /></DashboardLayout></ProtectedRoute>} />
             <Route path="/app/training/single" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><SingleDrill /></DashboardLayout></ProtectedRoute>} />
             <Route path="/app/training/gk" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><GKLatihan /></DashboardLayout></ProtectedRoute>} />
-            {/* Legacy route → redirect to hub */}
             <Route path="/app/calculator" element={<Navigate to="/app/training" replace />} />
 
             <Route path="/app/admin" element={<ProtectedRoute roles={["admin", "superadmin"]}><DashboardLayout><AdminDashboard /></DashboardLayout></ProtectedRoute>} />

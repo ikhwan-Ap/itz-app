@@ -1,0 +1,104 @@
+{
+  "summary": "Iteration 10 - Frontend redesign migration testing complete. All public pages (Home, About, Services, Tools, Community, Contact), Login, Register, and Dashboard tested. Public Navigation (sticky+blur) and Footer wrapping works correctly on all 8 public routes. Dashboard untouched and renders correctly post-login. GSAP, FootballPitchCanvas, dynamic backend pricing (/api/packages), and dynamic events (/api/events) all functioning. No blocker bugs.",
+  "backend_issues": {
+    "critical": [],
+    "minor": [
+      {"endpoint": "/api/packages", "issue": "DB contains 2 duplicate TEST_Premium Package entries (Rp 150.000) from prior iterations. Services page renders 4 prices but slot 4 ends up Rp 150.000 instead of the seeded Pro Yearly Rp 399.000 due to ordering. Cleanup recommended."}
+    ]
+  },
+  "frontend_issues": {
+    "ui_bugs": [],
+    "integration_issues": [],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/test_reports/iteration_10.json"
+  ],
+  "action_items": [
+    "(Optional) Clean up duplicate TEST_Premium Package documents in MongoDB so Services page shows Pro Yearly (Rp 399k) in 4th slot instead of duplicate test data.",
+    "(Optional) Suppress 401 console error from /api/auth/me when user is unauthenticated on public pages — currently throws 18 noisy 401s on initial load. Functionally harmless."
+  ],
+  "critical_code_review_comments": [
+    "Spec mentions hero-cta and hero-secondary-cta data-testids, but Home.js uses home-explore-cta and home-learn-cta — both equivalent and present, just naming difference vs spec",
+    "Subject field on Contact form is a <select> (not <input>), so spec wording 'contact-subject' as text input is slightly misleading; works fine, just note for tests",
+    "Contact form validation correctly shows red 'wajib diisi' error texts on empty submit. Use red text for these errors — selector to grab them is text-content, not .error class (no .error CSS class used). Acceptable."
+  ],
+  "updated_files": [],
+  "success_rate": {
+    "backend": "N/A (frontend only)",
+    "frontend": "100%"
+  },
+  "test_credentials": {
+    "superadmin": {"email": "superadmin@tesniper.com", "password": "SuperAdmin@2026"}
+  },
+  "seed_data_creation": "None",
+  "retest_needed": false,
+  "should_main_agent_self_test": false,
+  "context_for_next_testing_agent": "Public site redesign verified end-to-end. Sticky nav blur on scroll: PASS. Mobile hamburger fullscreen overlay: PASS. All 6 nav links navigate. /api/packages returns 4 packages (Starter, 2 TEST_Premium dupes, Pro Yearly). /api/events returns 2 events. Dashboard untouched, renders with sidebar after login. Login&Register wrapped in PublicLayout (nav+footer visible). Note: Preloader gated by sessionStorage 'itz_preloaded' flag — only shows on first / visit per session.",
+  "features_tested": {
+    "public_navigation": {
+      "data_testid_present": "PASS - public-nav, nav-logo, nav-home/about/services/tools/community/contact, nav-login, nav-cta, nav-mobile-toggle",
+      "sticky_scroll_blur": "PASS - bg transitions from rgba(0,0,0,0) to rgba(11,12,16,0.92) with backdrop-blur-xl after 40px scroll",
+      "navigation_clicks_work": "PASS - clicking nav-services routes to /services",
+      "scroll_to_top_on_route_change": "PASS"
+    },
+    "home_page": {
+      "page_home_testid": "PASS",
+      "canvas_renders": "PASS - FootballPitchCanvas <canvas> element present",
+      "unity_in_time_tagline": "PASS",
+      "stats_card": "PASS - 10K+, 50+, 24/7 visible",
+      "feature_cards": "PASS - 3 cards (feature-card-0/1/2)",
+      "home_explore_cta_and_learn_cta": "PASS",
+      "no_runtime_gsap_errors": "PASS"
+    },
+    "about_page": {
+      "page_about_testid": "PASS",
+      "built_by_managers_headline": "PASS",
+      "team_grid": "PASS - 6 team-{i} cards present"
+    },
+    "services_page": {
+      "page_services_testid": "PASS",
+      "4_service_rows": "PASS - 8 service-* testids = 4 service rows + 4 prices",
+      "dynamic_prices_from_backend": "PASS - prices Rp 49.000 / 150.000 / 150.000 / 150.000 loaded from /api/packages",
+      "service_titles": "PASS - Tactical Sniper, Formation Lab, Training Analytics, Association Toolkit"
+    },
+    "tools_page": {
+      "page_tools_testid": "PASS",
+      "4_tool_cards": "PASS - tool-0..3 present"
+    },
+    "community_page": {
+      "page_community_testid": "PASS",
+      "3_hubs": "PASS - hub-0/1/2",
+      "dynamic_events": "PASS - 2 event-* cards rendered from /api/events (200)"
+    },
+    "contact_page": {
+      "form_renders": "PASS - contact-form, contact-name, contact-email, contact-subject(select), contact-message, contact-submit",
+      "empty_submit_validation": "PASS - shows 'Nama wajib diisi', 'Email wajib diisi', 'Pesan wajib diisi' red errors",
+      "valid_submit_success": "PASS - contact-success element shows 'Pesan Terkirim!'"
+    },
+    "login_page": {
+      "wrapped_in_public_layout": "PASS - public-nav and public-footer visible",
+      "login_works": "PASS - superadmin credentials redirect to /app/admin"
+    },
+    "register_page": {
+      "wrapped_in_public_layout": "PASS - public-nav and public-footer visible",
+      "page_register_testid": "PASS"
+    },
+    "dashboard_post_login": {
+      "renders_correctly": "PASS - admin dashboard with KPIs, charts, recent transactions",
+      "no_public_nav_inside": "PASS - public-nav not present (DashboardLayout uses its own sidebar)",
+      "sidebar_present": "PASS"
+    },
+    "mobile_390x844": {
+      "hamburger_toggle": "PASS - nav-mobile-toggle clickable",
+      "fullscreen_menu_overlay": "PASS - nav-mobile-menu shows all 6 links + Login + Get Started CTA"
+    },
+    "footer": {
+      "public_footer_testid": "PASS - 4 columns visible: Brand, Quick Links, Community, Legal"
+    },
+    "console_errors": {
+      "page_errors": "NONE",
+      "401_from_auth_me": "Expected on public pages when unauthenticated - non-blocking"
+    }
+  }
+}

@@ -31,20 +31,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-[100dvh] relative flex flex-col items-center pt-6 pb-8 sm:pt-10 bg-ambient bg-grain px-4 overflow-hidden">
+    <div className="min-h-[calc(100dvh-160px)] relative flex flex-col items-center justify-center pt-28 pb-16 px-4 overflow-hidden bg-[#0B0C10]" data-testid="page-login">
       <div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(640px,95vw)] h-[min(640px,95vw)] pointer-events-none"
         style={{
           background: "radial-gradient(circle at center, rgba(0,168,255,0.15) 0%, rgba(229,9,20,0.08) 35%, transparent 70%)",
-          filter: "blur(30px)",
+          filter: "blur(40px)",
         }}
       />
       <div className="relative z-10 w-full max-w-[440px]">
-        <Link to="/" className="flex items-center justify-center mb-4 sm:mb-6">
-          <Logo size={44} />
+        <Link to="/" className="flex items-center justify-center mb-5 sm:mb-7">
+          <Logo size={52} />
         </Link>
 
-        <div className="card-glass p-5 sm:p-7">
+        <div className="card-glass p-6 sm:p-8">
           <h1 className="font-display font-black text-2xl sm:text-[1.75rem] leading-tight brand-gradient mb-1.5">Welcome Back</h1>
           <p className="text-[#A0AAB5] text-sm mb-4 sm:mb-5">Login untuk lanjut training session Anda.</p>
 
