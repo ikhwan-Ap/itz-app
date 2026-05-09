@@ -9,7 +9,8 @@
       "Bash(curl -s http://localhost:8001/api/calculator/meta)",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('gk_attrs keys:', list\\(d.get\\('gk_attrs',{}\\).keys\\(\\)\\)\\); print\\('gk_all_attrs count:', len\\(d.get\\('gk_all_attrs',[]\\)\\)\\); print\\('GK in roles:', 'GK' in d.get\\('roles',{}\\)\\)\")",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d\\)\")",
-      "Bash(netstat -tlnp)"
+      "Bash(netstat -tlnp)",
+      "Bash(git remote *)"
     ]
   }
 }
