@@ -363,6 +363,24 @@ h1, h2, h3, h4, h5, h6, .font-display {
 tr.hover-row { transition: background 0.2s ease; }
 tr.hover-row:hover { background: rgba(0, 168, 255, 0.04); }
 
+/* =============== DASHBOARD SHELL (Tactical Center) =============== */
+.dashboard-shell {
+  --dash-bg: #0a0a0f;
+  --dash-sidebar: #141419;
+  --dash-card: #16161d;
+  --dash-card-hover: #1c1c25;
+  --dash-input: #0f0f14;
+  --dash-border: rgba(255,255,255,0.06);
+  --dash-cyan: #00A8FF;
+  --dash-cyan-hover: #33BBFF;
+  --dash-text-primary: #ffffff;
+  --dash-text-secondary: #a0a0b0;
+  --dash-text-muted: #5a5a6a;
+}
+.dashboard-shell::before { content: none; }
+.dashboard-shell { background: var(--dash-bg) !important; }
+.dashboard-shell .bg-grain::before { display: none; }
+
 /* Scrollbar */
 ::-webkit-scrollbar { width: 10px; height: 10px; }
 ::-webkit-scrollbar-track { background: var(--canvas); }
