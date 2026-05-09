@@ -39,7 +39,7 @@ export default function AdminPromos() {
   const columns = [
     {
       key: "code", label: "Code", primary: true,
-      render: (p) => <span className="font-mono font-bold text-[#D4AF37] text-base">{p.code}</span>,
+      render: (p) => <span className="font-mono font-bold text-[#00A8FF] text-base">{p.code}</span>,
     },
     {
       key: "active", label: "Status", primary: true,

@@ -25,7 +25,7 @@ export default function ResponsiveTable({ columns, data, rowKey, actions, testId
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs uppercase tracking-widest text-[#9FB0CC] border-b border-white/5">
+              <tr className="text-left text-xs uppercase tracking-widest text-[#A0AAB5] border-b border-white/5">
                 {columns.map((c) => (
                   <th key={c.key} className="p-3">{c.label}</th>
                 ))}
@@ -46,13 +46,13 @@ export default function ResponsiveTable({ columns, data, rowKey, actions, testId
             </tbody>
           </table>
         </div>
-        {data.length === 0 && <div className="p-6 text-center text-sm text-[#9FB0CC]">Tidak ada data.</div>}
+        {data.length === 0 && <div className="p-6 text-center text-sm text-[#A0AAB5]">Tidak ada data.</div>}
       </div>
 
       {/* Mobile Cards */}
       <div className="md:hidden space-y-3">
         {data.length === 0 && (
-          <div className="card-solid p-6 text-center text-sm text-[#9FB0CC]">Tidak ada data.</div>
+          <div className="card-solid p-6 text-center text-sm text-[#A0AAB5]">Tidak ada data.</div>
         )}
         {data.map((row) => (
           <ExpandableCard
@@ -86,7 +86,7 @@ function ExpandableCard({ id, primaryCols, otherCols, row, actions, testIdPrefix
             </div>
           ))}
         </div>
-        <div className="shrink-0 mt-1 w-8 h-8 rounded-full border border-[#D4AF37]/30 text-[#D4AF37] flex items-center justify-center">
+        <div className="shrink-0 mt-1 w-8 h-8 rounded-full border border-[#00A8FF]/30 text-[#00A8FF] flex items-center justify-center">
           {open ? <CaretUp size={14} weight="bold" /> : <CaretDown size={14} weight="bold" />}
         </div>
       </button>
@@ -102,7 +102,7 @@ function ExpandableCard({ id, primaryCols, otherCols, row, actions, testIdPrefix
             <div className="px-4 pb-4 pt-2 border-t border-white/5 space-y-2">
               {otherCols.map((c) => (
                 <div key={c.key} className="flex items-start justify-between gap-3 text-sm">
-                  <span className="text-[#9FB0CC] text-xs uppercase tracking-wider font-bold">{c.label}</span>
+                  <span className="text-[#A0AAB5] text-xs uppercase tracking-wider font-bold">{c.label}</span>
                   <div className="text-right flex-1">{c.render ? c.render(row) : (row[c.key] ?? "-")}</div>
                 </div>
               ))}

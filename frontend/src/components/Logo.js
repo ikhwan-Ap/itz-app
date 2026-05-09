@@ -6,16 +6,16 @@ export default function Logo({ size = 44, showText = true, compact = false }) {
       <img
         src="/assets/itz-logo.png"
         alt="Indo Timezone Football Community"
-        style={{ width: size, height: size, borderRadius: "50%", boxShadow: "0 0 18px rgba(212, 175, 55, 0.28)" }}
-        className="object-cover shrink-0"
+        style={{ width: size, height: size, borderRadius: "50%", boxShadow: "0 0 18px rgba(0, 168, 255, 0.28)" }}
+        className="object-cover shrink-0 ring-1 ring-[#00A8FF]/30"
       />
       {showText && (
         <div>
-          <div className={`font-display font-black leading-none brand-gradient ${compact ? "text-base" : "text-xl"}`}>
+          <div className={`font-space font-bold leading-none text-white ${compact ? "text-base" : "text-xl"}`}>
             INDO TIMEZONE
           </div>
-          <div className="text-[9px] tracking-[0.28em] text-[#D4AF37] mt-0.5 font-semibold uppercase font-serif italic">
-            Football Community · Est. 2023
+          <div className="text-[9px] tracking-[0.22em] text-[#00A8FF] mt-1 font-medium uppercase">
+            Tactical Edge · Est. 2023
           </div>
         </div>
       )}

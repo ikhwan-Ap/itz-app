@@ -26,7 +26,7 @@ export default function PaymentConfig() {
       <div>
         <div className="badge badge-gold mb-2">PAYMENT CONFIG</div>
         <h1 className="section-title text-3xl">Payment Gateway</h1>
-        <p className="text-[#9FB0CC] text-sm mt-1">Konfigurasi approval manual, Xendit, & Midtrans. Otomatis siap aktif jika diisi.</p>
+        <p className="text-[#A0AAB5] text-sm mt-1">Konfigurasi approval manual, Xendit, & Midtrans. Otomatis siap aktif jika diisi.</p>
       </div>
 
       <div className="card-solid p-6 space-y-5">
@@ -56,7 +56,7 @@ export default function PaymentConfig() {
         {!disabled && (
           <button onClick={save} className="btn-primary w-full" data-testid="payment-save-btn">Save Configuration</button>
         )}
-        {disabled && <div className="text-xs text-[#9FB0CC] text-center">Hanya Superadmin yang dapat mengubah konfigurasi pembayaran.</div>}
+        {disabled && <div className="text-xs text-[#A0AAB5] text-center">Hanya Superadmin yang dapat mengubah konfigurasi pembayaran.</div>}
       </div>
     </div>
   );
@@ -66,7 +66,7 @@ function Section({ title, desc, children }) {
   return (
     <div className="border border-white/5 rounded-xl p-5 bg-white/[0.02]">
       <div className="font-display font-bold text-lg">{title}</div>
-      <div className="text-xs text-[#9FB0CC] mb-3">{desc}</div>
+      <div className="text-xs text-[#A0AAB5] mb-3">{desc}</div>
       {children}
     </div>
   );

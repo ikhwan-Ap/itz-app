@@ -31,7 +31,7 @@ export default function AdminTransactions() {
       render: (t) => (
         <div>
           <div className="font-semibold text-white">{t.user_name}</div>
-          <div className="text-xs text-[#9FB0CC]">{t.user_email}</div>
+          <div className="text-xs text-[#A0AAB5]">{t.user_email}</div>
         </div>
       ),
     },
@@ -42,7 +42,7 @@ export default function AdminTransactions() {
       render: (t) => (
         <div className="flex items-center gap-2 flex-wrap mt-1">
           <span className={`badge ${t.status === "approved" ? "badge-green" : t.status === "pending" ? "badge-gold" : "badge-red"}`}>{t.status}</span>
-          <span className="text-xs text-[#D4AF37] font-bold">{formatRupiah(t.final_amount)}</span>
+          <span className="text-xs text-[#00A8FF] font-bold">{formatRupiah(t.final_amount)}</span>
         </div>
       ),
     },
@@ -55,7 +55,7 @@ export default function AdminTransactions() {
         ? <span className="badge badge-gold">{t.promo_code} <span className="ml-1 text-[10px]">-{formatRupiah(t.discount_amount)}</span></span>
         : "-",
     },
-    { key: "final", label: "Final", render: (t) => <span className="font-bold text-[#D4AF37]">{formatRupiah(t.final_amount)}</span> },
+    { key: "final", label: "Final", render: (t) => <span className="font-bold text-[#00A8FF]">{formatRupiah(t.final_amount)}</span> },
     { key: "date", label: "Date", render: (t) => new Date(t.created_at).toLocaleDateString("id-ID") },
     { key: "note", label: "Note", render: (t) => t.note || "-" },
   ];

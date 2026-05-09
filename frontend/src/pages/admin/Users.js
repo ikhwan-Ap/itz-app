@@ -40,8 +40,8 @@ export default function AdminUsers() {
       render: (u) => (
         <div>
           <div className="font-semibold text-white">{u.name}</div>
-          <div className="text-xs text-[#9FB0CC]">{u.email}</div>
-          {u.association && <div className="text-[10px] text-[#9FB0CC] mt-0.5">{u.association}</div>}
+          <div className="text-xs text-[#A0AAB5]">{u.email}</div>
+          {u.association && <div className="text-[10px] text-[#A0AAB5] mt-0.5">{u.association}</div>}
         </div>
       ),
     },
@@ -141,7 +141,7 @@ function UserModal({ modal, packages, me, err, onClose, onSave }) {
       <div className="card-glass p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
           <div className="font-display font-bold text-xl">{modal.mode === "new" ? "Tambah User" : `Edit: ${form.name}`}</div>
-          <button onClick={onClose} className="text-[#9FB0CC] hover:text-white" data-testid="modal-close"><X size={20} /></button>
+          <button onClick={onClose} className="text-[#A0AAB5] hover:text-white" data-testid="modal-close"><X size={20} /></button>
         </div>
         <form onSubmit={submit} className="space-y-3">
           {modal.mode === "new" && (

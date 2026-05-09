@@ -35,7 +35,7 @@ export default function LoginPage() {
       <div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(640px,95vw)] h-[min(640px,95vw)] pointer-events-none"
         style={{
-          background: "radial-gradient(circle at center, rgba(212,175,55,0.18) 0%, rgba(30,58,107,0.12) 35%, transparent 70%)",
+          background: "radial-gradient(circle at center, rgba(0,168,255,0.15) 0%, rgba(229,9,20,0.08) 35%, transparent 70%)",
           filter: "blur(30px)",
         }}
       />
@@ -46,7 +46,7 @@ export default function LoginPage() {
 
         <div className="card-glass p-5 sm:p-7">
           <h1 className="font-display font-black text-2xl sm:text-[1.75rem] leading-tight brand-gradient mb-1.5">Welcome Back</h1>
-          <p className="text-[#9FB0CC] text-sm mb-4 sm:mb-5">Login untuk lanjut training session Anda.</p>
+          <p className="text-[#A0AAB5] text-sm mb-4 sm:mb-5">Login untuk lanjut training session Anda.</p>
 
           <form onSubmit={submit} className="space-y-4" data-testid="login-form">
             <div>
@@ -69,8 +69,8 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-[#9FB0CC]">
-            Belum punya akun? <Link to="/register" className="text-[#D4AF37] font-bold hover:text-[#E8C35A]" data-testid="login-to-register-link">Register</Link>
+          <div className="mt-6 text-center text-sm text-[#A0AAB5]">
+            Belum punya akun? <Link to="/register" className="text-[#00A8FF] font-bold hover:text-[#33BBFF]" data-testid="login-to-register-link">Register</Link>
           </div>
         </div>
       </div>

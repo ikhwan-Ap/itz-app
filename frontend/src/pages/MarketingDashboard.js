@@ -13,7 +13,7 @@ export default function MarketingDashboard() {
   if (!stats) return <div className="h-[60vh] flex items-center justify-center"><div className="spinner" /></div>;
 
   const kpis = [
-    { label: "Total Earnings", value: formatRupiah(stats.total_earnings), icon: CurrencyDollar, color: "#D4AF37" },
+    { label: "Total Earnings", value: formatRupiah(stats.total_earnings), icon: CurrencyDollar, color: "#00A8FF" },
     { label: "Conversions", value: stats.total_conversions, icon: ChartBar, color: "#F5C300" },
     { label: "Active Promos", value: stats.active_promos, icon: Ticket, color: "#00B4D8" },
   ];
@@ -23,14 +23,14 @@ export default function MarketingDashboard() {
       <div>
         <div className="badge badge-gold mb-2">MARKETING</div>
         <h1 className="section-title text-3xl">Marketing Dashboard</h1>
-        <p className="text-[#9FB0CC] text-sm mt-1">Performa kode promo & earnings bulan ini.</p>
+        <p className="text-[#A0AAB5] text-sm mt-1">Performa kode promo & earnings bulan ini.</p>
       </div>
 
       <div className="grid md:grid-cols-3 gap-4">
         {kpis.map((k, i) => (
           <div key={i} className="card-solid p-5">
             <div className="flex items-center justify-between">
-              <div className="text-xs font-bold uppercase tracking-widest text-[#9FB0CC]">{k.label}</div>
+              <div className="text-xs font-bold uppercase tracking-widest text-[#A0AAB5]">{k.label}</div>
               <k.icon size={18} color={k.color} weight="fill" />
             </div>
             <div className="font-display font-black text-3xl mt-2" style={{ color: k.color }}>{k.value}</div>
@@ -43,12 +43,12 @@ export default function MarketingDashboard() {
           <div className="font-display font-bold text-lg mb-4">Earnings Trend</div>
           <ResponsiveContainer width="100%" height={280}>
             <LineChart data={stats.chart}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#16305A" />
-              <XAxis dataKey="month" stroke="#9FB0CC" fontSize={11} />
-              <YAxis stroke="#9FB0CC" fontSize={11} />
-              <Tooltip contentStyle={{ background: "#102440", border: "1px solid #16305A" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1F2630" />
+              <XAxis dataKey="month" stroke="#A0AAB5" fontSize={11} />
+              <YAxis stroke="#A0AAB5" fontSize={11} />
+              <Tooltip contentStyle={{ background: "#161B22", border: "1px solid #1F2630" }} />
               <Legend />
-              <Line type="monotone" dataKey="earnings" stroke="#D4AF37" strokeWidth={3} />
+              <Line type="monotone" dataKey="earnings" stroke="#00A8FF" strokeWidth={3} />
             </LineChart>
           </ResponsiveContainer>
         </div>
@@ -56,10 +56,10 @@ export default function MarketingDashboard() {
           <div className="font-display font-bold text-lg mb-4">Conversions</div>
           <ResponsiveContainer width="100%" height={280}>
             <BarChart data={stats.chart}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#16305A" />
-              <XAxis dataKey="month" stroke="#9FB0CC" fontSize={11} />
-              <YAxis stroke="#9FB0CC" fontSize={11} />
-              <Tooltip contentStyle={{ background: "#102440", border: "1px solid #16305A" }} />
+              <CartesianGrid strokeDasharray="3 3" stroke="#1F2630" />
+              <XAxis dataKey="month" stroke="#A0AAB5" fontSize={11} />
+              <YAxis stroke="#A0AAB5" fontSize={11} />
+              <Tooltip contentStyle={{ background: "#161B22", border: "1px solid #1F2630" }} />
               <Bar dataKey="count" fill="#F5C300" name="Count" />
             </BarChart>
           </ResponsiveContainer>
@@ -71,7 +71,7 @@ export default function MarketingDashboard() {
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs uppercase tracking-widest text-[#9FB0CC]">
+              <tr className="text-left text-xs uppercase tracking-widest text-[#A0AAB5]">
                 <th className="py-2">Code</th><th>Type</th><th>Value</th><th>Uses</th><th>Active</th>
               </tr>
             </thead>
@@ -92,10 +92,10 @@ export default function MarketingDashboard() {
           {stats.promos.map((p) => (
             <div key={p.id} className="p-3 rounded-lg bg-white/[0.03] border border-white/5">
               <div className="flex items-center justify-between gap-2 mb-1">
-                <span className="font-mono font-bold text-[#D4AF37]">{p.code}</span>
+                <span className="font-mono font-bold text-[#00A8FF]">{p.code}</span>
                 <span className={`badge ${p.active ? "badge-green" : "badge-red"}`}>{p.active ? "ON" : "OFF"}</span>
               </div>
-              <div className="flex items-center justify-between text-xs text-[#9FB0CC]">
+              <div className="flex items-center justify-between text-xs text-[#A0AAB5]">
                 <span>{p.discount_type === "percent" ? `${p.discount_value}%` : formatRupiah(p.discount_value)}</span>
                 <span>{p.uses || 0}{p.max_uses ? ` / ${p.max_uses}` : ""} uses</span>
               </div>
@@ -109,7 +109,7 @@ export default function MarketingDashboard() {
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left text-xs uppercase tracking-widest text-[#9FB0CC]">
+              <tr className="text-left text-xs uppercase tracking-widest text-[#A0AAB5]">
                 <th className="py-2">User</th><th>Package</th><th>Promo</th><th>Commission</th><th>Date</th>
               </tr>
             </thead>
@@ -119,8 +119,8 @@ export default function MarketingDashboard() {
                   <td className="py-2">{t.user_name}</td>
                   <td>{t.package_name}</td>
                   <td><span className="badge badge-gold">{t.promo_code}</span></td>
-                  <td className="text-[#D4AF37] font-bold">{formatRupiah(t.marketing_cut)}</td>
-                  <td className="text-xs text-[#9FB0CC]">{new Date(t.created_at).toLocaleDateString("id-ID")}</td>
+                  <td className="text-[#00A8FF] font-bold">{formatRupiah(t.marketing_cut)}</td>
+                  <td className="text-xs text-[#A0AAB5]">{new Date(t.created_at).toLocaleDateString("id-ID")}</td>
                 </tr>
               ))}
             </tbody>
@@ -132,13 +132,13 @@ export default function MarketingDashboard() {
               <div className="flex items-start justify-between gap-2 mb-1">
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-semibold text-white truncate">{t.user_name}</div>
-                  <div className="text-xs text-[#9FB0CC] truncate">{t.package_name}</div>
+                  <div className="text-xs text-[#A0AAB5] truncate">{t.package_name}</div>
                 </div>
                 <span className="badge badge-gold shrink-0">{t.promo_code}</span>
               </div>
               <div className="flex items-center justify-between text-xs mt-1">
-                <span className="text-[#9FB0CC]">{new Date(t.created_at).toLocaleDateString("id-ID")}</span>
-                <span className="font-bold text-[#D4AF37]">{formatRupiah(t.marketing_cut)}</span>
+                <span className="text-[#A0AAB5]">{new Date(t.created_at).toLocaleDateString("id-ID")}</span>
+                <span className="font-bold text-[#00A8FF]">{formatRupiah(t.marketing_cut)}</span>
               </div>
             </div>
           ))}

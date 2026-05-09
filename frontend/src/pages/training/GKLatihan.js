@@ -79,15 +79,15 @@ export default function GKLatihan() {
     <div className="space-y-6" data-testid="gk-latihan-page">
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div>
-          <Link to="/app/training" className="text-xs text-[#9FB0CC] font-semibold hover:text-[#D4AF37] inline-flex items-center gap-1 transition">
+          <Link to="/app/training" className="text-xs text-[#A0AAB5] font-semibold hover:text-[#00A8FF] inline-flex items-center gap-1 transition">
             <CaretLeft size={12} /> Modul Latihan
           </Link>
           <div className="flex items-center gap-2 mt-1 mb-1">
-            <Shield size={18} className="text-[#D4AF37]" weight="fill" />
+            <Shield size={18} className="text-[#00A8FF]" weight="fill" />
             <div className="badge badge-gold">KIPER</div>
           </div>
           <h1 className="section-title text-3xl">GK Latihan</h1>
-          <p className="text-[#9FB0CC] text-sm mt-1">Algoritma sniper khusus untuk kiper — atribut kiper semua terang kecuali Fisik (hanya Kebugaran terang).</p>
+          <p className="text-[#A0AAB5] text-sm mt-1">Algoritma sniper khusus untuk kiper — atribut kiper semua terang kecuali Fisik (hanya Kebugaran terang).</p>
         </div>
       </div>
 
@@ -106,7 +106,7 @@ export default function GKLatihan() {
       {step >= 2 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card-solid p-5 sm:p-6" data-testid="gk-target-section">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#D4AF37] to-[#A88527] text-[#0A182B] font-black flex items-center justify-center">2</div>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00A8FF] to-[#0077CC] text-[#0B0C10] font-black flex items-center justify-center">2</div>
             <div className="font-display font-bold text-xl">Pilih Target & Prioritas</div>
           </div>
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">

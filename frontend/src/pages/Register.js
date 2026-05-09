@@ -67,7 +67,7 @@ export default function RegisterPage() {
       <div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(720px,95vw)] h-[min(720px,95vw)] pointer-events-none"
         style={{
-          background: "radial-gradient(circle at center, rgba(212,175,55,0.16) 0%, rgba(30,58,107,0.12) 38%, transparent 72%)",
+          background: "radial-gradient(circle at center, rgba(0,168,255,0.15) 0%, rgba(229,9,20,0.08) 38%, transparent 72%)",
           filter: "blur(30px)",
         }}
       />
@@ -78,7 +78,7 @@ export default function RegisterPage() {
 
         <div className="card-glass p-5 sm:p-7">
           <h1 className="font-display font-black text-2xl sm:text-[1.75rem] leading-tight brand-gradient mb-1.5">Bergabung dengan Komunitas</h1>
-          <p className="text-[#9FB0CC] text-sm mb-4 sm:mb-5">Registrasi masuk antrian approval admin. Welcome to Indo Timezone.</p>
+          <p className="text-[#A0AAB5] text-sm mb-4 sm:mb-5">Registrasi masuk antrian approval admin. Welcome to Indo Timezone.</p>
 
           <form onSubmit={submit} className="space-y-5" data-testid="register-form">
             <div className="grid md:grid-cols-2 gap-4">
@@ -115,14 +115,14 @@ export default function RegisterPage() {
                 {packages.map((p) => (
                   <label
                     key={p.id}
-                    className={`cursor-pointer rounded-xl p-4 border-2 transition-all ${packageId === p.id ? "border-[#D4AF37] bg-[#D4AF37]/10" : "border-white/10 hover:border-white/30"}`}
+                    className={`cursor-pointer rounded-xl p-4 border-2 transition-all ${packageId === p.id ? "border-[#00A8FF] bg-[#00A8FF]/10" : "border-white/10 hover:border-white/30"}`}
                     data-testid={`register-pkg-${p.id}`}
                   >
                     <input type="radio" name="pkg" className="hidden" checked={packageId === p.id}
                            onChange={() => setPackageId(p.id)} />
-                    <div className="text-xs font-bold uppercase tracking-widest text-[#9FB0CC]">{p.duration_type}</div>
+                    <div className="text-xs font-bold uppercase tracking-widest text-[#A0AAB5]">{p.duration_type}</div>
                     <div className="font-display font-bold text-lg mt-1">{p.name}</div>
-                    <div className="font-display font-black text-2xl text-[#D4AF37] mt-2">{formatRupiah(p.price)}</div>
+                    <div className="font-display font-black text-2xl text-[#00A8FF] mt-2">{formatRupiah(p.price)}</div>
                     {p.is_trial && <div className="badge badge-gold mt-2">FREE TRIAL</div>}
                   </label>
                 ))}
@@ -147,18 +147,18 @@ export default function RegisterPage() {
             {selectedPkg && (
               <div className="card-solid p-4">
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-[#9FB0CC]">Harga paket</span>
+                  <span className="text-[#A0AAB5]">Harga paket</span>
                   <span className="font-bold">{formatRupiah(selectedPkg.price)}</span>
                 </div>
                 {promoResult && (
                   <div className="flex items-center justify-between text-sm mt-1">
-                    <span className="text-[#9FB0CC]">Diskon promo</span>
-                    <span className="font-bold text-[#D4AF37]">- {formatRupiah(promoResult.discount)}</span>
+                    <span className="text-[#A0AAB5]">Diskon promo</span>
+                    <span className="font-bold text-[#00A8FF]">- {formatRupiah(promoResult.discount)}</span>
                   </div>
                 )}
                 <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
                   <span className="font-display font-bold uppercase text-sm">Total</span>
-                  <span className="font-display font-black text-2xl text-[#D4AF37]" data-testid="register-total">
+                  <span className="font-display font-black text-2xl text-[#00A8FF]" data-testid="register-total">
                     {formatRupiah(promoResult ? promoResult.final_amount : selectedPkg.price)}
                   </span>
                 </div>
@@ -173,8 +173,8 @@ export default function RegisterPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-[#9FB0CC]">
-            Sudah punya akun? <Link to="/login" className="text-[#D4AF37] font-bold hover:text-[#E8C35A]">Login</Link>
+          <div className="mt-6 text-center text-sm text-[#A0AAB5]">
+            Sudah punya akun? <Link to="/login" className="text-[#00A8FF] font-bold hover:text-[#33BBFF]">Login</Link>
           </div>
         </div>
       </div>

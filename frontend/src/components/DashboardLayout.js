@@ -43,8 +43,8 @@ export default function DashboardLayout({ children }) {
           className={({ isActive }) =>
             `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-200 group ` +
             (isActive
-              ? "bg-gradient-to-r from-[#D4AF37]/15 to-transparent text-[#E8C35A] border-l-2 border-[#D4AF37]"
-              : "text-[#9FB0CC] hover:bg-white/[0.04] hover:text-white border-l-2 border-transparent")
+              ? "bg-gradient-to-r from-[#00A8FF]/15 to-transparent text-[#33BBFF] border-l-2 border-[#00A8FF]"
+              : "text-[#A0AAB5] hover:bg-white/[0.04] hover:text-white border-l-2 border-transparent")
           }
           data-testid={`nav-${it.label.toLowerCase().replace(/\s+/g, "-")}`}
         >
@@ -57,14 +57,14 @@ export default function DashboardLayout({ children }) {
 
   const UserFooter = () => (
     <div className="p-3 border-t border-white/5 shrink-0">
-      <div className="text-[10px] tracking-widest text-[#D4AF37] font-bold px-2 mb-1 uppercase">Signed in</div>
+      <div className="text-[10px] tracking-widest text-[#00A8FF] font-bold px-2 mb-1 uppercase">Signed in</div>
       <div className="px-2 mb-3">
         <div className="text-sm font-bold truncate text-white" data-testid="sidebar-user-name">{user?.name}</div>
-        <div className="text-xs text-[#9FB0CC] uppercase tracking-wider">{user?.role}</div>
+        <div className="text-xs text-[#A0AAB5] uppercase tracking-wider">{user?.role}</div>
       </div>
       <button
         onClick={async () => { await logout(); nav("/login"); }}
-        className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-white/10 hover:border-[#F0557A] hover:text-[#F0557A] text-sm font-semibold text-[#9FB0CC] transition-all duration-200"
+        className="w-full flex items-center justify-center gap-2 py-2 rounded-lg border border-white/10 hover:border-[#E50914] hover:text-[#E50914] text-sm font-semibold text-[#A0AAB5] transition-all duration-200"
         data-testid="btn-logout"
       >
         <SignOut size={16} /> Logout
@@ -75,7 +75,7 @@ export default function DashboardLayout({ children }) {
   return (
     <div className="min-h-screen bg-ambient bg-grain relative">
       {/* Desktop sidebar - fixed so it doesn't scroll with content */}
-      <aside className="hidden lg:flex flex-col border-r border-white/5 bg-[#060F1F]/85 backdrop-blur-md fixed left-0 top-0 bottom-0 w-64 z-20">
+      <aside className="hidden lg:flex flex-col border-r border-white/5 bg-[#0B0C10]/85 backdrop-blur-md fixed left-0 top-0 bottom-0 w-64 z-20">
         <Link to="/app" className="p-5 flex items-center border-b border-white/5 hover:bg-white/[0.02] transition-colors shrink-0">
           <Logo size={40} showText={true} compact={true} />
         </Link>
@@ -96,14 +96,14 @@ export default function DashboardLayout({ children }) {
             <motion.aside
               initial={{ x: "-100%" }} animate={{ x: 0 }} exit={{ x: "-100%" }}
               transition={{ type: "tween", duration: 0.28, ease: [0.2, 0.8, 0.2, 1] }}
-              className="fixed top-0 left-0 bottom-0 w-72 bg-[#060F1F] border-r border-[#D4AF37]/20 z-50 lg:hidden flex flex-col"
+              className="fixed top-0 left-0 bottom-0 w-72 bg-[#0B0C10] border-r border-[#00A8FF]/20 z-50 lg:hidden flex flex-col"
               data-testid="mobile-drawer"
             >
               <div className="p-4 flex items-center justify-between border-b border-white/5">
                 <Link to="/app" onClick={() => setDrawerOpen(false)}><Logo size={38} compact={true} /></Link>
                 <button
                   onClick={() => setDrawerOpen(false)}
-                  className="w-9 h-9 flex items-center justify-center rounded-lg border border-white/10 text-[#9FB0CC] hover:text-white hover:border-[#D4AF37]"
+                  className="w-9 h-9 flex items-center justify-center rounded-lg border border-white/10 text-[#A0AAB5] hover:text-white hover:border-[#00A8FF]"
                   data-testid="drawer-close"
                 >
                   <X size={18} />
@@ -118,10 +118,10 @@ export default function DashboardLayout({ children }) {
 
       {/* Main */}
       <main className="min-w-0 relative z-10 overflow-x-hidden lg:ml-64">
-        <header className="lg:hidden flex items-center justify-between p-4 border-b border-white/5 bg-[#060F1F]/90 backdrop-blur-md sticky top-0 z-30">
+        <header className="lg:hidden flex items-center justify-between p-4 border-b border-white/5 bg-[#0B0C10]/90 backdrop-blur-md sticky top-0 z-30">
           <button
             onClick={() => setDrawerOpen(true)}
-            className="w-10 h-10 flex items-center justify-center rounded-lg border border-[#D4AF37]/35 text-[#D4AF37] hover:bg-[#D4AF37]/10 transition-colors"
+            className="w-10 h-10 flex items-center justify-center rounded-lg border border-[#00A8FF]/35 text-[#00A8FF] hover:bg-[#00A8FF]/10 transition-colors"
             aria-label="Open menu"
             data-testid="hamburger-btn"
           >

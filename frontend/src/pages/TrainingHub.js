@@ -59,11 +59,11 @@ export default function TrainingHub() {
     <div className="space-y-7" data-testid="training-hub">
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <Barbell size={16} className="text-[#D4AF37]" weight="fill" />
+          <Barbell size={16} className="text-[#00A8FF]" weight="fill" />
           <div className="badge badge-gold">TRAINING</div>
         </div>
         <h1 className="section-title text-4xl">Modul Latihan</h1>
-        <p className="text-[#9FB0CC] text-sm mt-2 max-w-2xl">
+        <p className="text-[#A0AAB5] text-sm mt-2 max-w-2xl">
           Pilih metode latihan yang Anda butuhkan. Semua modul menghormati cap 180% + batas atribut gelap.
         </p>
       </div>
@@ -82,27 +82,27 @@ export default function TrainingHub() {
                 <m.icon
                   size={160}
                   weight="duotone"
-                  className="absolute -right-6 -bottom-6 text-[#D4AF37]/10 group-hover:text-[#D4AF37]/20 transition-colors"
+                  className="absolute -right-6 -bottom-6 text-[#00A8FF]/10 group-hover:text-[#00A8FF]/20 transition-colors"
                 />
                 <div className="relative z-10">
                   <div className="flex items-start justify-between mb-4">
-                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#A88527] flex items-center justify-center shrink-0 glow-gold">
-                      <m.icon size={28} weight="fill" color="#0A182B" />
+                    <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-[#00A8FF] to-[#0077CC] flex items-center justify-center shrink-0 glow-gold">
+                      <m.icon size={28} weight="fill" color="#0B0C10" />
                     </div>
                     <span className={`badge ${m.badge}`}>{m.tag}</span>
                   </div>
-                  <div className="text-xs text-[#D4AF37] font-bold tracking-widest uppercase">{m.subtitle}</div>
+                  <div className="text-xs text-[#00A8FF] font-bold tracking-widest uppercase">{m.subtitle}</div>
                   <h2 className="font-display font-black text-3xl mt-1 text-white">{m.title}</h2>
-                  <p className="text-[#9FB0CC] text-sm mt-3 leading-relaxed">{m.desc}</p>
+                  <p className="text-[#A0AAB5] text-sm mt-3 leading-relaxed">{m.desc}</p>
                   <ul className="mt-5 space-y-1.5">
                     {m.features.map((f, j) => (
-                      <li key={j} className="flex items-start gap-2 text-xs text-[#F4EBDC]">
-                        <Lightning size={12} weight="fill" className="text-[#D4AF37] mt-1 shrink-0" />
+                      <li key={j} className="flex items-start gap-2 text-xs text-[#FFFFFF]">
+                        <Lightning size={12} weight="fill" className="text-[#00A8FF] mt-1 shrink-0" />
                         <span>{f}</span>
                       </li>
                     ))}
                   </ul>
-                  <div className="mt-6 flex items-center gap-2 text-[#D4AF37] font-bold text-sm uppercase tracking-widest font-display group-hover:gap-4 transition-all duration-300">
+                  <div className="mt-6 flex items-center gap-2 text-[#00A8FF] font-bold text-sm uppercase tracking-widest font-display group-hover:gap-4 transition-all duration-300">
                     Buka Modul <ArrowRight size={18} weight="bold" />
                   </div>
                 </div>
@@ -113,11 +113,11 @@ export default function TrainingHub() {
       </div>
 
       <div className="card-solid p-5 flex items-start gap-4">
-        <div className="w-10 h-10 rounded-lg bg-[#D4AF37]/15 flex items-center justify-center shrink-0">
-          <SoccerBall size={20} weight="duotone" className="text-[#D4AF37]" />
+        <div className="w-10 h-10 rounded-lg bg-[#00A8FF]/15 flex items-center justify-center shrink-0">
+          <SoccerBall size={20} weight="duotone" className="text-[#00A8FF]" />
         </div>
-        <div className="text-sm text-[#9FB0CC]">
-          <span className="text-white font-bold">Tips:</span> Mulai dengan <span className="text-[#D4AF37] font-semibold">Full Latihan</span> untuk optimasi jangka panjang. Gunakan <span className="text-[#D4AF37] font-semibold">Single Drill</span> untuk cek seberapa kuat efek 1 drill tertentu terhadap target Anda.
+        <div className="text-sm text-[#A0AAB5]">
+          <span className="text-white font-bold">Tips:</span> Mulai dengan <span className="text-[#00A8FF] font-semibold">Full Latihan</span> untuk optimasi jangka panjang. Gunakan <span className="text-[#00A8FF] font-semibold">Single Drill</span> untuk cek seberapa kuat efek 1 drill tertentu terhadap target Anda.
         </div>
       </div>
     </div>

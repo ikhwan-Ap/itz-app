@@ -18,20 +18,20 @@ export default function UserOverview() {
     <div className="space-y-6" data-testid="user-dashboard">
       <div>
         <div className="flex items-center gap-2 mb-2">
-          <Gauge size={14} className="text-[#D4AF37]" weight="fill" />
+          <Gauge size={14} className="text-[#00A8FF]" weight="fill" />
           <div className="badge badge-gold">DASHBOARD</div>
         </div>
         <h1 className="section-title text-4xl">Selamat Datang, {user.name}</h1>
-        <p className="text-[#9FB0CC] text-sm mt-1">Role: <span className="uppercase font-bold text-[#D4AF37] tracking-wider">{user.role}</span></p>
+        <p className="text-[#A0AAB5] text-sm mt-1">Role: <span className="uppercase font-bold text-[#00A8FF] tracking-wider">{user.role}</span></p>
       </div>
 
       {exp && daysLeft <= 0 && (
-        <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="card-solid p-5 border !border-[#F0557A]/40 pulse-gold">
+        <motion.div initial={{ opacity: 0, y: -5 }} animate={{ opacity: 1, y: 0 }} className="card-solid p-5 border !border-[#E50914]/40 pulse-gold">
           <div className="flex items-center gap-3">
-            <Warning size={28} weight="fill" className="text-[#F0557A]" />
+            <Warning size={28} weight="fill" className="text-[#E50914]" />
             <div>
               <div className="font-display font-bold text-lg text-white">Akun Anda Sudah Expired</div>
-              <div className="text-sm text-[#9FB0CC]">Silakan hubungi admin untuk perpanjang paket.</div>
+              <div className="text-sm text-[#A0AAB5]">Silakan hubungi admin untuk perpanjang paket.</div>
             </div>
           </div>
         </motion.div>
@@ -42,7 +42,7 @@ export default function UserOverview() {
             <Warning size={28} weight="fill" className="text-[#F5C300]" />
             <div>
               <div className="font-display font-bold text-lg text-white">Akun Akan Expired dalam {daysLeft} hari</div>
-              <div className="text-sm text-[#9FB0CC]">Perpanjang sekarang agar training tidak terputus.</div>
+              <div className="text-sm text-[#A0AAB5]">Perpanjang sekarang agar training tidak terputus.</div>
             </div>
           </div>
         </motion.div>
@@ -56,11 +56,11 @@ export default function UserOverview() {
         ].map((s, i) => (
           <motion.div key={i} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }} className="card-solid p-5">
             <div className="flex items-center justify-between mb-2">
-              <div className="text-xs text-[#D4AF37] uppercase tracking-widest font-bold">{s.label}</div>
-              <s.icon size={18} className="text-[#D4AF37]/70" weight="duotone" />
+              <div className="text-xs text-[#00A8FF] uppercase tracking-widest font-bold">{s.label}</div>
+              <s.icon size={18} className="text-[#00A8FF]/70" weight="duotone" />
             </div>
             <div className="font-display font-black text-2xl text-white">{s.value}</div>
-            <div className="text-xs text-[#9FB0CC] mt-1">{s.sub}</div>
+            <div className="text-xs text-[#A0AAB5] mt-1">{s.sub}</div>
           </motion.div>
         ))}
       </div>
@@ -73,17 +73,17 @@ export default function UserOverview() {
         ].map((m, i) => (
           <Link key={i} to={m.to} data-testid={`overview-module-${m.to.split("/").pop()}`}>
             <motion.div whileHover={{ y: -3 }} className="card-glow p-6 relative overflow-hidden h-full group">
-              <m.icon size={140} weight="duotone" className="absolute -right-6 -bottom-6 text-[#D4AF37]/10 group-hover:text-[#D4AF37]/20 transition-colors" />
+              <m.icon size={140} weight="duotone" className="absolute -right-6 -bottom-6 text-[#00A8FF]/10 group-hover:text-[#00A8FF]/20 transition-colors" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-3">
-                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#D4AF37] to-[#A88527] flex items-center justify-center glow-gold">
-                    <m.icon size={22} weight="fill" color="#0A182B" />
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-[#00A8FF] to-[#0077CC] flex items-center justify-center glow-gold">
+                    <m.icon size={22} weight="fill" color="#0B0C10" />
                   </div>
                   <span className={`badge ${m.badgeClass}`}>{m.badge}</span>
                 </div>
                 <div className="font-display font-black text-2xl text-white">{m.title}</div>
-                <div className="text-sm text-[#9FB0CC] mt-1">{m.desc}</div>
-                <div className="mt-4 text-[#D4AF37] font-bold text-xs uppercase tracking-widest font-display group-hover:gap-3 flex items-center gap-2 transition-all">
+                <div className="text-sm text-[#A0AAB5] mt-1">{m.desc}</div>
+                <div className="mt-4 text-[#00A8FF] font-bold text-xs uppercase tracking-widest font-display group-hover:gap-3 flex items-center gap-2 transition-all">
                   Buka <ArrowRight size={14} weight="bold" />
                 </div>
               </div>
@@ -94,7 +94,7 @@ export default function UserOverview() {
 
       <div className="card-solid p-6">
         <div className="font-display font-bold text-lg mb-3 text-white">Tips Cepat</div>
-        <ul className="space-y-2 text-sm text-[#9FB0CC]">
+        <ul className="space-y-2 text-sm text-[#A0AAB5]">
           <li className="flex gap-2"><CheckCircle size={18} className="text-[#3FCA7C] shrink-0 mt-0.5" /> Prioritas 1 = atribut utama. Prioritas 2/3 dikerjakan setelah prio 1 tercapai tanpa overshoot.</li>
           <li className="flex gap-2"><CheckCircle size={18} className="text-[#3FCA7C] shrink-0 mt-0.5" /> Naikkan "Batas Limit Gelap" hanya jika atribut non-kuncian aman untuk dikorbankan.</li>
           <li className="flex gap-2"><CheckCircle size={18} className="text-[#3FCA7C] shrink-0 mt-0.5" /> Single Drill mode: target otomatis muncul dari atribut drill — tidak perlu menulis manual.</li>
