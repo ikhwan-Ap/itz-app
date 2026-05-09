@@ -17,7 +17,9 @@ export const JENJANG_OPTIONS = [
  * Shared: player data (positions, attributes, bonus, grey limit) + target selection.
  * onRun is called with the complete calculator payload (minus roles which we inject).
  */
-export function PlayerForm({ meta, stats, setStats, activeRoles, setActiveRoles, bonus, setBonus, greyLimit, setGreyLimit, playerAge, setPlayerAge, children }) {
+export function PlayerForm({ meta, stats, setStats, activeRoles, setActiveRoles, bonus, setBonus, greyLimit, setGreyLimit, playerAge, setPlayerAge, whiteMultiplier, setWhiteMultiplier, gkMode = false, fieldOnly = false, children }) {
+  const isGkSelected = !fieldOnly && (gkMode || activeRoles.includes("GK"));
+
   const whiteSet = useMemo(() => {
     if (!meta) return new Set();
     const s = new Set();
@@ -25,19 +27,41 @@ export function PlayerForm({ meta, stats, setStats, activeRoles, setActiveRoles,
     return s;
   }, [activeRoles, meta]);
 
-  const fillSample = () => {
+  const GK_STATS = {
+    Refleks: 120, Antisipasi: 115, Konsentrasi: 110, KeluarSarang: 95, Komunikasi: 100,
+    JangkauanUdara: 130, Tinjuan: 90, Lemparan: 85, Sepakan: 80, Kelincahan: 105,
+    Kebugaran: 140, Kekuatan: 70, Agresivitas: 60, Kecepatan: 75, Kreativitas: 50,
+  };
+  const MC_STATS = {
+    Umpan: 140, Dribel: 40, Kreativitas: 65, Tembakan: 40, Tekel: 176, Penjagaan: 182,
+    Penempatan: 178, Kebugaran: 145, Agresivitas: 176, UmpanSilang: 45, Penyelesaian: 44,
+    Sundulan: 74, Keberanian: 187, Kecepatan: 47, Kekuatan: 80,
+  };
+
+  const fillSampleGK = () => {
+    if (!gkMode) setActiveRoles(["GK"]);
+    setStats(GK_STATS);
+    setBonus(0);
+    setGreyLimit(40);
+  };
+  const fillSampleMC = () => {
     setActiveRoles(["MC"]);
-    setStats({
-      Umpan: 140, Dribel: 40, Kreativitas: 65, Tembakan: 40, Tekel: 176, Penjagaan: 182,
-      Penempatan: 178, Kebugaran: 145, Agresivitas: 176, UmpanSilang: 45, Penyelesaian: 44,
-      Sundulan: 74, Keberanian: 187, Kecepatan: 47, Kekuatan: 80,
-    });
+    setStats(MC_STATS);
     setBonus(0);
     setGreyLimit(40);
   };
 
   const toggleRole = (r) => {
-    setActiveRoles((prev) => (prev.includes(r) ? prev.filter((x) => x !== r) : [...prev, r]));
+    if (r === "GK") {
+      // GK is exclusive — selecting it clears all field roles
+      setActiveRoles((prev) => prev.includes("GK") ? [] : ["GK"]);
+    } else {
+      // Field role — clears GK if present, then toggles the role
+      setActiveRoles((prev) => {
+        const withoutGK = prev.filter((x) => x !== "GK");
+        return withoutGK.includes(r) ? withoutGK.filter((x) => x !== r) : [...withoutGK, r];
+      });
+    }
   };
 
   return (
@@ -47,7 +71,7 @@ export function PlayerForm({ meta, stats, setStats, activeRoles, setActiveRoles,
         <div className="font-display font-bold text-xl">Data Pemain</div>
       </div>
 
-      <div className="grid md:grid-cols-4 gap-4 mb-5">
+      <div className="grid md:grid-cols-4 gap-4 mb-3">
         <div>
           <label className="label-std">Bonus Jenjang (%)</label>
           <select className="input-std" value={bonus} onChange={(e) => setBonus(e.target.value)} data-testid="calc-bonus-select">
@@ -62,47 +86,86 @@ export function PlayerForm({ meta, stats, setStats, activeRoles, setActiveRoles,
           <label className="label-std">Batas Limit Gelap</label>
           <input type="number" className="input-std" value={greyLimit} onChange={(e) => setGreyLimit(e.target.value)} data-testid="calc-grey-limit-input" />
         </div>
-        <div className="flex items-end">
-          <button onClick={fillSample} className="btn-outline w-full" data-testid="calc-sample-btn">Isi Contoh (MC)</button>
+        <div>
+          <label className="label-std">Multiplier Putih</label>
+          <select className="input-std" value={whiteMultiplier} onChange={(e) => setWhiteMultiplier(parseInt(e.target.value))} data-testid="calc-multiplier-select">
+            <option value={1}>1× (Gelap = Putih)</option>
+            <option value={2}>2× (Putih 2x Gelap)</option>
+            <option value={3}>3× (Putih 3x Gelap)</option>
+          </select>
         </div>
       </div>
 
-      <label className="label-std">Pilih Posisi (Kuncian)</label>
-      <div className="flex flex-wrap gap-2 mb-6">
-        {Object.keys(meta.roles).map((r) => (
-          <button key={r} type="button"
-                  className={`pill ${activeRoles.includes(r) ? "active" : ""}`}
-                  onClick={() => toggleRole(r)}
-                  data-testid={`role-pill-${r}`}>
-            {r}
-          </button>
-        ))}
+      <div className="flex gap-2 mb-5">
+        {gkMode ? (
+          <button onClick={fillSampleGK} className="btn-outline flex-1" data-testid="calc-sample-gk-btn">Isi Contoh (GK)</button>
+        ) : fieldOnly ? (
+          <button onClick={fillSampleMC} className="btn-outline flex-1" data-testid="calc-sample-mc-btn">Isi Contoh (MC)</button>
+        ) : (
+          <>
+            <button onClick={fillSampleMC} className="btn-outline flex-1" data-testid="calc-sample-mc-btn">Isi Contoh (MC)</button>
+            <button onClick={fillSampleGK} className="btn-outline flex-1" data-testid="calc-sample-gk-btn">Isi Contoh (GK)</button>
+          </>
+        )}
       </div>
 
-      <div className="grid md:grid-cols-3 gap-5">
-        {["def", "att", "phy"].map((g) => {
-          const title = { def: "Pertahanan", att: "Menyerang", phy: "Fisik & Mental" }[g];
-          return (
-            <div key={g}>
-              <div className="font-display font-bold text-sm uppercase tracking-wider mb-3 pb-2 border-b border-[#D4AF37]/20 text-[#D4AF37]">{title}</div>
-              {meta.attrs[g].map((a) => {
-                const isW = whiteSet.has(a);
-                return (
-                  <div key={a}
-                       className={`flex items-center justify-between px-3 py-2 mb-2 rounded-lg text-sm transition-all duration-200 ${isW ? "bg-[#D4AF37]/8 border-l-2 border-[#D4AF37]" : "bg-white/[0.02] border-l-2 border-transparent"}`}
-                       data-testid={`attr-row-${a}`}>
-                    <span className={isW ? "text-[#E8C35A] font-bold" : "text-[#9FB0CC]"}>{a}</span>
-                    <input type="number" className={`w-20 px-2 py-1 bg-[#060F1F] rounded-md text-center font-bold border border-white/5 transition-all focus:border-[#D4AF37] focus:outline-none ${isW ? "text-[#E8C35A]" : "text-white"}`}
-                           value={stats[a] ?? 1}
-                           onChange={(e) => setStats((s) => ({ ...s, [a]: parseInt(e.target.value) || 0 }))}
-                           data-testid={`attr-input-${a}`} />
-                  </div>
-                );
-              })}
-            </div>
-          );
-        })}
-      </div>
+      {gkMode ? (
+        <div className="flex items-center gap-2 mb-6">
+          <div className="badge badge-gold">GK — Kiper</div>
+          <span className="text-xs text-[#9FB0CC]">Semua atribut kiper sudah diset sebagai kuncian (terang).</span>
+        </div>
+      ) : (
+        <>
+          <label className="label-std">Pilih Posisi (Kuncian)</label>
+          <div className="flex flex-wrap gap-2 mb-6">
+            {Object.keys(meta.roles).filter((r) => !fieldOnly || r !== "GK").map((r) => (
+              <button key={r} type="button"
+                      className={`pill ${activeRoles.includes(r) ? "active" : ""}`}
+                      onClick={() => toggleRole(r)}
+                      data-testid={`role-pill-${r}`}>
+                {r}
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
+      {(() => {
+        const groups = isGkSelected
+          ? [
+              { key: "gk1", title: "Kiper Teknis", attrs: meta.gk_attrs?.gk1 || [] },
+              { key: "gk2", title: "Kiper Atletis", attrs: meta.gk_attrs?.gk2 || [] },
+              { key: "phy", title: "Fisik & Mental", attrs: meta.gk_attrs?.phy || [] },
+            ]
+          : [
+              { key: "def", title: "Pertahanan", attrs: meta.attrs.def },
+              { key: "att", title: "Menyerang", attrs: meta.attrs.att },
+              { key: "phy", title: "Fisik & Mental", attrs: meta.attrs.phy },
+            ];
+        return (
+          <div className="grid md:grid-cols-3 gap-5">
+            {groups.map(({ key, title, attrs }) => (
+              <div key={key}>
+                <div className="font-display font-bold text-sm uppercase tracking-wider mb-3 pb-2 border-b border-[#D4AF37]/20 text-[#D4AF37]">{title}</div>
+                {attrs.map((a) => {
+                  const isW = whiteSet.has(a);
+                  return (
+                    <div key={a}
+                         className={`flex items-center justify-between px-3 py-2 mb-2 rounded-lg text-sm transition-all duration-200 ${isW ? "bg-[#D4AF37]/8 border-l-2 border-[#D4AF37]" : "bg-white/[0.02] border-l-2 border-transparent"}`}
+                         data-testid={`attr-row-${a}`}>
+                      <span className={isW ? "text-[#E8C35A] font-bold" : "text-[#9FB0CC]"}>{a}</span>
+                      <input type="number" className={`w-20 px-2 py-1 bg-[#060F1F] rounded-md text-center font-bold border border-white/5 transition-all focus:border-[#D4AF37] focus:outline-none ${isW ? "text-[#E8C35A]" : "text-white"}`}
+                             value={stats[a] ?? ''}
+                             onChange={(e) => { const v = e.target.value; setStats((s) => ({ ...s, [a]: v === '' ? '' : parseInt(v) || 1 })); }}
+                             data-testid={`attr-input-${a}`} />
+                    </div>
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        );
+      })()}
       {children}
     </div>
   );
@@ -132,8 +195,9 @@ export function TargetCard({ attr, stats, bonus, selected, onToggle, onChange, a
           )}
           <input type="number" className="input-std !py-1.5 !text-xs"
                  value={selected.goal}
-                 onChange={(e) => onChange("goal", parseInt(e.target.value))}
-                 placeholder="Target Mutu"
+                 min={1} max={340}
+                 onChange={(e) => onChange("goal", Math.min(340, Math.max(1, parseInt(e.target.value) || 1)))}
+                 placeholder="Target Mutu (maks 340)"
                  data-testid={`target-goal-${attr}`} />
         </div>
       )}
@@ -142,7 +206,7 @@ export function TargetCard({ attr, stats, bonus, selected, onToggle, onChange, a
 }
 
 /** Results: overall %, timeline, final grid (shared between modes) */
-export function ResultSection({ result, meta, bonus, stats }) {
+export function ResultSection({ result, meta, bonus, stats, gkMode = false }) {
   const [expanded, setExpanded] = useState({});
   const whiteSet = new Set(result.white_set);
 
@@ -175,7 +239,7 @@ export function ResultSection({ result, meta, bonus, stats }) {
         )}
       </div>
 
-      <FinalGrid result={result} meta={meta} bonus={bonus} stats={stats} />
+      <FinalGrid result={result} meta={meta} bonus={bonus} stats={stats} gkMode={gkMode} />
     </motion.div>
   );
 }
@@ -236,9 +300,11 @@ function DrillCard({ drill, whiteSet, expanded, onToggle }) {
   );
 }
 
-function FinalGrid({ result, meta, bonus, stats }) {
+function FinalGrid({ result, meta, bonus, stats, gkMode = false }) {
   const whiteSet = new Set(result.white_set);
-  const groups = { "Pertahanan": meta.attrs.def, "Menyerang": meta.attrs.att, "Fisik & Mental": meta.attrs.phy };
+  const groups = gkMode
+    ? { "Kiper Teknis": meta.gk_attrs?.gk1 || [], "Kiper Atletis": meta.gk_attrs?.gk2 || [], "Fisik & Mental": meta.gk_attrs?.phy || [] }
+    : { "Pertahanan": meta.attrs.def, "Menyerang": meta.attrs.att, "Fisik & Mental": meta.attrs.phy };
   return (
     <div className="grid md:grid-cols-3 gap-4 mt-6">
       {Object.entries(groups).map(([gName, attrs]) => (
@@ -266,15 +332,19 @@ function FinalGrid({ result, meta, bonus, stats }) {
 }
 
 /** Helper: shared API runner */
-export async function runCalculator({ activeRoles, stats, bonus, greyLimit, targets, singleDrill, playerAge }) {
+export async function runCalculator({ activeRoles, stats, bonus, greyLimit, targets, singleDrill, playerAge, whiteMultiplier }) {
+  const normalizedStats = Object.fromEntries(
+    Object.entries(stats).map(([k, v]) => [k, parseInt(v) || 1])
+  );
   const { data } = await api.post("/calculator/run", {
     roles: activeRoles,
-    stats,
+    stats: normalizedStats,
     bonus: parseInt(bonus) || 0,
     grey_limit: parseInt(greyLimit) || 40,
     targets,
     single_drill: singleDrill || null,
     player_age: parseInt(playerAge) || 18,
+    white_multiplier: parseInt(whiteMultiplier) || 1,
   });
   return data;
 }

@@ -1,7 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Barbell, Target, SoccerBall, Crosshair, ArrowRight, Lightning } from "@phosphor-icons/react";
+import { Barbell, Target, SoccerBall, Crosshair, Shield, ArrowRight, Lightning } from "@phosphor-icons/react";
 
 const modules = [
   {
@@ -36,6 +36,22 @@ const modules = [
     tag: "FOKUS",
     badge: "badge-blue",
   },
+  {
+    key: "gk",
+    to: "/app/training/gk",
+    icon: Shield,
+    title: "GK Latihan",
+    subtitle: "Kiper",
+    desc: "Kalkulator khusus kiper dengan atribut GK lengkap. Semua atribut kiper bersifat terang (kuncian), cocok untuk melatih kiper Anda secara optimal.",
+    features: [
+      "Atribut kiper eksklusif (Refleks, Antisipasi, dll)",
+      "Semua atribut kiper = terang (kuncian)",
+      "Fisik: hanya Kebugaran yang terang",
+      "Algoritma sniper multi-prioritas",
+    ],
+    tag: "KIPER",
+    badge: "badge-navy",
+  },
 ];
 
 export default function TrainingHub() {
@@ -52,7 +68,7 @@ export default function TrainingHub() {
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         {modules.map((m, i) => (
           <motion.div
             key={m.key}

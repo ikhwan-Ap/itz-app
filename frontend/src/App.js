@@ -11,6 +11,7 @@ import UserOverview from "@/pages/UserOverview";
 import TrainingHub from "@/pages/TrainingHub";
 import FullLatihan from "@/pages/training/FullLatihan";
 import SingleDrill from "@/pages/training/SingleDrill";
+import GKLatihan from "@/pages/training/GKLatihan";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminUsers from "@/pages/admin/Users";
 import AdminPackages from "@/pages/admin/Packages";
@@ -42,6 +43,7 @@ function App() {
             <Route path="/app/training" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><TrainingHub /></DashboardLayout></ProtectedRoute>} />
             <Route path="/app/training/full" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><FullLatihan /></DashboardLayout></ProtectedRoute>} />
             <Route path="/app/training/single" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><SingleDrill /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/training/gk" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><GKLatihan /></DashboardLayout></ProtectedRoute>} />
             {/* Legacy route → redirect to hub */}
             <Route path="/app/calculator" element={<Navigate to="/app/training" replace />} />
 

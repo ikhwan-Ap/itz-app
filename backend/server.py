@@ -23,7 +23,9 @@ from auth import (
     seed_superadmin, get_jwt_secret, JWT_ALGORITHM,
 )
 from calculator import (
-    DRILLS_DB, ROLES_DB, ATTR_GROUPS, ALL_ATTRS, simulate_sniper,
+    DRILLS_DB, ROLES_DB, ATTR_GROUPS, ALL_ATTRS,
+    FIELD_ALL_ATTRS, GK_ATTR_GROUPS, GK_ALL_ATTRS,
+    simulate_sniper,
 )
 from models import (
     UserRegister, UserLogin, AdminCreateUser, UserUpdate,
@@ -745,7 +747,9 @@ async def calc_meta():
         "drills": DRILLS_DB,
         "roles": ROLES_DB,
         "attrs": ATTR_GROUPS,
-        "all_attrs": ALL_ATTRS,
+        "all_attrs": FIELD_ALL_ATTRS,
+        "gk_attrs": GK_ATTR_GROUPS,
+        "gk_all_attrs": GK_ALL_ATTRS,
     }
 
 
@@ -780,17 +784,21 @@ async def calc_run(body: CalculatorRunRequest, user=Depends(current_user)):
 
     # Run simulator
     drill_filter = [body.single_drill] if body.single_drill else None
+    is_gk = "GK" in body.roles
     result = simulate_sniper(
         init_stats=init_stats,
         white_set=white_set,
         targets=body.targets,
         grey_limit=int(body.grey_limit or 40),
         drill_filter=drill_filter,
+        white_multiplier=int(body.white_multiplier or 1),
+        valid_attrs=set(GK_ALL_ATTRS) if is_gk else set(FIELD_ALL_ATTRS),
     )
 
     # Compute overall %
+    score_attrs = GK_ALL_ATTRS if is_gk else FIELD_ALL_ATTRS
     final_vals = {}
-    for a in ALL_ATTRS:
+    for a in score_attrs:
         v = int(result["stats"].get(a, 1))
         if a in white_set:
             v += int(body.bonus or 0)

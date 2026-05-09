@@ -14,6 +14,7 @@ export default function SingleDrillPage() {
   const [bonus, setBonus] = useState(0);
   const [greyLimit, setGreyLimit] = useState(40);
   const [playerAge, setPlayerAge] = useState(18);
+  const [whiteMultiplier, setWhiteMultiplier] = useState(2);
   const [selectedDrill, setSelectedDrill] = useState("");
   const [selectedTargets, setSelectedTargets] = useState({}); // only attrs in selected drill
   const [step, setStep] = useState(1);
@@ -25,10 +26,18 @@ export default function SingleDrillPage() {
     api.get("/calculator/meta").then((r) => {
       setMeta(r.data);
       const init = {};
-      r.data.all_attrs.forEach((a) => (init[a] = 1));
+      [...(r.data.all_attrs || []), ...(r.data.gk_all_attrs || [])].forEach((a) => (init[a] = 1));
       setStats(init);
     });
   }, []);
+
+  // Reset drill & results every time position changes
+  useEffect(() => {
+    setSelectedDrill("");
+    setSelectedTargets({});
+    setResult(null);
+    setStep(1);
+  }, [activeRoles]);
 
   const whiteSet = useMemo(() => {
     if (!meta) return new Set();
@@ -60,7 +69,7 @@ export default function SingleDrillPage() {
     const drill = meta.drills.find((d) => d.name === name);
     const next = {};
     drill.attrs.forEach((a) => {
-      if (whiteSet.has(a)) next[a] = { prio: 1, goal: 300 };
+      if (whiteSet.has(a)) next[a] = { prio: 1, goal: 340 };
     });
     setSelectedTargets(next);
     setStep(3);
@@ -70,7 +79,7 @@ export default function SingleDrillPage() {
     setSelectedTargets((prev) => {
       const copy = { ...prev };
       if (copy[a]) delete copy[a];
-      else copy[a] = { prio: 1, goal: 300 };
+      else copy[a] = { prio: 1, goal: 340 };
       return copy;
     });
   };
@@ -82,12 +91,12 @@ export default function SingleDrillPage() {
   const run = async () => {
     setErr(""); setResult(null);
     const targets = Object.entries(selectedTargets).map(([name, v]) => ({
-      name, prio: 1, goal: parseInt(v.goal) || 300,  // single drill → all priority 1
+      name, prio: 1, goal: Math.min(340, parseInt(v.goal) || 340),
     }));
     if (!targets.length) { setErr("Pilih minimal 1 atribut target dari drill ini."); return; }
     setLoading(true);
     try {
-      const data = await runCalculator({ activeRoles, stats, bonus, greyLimit, targets, singleDrill: selectedDrill, playerAge });
+      const data = await runCalculator({ activeRoles, stats, bonus, greyLimit, targets, singleDrill: selectedDrill, playerAge, whiteMultiplier });
       setResult(data);
       setStep(4);
       setTimeout(() => document.getElementById("result-section")?.scrollIntoView({ behavior: "smooth" }), 100);
@@ -116,7 +125,8 @@ export default function SingleDrillPage() {
       <PlayerForm meta={meta} stats={stats} setStats={setStats}
                   activeRoles={activeRoles} setActiveRoles={setActiveRoles}
                   bonus={bonus} setBonus={setBonus} greyLimit={greyLimit} setGreyLimit={setGreyLimit}
-                  playerAge={playerAge} setPlayerAge={setPlayerAge}>
+                  playerAge={playerAge} setPlayerAge={setPlayerAge}
+                  whiteMultiplier={whiteMultiplier} setWhiteMultiplier={setWhiteMultiplier}>
         <button onClick={goPickDrill} className="btn-primary w-full mt-6" data-testid="sd-next-drill-btn">
           Lanjut: Pilih Drill →
         </button>
@@ -135,8 +145,11 @@ export default function SingleDrillPage() {
           </p>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {meta.drills.map((d) => {
-              const kuncianHits = d.attrs.filter((a) => whiteSet.has(a)).length;
-              const darkHits = d.attrs.length - kuncianHits;
+              const isGk = activeRoles.includes("GK");
+              const validSet = isGk ? new Set(meta.gk_all_attrs || []) : new Set(meta.all_attrs || []);
+              const effAttrs = d.attrs.filter((a) => validSet.has(a));
+              const kuncianHits = effAttrs.filter((a) => whiteSet.has(a)).length;
+              const darkHits = effAttrs.length - kuncianHits;
               const isSel = selectedDrill === d.name;
               const noKunci = kuncianHits === 0 && whiteSet.size > 0;
               return (
@@ -153,12 +166,12 @@ export default function SingleDrillPage() {
                     {isSel && <CheckCircle size={18} weight="fill" className="text-[#D4AF37] shrink-0" />}
                   </div>
                   <div className="flex items-center gap-2 mt-1.5 text-[11px] text-[#9FB0CC]">
-                    <span>{d.size} attr</span>
+                    <span>{effAttrs.length} attr aktif</span>
                     <span>·</span>
                     <span>Cost: <b className="text-[#F4EBDC]">{d.cost}</b></span>
                   </div>
                   <div className="flex flex-wrap gap-1 mt-3">
-                    {d.attrs.map((a) => (
+                    {effAttrs.map((a) => (
                       <span key={a} className={`text-[10px] px-1.5 py-0.5 rounded ${whiteSet.has(a) ? "tag-w" : "tag-g"}`}>{a}</span>
                     ))}
                   </div>

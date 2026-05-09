@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python3 -c ' *)",
+      "Bash(python3 -c \"from calculator import DRILLS_DB, ROLES_DB, ATTR_GROUPS, ALL_ATTRS, FIELD_ALL_ATTRS, GK_ATTR_GROUPS, GK_ALL_ATTRS, simulate_sniper; print\\('FIELD_ALL_ATTRS:', len\\(FIELD_ALL_ATTRS\\), 'GK_ALL_ATTRS:', len\\(GK_ALL_ATTRS\\), 'ALL_ATTRS:', len\\(ALL_ATTRS\\), 'DRILLS_DB:', len\\(DRILLS_DB\\)\\); print\\('GK role:', ROLES_DB['GK']\\)\")",
+      "Bash(node -e ' *)",
+      "Bash(curl -s http://localhost:8000/api/calculator/meta)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('gk_attrs:', list\\(d.get\\('gk_attrs',{}\\).keys\\(\\)\\)\\); print\\('gk_all_attrs count:', len\\(d.get\\('gk_all_attrs',[]\\)\\)\\); print\\('GK in roles:', 'GK' in d.get\\('roles',{}\\)\\)\")",
+      "Bash(curl -s http://localhost:8001/api/calculator/meta)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('gk_attrs keys:', list\\(d.get\\('gk_attrs',{}\\).keys\\(\\)\\)\\); print\\('gk_all_attrs count:', len\\(d.get\\('gk_all_attrs',[]\\)\\)\\); print\\('GK in roles:', 'GK' in d.get\\('roles',{}\\)\\)\")",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(d\\)\")",
+      "Bash(netstat -tlnp)"
+    ]
+  }
+}

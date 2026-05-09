@@ -164,3 +164,4 @@ class CalculatorRunRequest(BaseModel):
     targets: List[Dict[str, Any]]  # [{name, goal, prio}]
     single_drill: Optional[str] = None  # drill name OR None
     player_age: Optional[int] = 18
+    white_multiplier: int = 1  # how many points white attrs gain per grey unit (1=equal, 2=double)
