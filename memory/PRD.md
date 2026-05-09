@@ -1,103 +1,91 @@
 # TE Sniper Calculator — Product Requirements Document
 
 ## Original Problem Statement
-User had a single HTML page for a Top Eleven (football manager game) training calculator. They requested:
-1. **Bug fix**: Priority 2 and 3 targets produced uneven/overlapping ("jomplang/tumpang tindih") results — drills overshot target goals.
-2. **Feature**: Option to run single drill only (not full search).
-3. **Feature**: Show per-drill step-by-step details during execution (not only at the end).
-4. Transform into a full SaaS dashboard with **Top Eleven** color theme (navy + stadium green + gold).
-5. Multi-role auth: **superadmin, admin, marketing, user**.
-6. Registration flow: email + password + 2nd password + association (optional) + package + promo code.
-7. Promo codes: percent or flat discount.
-8. Packages: monthly or yearly.
-9. Manual approval for registration/payment + placeholder for Xendit/Midtrans (future auto-payment).
-10. Free-trial accounts: time-limited OR max-click-limited.
-11. Admin dashboard: transaction charts, active users, expiring users, popup notifications.
-12. Marketing role: earns commission from promo discounts, has own dashboard + charts.
-13. News + Events CMS (dynamic pages) with event registration + admin approval.
+User had a single HTML page Top Eleven training calculator. Requested:
+1. Bug fix: priority logic overshoot
+2. Single drill mode
+3. Step-by-step drill details
+4. Full SaaS dashboard transformation
+5. Multi-role auth (superadmin, admin, marketing, user)
+6. Registration with 2nd password + association + package + promo
+7. Promo codes (% or flat)
+8. Packages (monthly/yearly)
+9. Manual approval + Xendit/Midtrans placeholder
+10. Free-trial accounts (time/click limited)
+11. Admin dashboard with charts
+12. Marketing role with commission dashboard
+13. News + Events CMS
+14. **Tactical Edge redesign** — Dark `#0B0C10` + Electric Blue `#00A8FF` + Red `#E50914` aesthetic per provided zip
+15. Multi-page public site with Navigation + Footer wrapping login/register
 
 ## Tech Stack
-- **Backend**: FastAPI + MongoDB (Motor async driver) + bcrypt + PyJWT
-- **Frontend**: React 19 + React Router + TailwindCSS + shadcn/ui + framer-motion + @phosphor-icons/react + recharts
+- **Backend**: FastAPI + MongoDB (Motor) + bcrypt + PyJWT
+- **Frontend**: React 19 + React Router 7 + TailwindCSS + GSAP + Framer Motion + Phosphor Icons + Recharts
 
 ## User Personas
-- **Guest**: browses landing, news, events, packages → registers.
-- **User** (free-trial or paid): runs calculator, views account expiry.
-- **Marketing**: creates own promo codes, tracks commission earnings.
-- **Admin**: approves transactions/event-registrations, manages users/news/events, views KPIs.
-- **Superadmin**: everything admin can do + manage roles, assign marketers, edit payment config.
+- **Guest**: 6 public pages (Home, About, Services, Tools, Community, Contact)
+- **User** (free-trial or paid): runs calculator, views account expiry
+- **Marketing**: creates promos, tracks commission
+- **Admin**: approves transactions/events, manages CRUD, KPIs
+- **Superadmin**: everything + role/payment config
 
 ## Core Requirements (static)
-- JWT auth via httpOnly cookies (samesite=none, secure for preview HTTPS).
-- bcrypt password hashing, brute-force lockout (5 attempts → 15 min).
-- Every MongoDB collection indexed; id fields use UUID.
-- Calculator: respects 180% avg cap + grey-attribute limit + goal cap on ALL targets simultaneously.
+- JWT auth via httpOnly cookies
+- bcrypt + brute-force lockout
+- Calculator respects 180% avg + grey-attribute + goal cap on ALL targets
 
-## What's Been Implemented (2026-01-18 — MVP)
-- ✅ Seeded superadmin on startup + 3 default packages + `WELCOME20` promo
-- ✅ Auth: register (→ pending), login, logout, me, refresh; cookies + RBAC
-- ✅ Users CRUD (admin), trial accounts with click-limit/time-limit
-- ✅ Packages CRUD
-- ✅ Promo codes CRUD (marketing owns theirs; admins own all)
-- ✅ Promo validation endpoint (dry-run discount calc)
-- ✅ Transactions: auto-created on register, admin approve/reject workflow
-- ✅ News/Events CMS with published flag
-- ✅ Event registration + approval workflow
-- ✅ Payment config storage (manual + Xendit/Midtrans placeholders)
-- ✅ Admin dashboard with KPIs + 6-month revenue chart + expiring list
-- ✅ Marketing dashboard with commission chart + own promo stats
-- ✅ **Calculator bug fix**: simulator now respects goal cap of ALL targets at every drill step, eliminating priority overshoot
-- ✅ **Single-drill mode**: filters drills pool to one
-- ✅ **Per-drill step details**: history[i].steps[] with snapshot+delta
-- ✅ Landing page with hero, features, packages, news, events
-- ✅ Top Eleven theme: navy `#0B1221` + stadium-green `#00D05E` + gold `#F5C300`, Barlow Condensed + Manrope fonts, stadium-noise grain
-- ✅ Protected routes by role
-- ✅ Expiry/trial popups on user dashboard
-- ✅ 100% backend test pass (30/30) + all frontend flows verified
+## What's Been Implemented
 
-## What's Been Implemented (2026-01-19 — Iteration 2: Indo Timezone Rebrand)
-- ✅ Indo Timezone Football Community logo integrated (public/assets/itz-logo.png) + shared Logo component
-- ✅ Palette shift: navy `#0A182B` + gold `#D4AF37` dominant + cream text, matching logo
-- ✅ Tagline "Unity in Time — We Suffer, We Grow, We Achieve" on landing hero
-- ✅ Logo watermark on landing hero + auth pages + sidebar
-- ✅ **Calculator split into "Modul Latihan" hub** → `/app/training`
-  - Sub-module 1: **Full Latihan** (`/app/training/full`) — multi-priority sniper engine
-  - Sub-module 2: **Single Drill** (`/app/training/single`) — pick 1 drill, targets auto-populate from drill's attrs
-- ✅ Single Drill UX: drill picker cards show attr pills (green=kuncian, red=gelap) + kuncian/gelap count + cost; cards with no kuncian are disabled
-- ✅ Legacy `/app/calculator` route → redirects to `/app/training`
-- ✅ Visual polish: page-enter fade+slide, hover-lift on cards, glow-gold CTAs, brand-gradient text, soft shadows, softer pulsing alerts
-- ✅ Added Cormorant Garamond serif for italic tagline, kept Barlow Condensed for display
-- ✅ Favicon + browser title updated to Indo Timezone branding
-- ✅ 100% iteration-2 frontend tests passed (12/12 scenarios)
+### MVP (2026-01-18)
+- Full backend RBAC + frontend dashboards + calculator
+- News/Events CMS + payment config
+- Top Eleven theme (navy/gold)
+
+### Iteration 2 (2026-01-19) — Indo Timezone Rebrand
+- ITZ logo, palette to navy+gold dominant
+- Calculator split: Full Latihan, Single Drill, GK
+- Tagline "Unity in Time — We Suffer, We Grow, We Achieve"
+
+### Iteration 3 (2026-01-19) — Mobile UX
+- Hamburger menu, ResponsiveTable, mobile-friendly forms
+
+### Iteration 4-7 — Background, Badge, Sidebar
+- Watermark → radial gradient
+- Sidebar position:fixed
+- Emergent badge hidden
+
+### Iteration 8 (2026-01-XX) — Tactical Edge Theme
+- Bulk color migration from navy/gold to dark + electric blue + red
+
+### Iteration 9-10 (2026-02-09) — Public Site Multi-Page Redesign ⭐ LATEST
+- **GSAP installed** (`gsap@3.15.0`) for animations
+- New folder `/components/public/` with: Navigation, Footer, Preloader, ScrollReveal, HeroSection, FootballPitchCanvas, PublicLayout
+- New folder `/pages/public/` with 6 pages: Home, About, Services, Tools, Community, Contact
+- **Animated football pitch canvas** on Home (11v11 player movement + ball passing + goal celebration particles)
+- **GSAP timeline entrance** + **ScrollTrigger** reveal animations
+- **Preloader** on first load (sessionStorage gated)
+- **Sticky Navigation** with scroll-blur transition + mobile fullscreen menu
+- **4-column Footer** with social icons
+- Login & Register now wrapped in `PublicLayout` (have nav+footer)
+- **Services page**: 4 service slots (Tactical Sniper, Formation Lab, Training Analytics, Association Toolkit) with **dynamic pricing from `/api/packages`**
+- **Community page**: dynamic events from `/api/events`
+- Cleaned up duplicate TEST_Premium Package documents from DB
+- Frontend testing agent: **100% PASS** (iteration_10.json)
 
 ## Prioritized Backlog (P0/P1/P2)
-- **P1** — Forgot-password flow (endpoint stub exists in playbook, not yet implemented)
-- **P1** — Event registrations page on user dashboard (list + status)
-- **P1** — Public news/event detail pages (currently only landing preview)
-- **P2** — Real Xendit/Midtrans integration when user provides keys
-- **P2** — User profile edit page (change password, 2nd password, association)
+- **P1** — Xendit/Midtrans payment gateway integration (need API keys)
+- **P1** — News/Event detail public pages (currently only landing preview)
+- **P1** — Forgot-password flow
+- **P1** — User event registration page in dashboard
+- **P2** — Profile edit page (password, 2nd password, association)
 - **P2** — Search/filter on user & transaction tables
-- **P2** — Email notifications on approval/rejection
+- **P2** — Email notifications (approval/rejection)
+- **P2** — Copy share link for calculator results
 
-## What's Been Implemented (2026-01-19 — Iteration 3: Mobile UX)
-- ✅ **Hamburger menu** di header mobile dashboard — buka drawer dari kiri dengan semua nav items (filtered by role) + framer-motion animasi smooth + overlay backdrop
-- ✅ **Auto-close drawer** saat klik overlay atau saat navigasi
-- ✅ **Login/Register** no horizontal scroll — watermark sized dengan `min(Xpx, YVvw)` + `overflow-hidden` container
-- ✅ **ResponsiveTable** component baru — render `<table>` di desktop (md+) dan **expandable cards** di mobile. Primary cols selalu visible, secondary cols expand dengan caret toggle + framer-motion height animation
-- ✅ Applied ke **Users**, **Transactions**, **Promos** admin pages
-- ✅ AdminDashboard KPI grid: 2-col di mobile, 4-col di desktop
-- ✅ AdminDashboard Recent Transactions + Expiring list: inline stacked cards di mobile, `<table>` di desktop
-- ✅ MarketingDashboard Kode Promo + Konversi Terbaru: same pattern
-- ✅ 100% iteration-3 mobile tests passed (10/10 scenarios) + regression pass
-
-## What's Been Implemented (2026-01-19 — Iteration 5 + 6 + 7: Background, Badge, Sidebar)
-- ✅ **Watermark logo image → radial gradient glow** di Login, Register, Landing. Soft aurora gold+navy blur center (tidak ada image logo muncul sebagai background lagi)
-- ✅ **Emergent preview badge disembunyikan** (display:none di index.html + CSS safety rule)
-- ✅ **Sidebar dashboard fixed** (position:fixed left:0 top:0 bottom:0 w-64) dengan main `lg:ml-64` — sidebar tidak ikut scroll saat content panjang. Root cause bug: `.bg-grain > *` CSS rule override `position:fixed`; fix dengan `:not(aside)` selector
-- ✅ **Backend CORS/FRONTEND_URL** aligned ke domain preview aktual `drill-optimizer.preview.emergentagent.com`
-- ✅ 100% iteration-7 tests pass
+## Cleanup Needed
+- Remove unused `/app/frontend/src/pages/Landing.js` (replaced by `pages/public/Home.js`)
 
 ## Deployment Notes
-- Supervisor manages backend (:8001) and frontend (:3000)
-- Frontend uses `REACT_APP_BACKEND_URL` for all API calls with `withCredentials`
-- MongoDB: single database `te_sniper_db`
+- Supervisor: backend :8001, frontend :3000
+- MongoDB: `te_sniper_db`
+- `REACT_APP_BACKEND_URL` for all API calls

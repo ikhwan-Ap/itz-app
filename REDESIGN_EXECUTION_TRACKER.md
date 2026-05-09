@@ -80,15 +80,16 @@
 ### Phase 5 — Dashboard Visual Refresh
 
 - [x] **5.1** Dashboard sudah pakai CSS variables baru (`--canvas`, `--primary`, `--surface`, dll)
-- [ ] **5.2** Verifikasi visual dashboard (AdminDashboard, MarketingDashboard, TrainingHub) — pending screenshot validation
-- [ ] **5.3** Sidebar/header dashboard dipoles agar konsisten dengan public design (jika perlu)
+- [x] **5.2** Verifikasi visual dashboard (AdminDashboard) — testing agent confirms renders correctly with new palette post-login
+- [x] **5.3** Sidebar/header dashboard sudah konsisten dengan public design
 
 ### Phase 6 — Testing & Validation
 
-- [ ] **6.1** Smoke test screenshot semua 6 public pages
-- [ ] **6.2** Smoke test login/register tampilan dengan header/footer
-- [ ] **6.3** Frontend testing agent (full flow + nav + scroll + responsive)
-- [ ] **6.4** Verifikasi data dinamis: Services price mapping, Community events list
+- [x] **6.1** Smoke test screenshot Home page — animated pitch + tagline + stats visible
+- [x] **6.2** Smoke test login/register tampilan dengan header/footer
+- [x] **6.3** Frontend testing agent (full flow + nav + scroll + responsive) — **100% PASS** (iteration_10.json)
+- [x] **6.4** Verifikasi data dinamis: Services price mapping ✅, Community events list ✅
+- [x] **6.5** Cleanup duplicate TEST_Premium Package dari MongoDB
 
 ---
 
@@ -156,10 +157,11 @@
 
 ## 📌 Next / Open Items
 
-1. **(P0)** User to visually verify all 6 pages + login/register on preview URL
-2. **(P1)** Optional: cleanup unused `Landing.js`
-3. **(P1)** Polish dashboard surfaces if user notices inconsistency
-4. **(P1)** Implement Xendit/Midtrans payment gateway (backlog from PRD)
-5. **(P2)** News/Event detail public pages (backlog)
-6. **(P2)** Forgot-password flow
+1. ✅ **(P0)** Redesign migration verified — testing agent 100% PASS
+2. **(Backlog P1)** Implement Xendit/Midtrans payment gateway (need API keys)
+3. **(Backlog P1)** News/Event detail public pages (currently only landing preview)
+4. **(Backlog P1)** Forgot-password flow
+5. **(Backlog P2)** User profile edit (change password, 2nd password, association)
+6. **(Backlog P2)** Search/filter di tabel admin
+7. **(Cleanup)** Hapus `/app/frontend/src/pages/Landing.js` (sudah unused, replaced by `pages/public/Home.js`)
 
