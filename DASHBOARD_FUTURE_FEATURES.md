@@ -145,11 +145,16 @@ Pages refreshed:
 - `/app/DASHBOARD_FUTURE_FEATURES.md` (this file)
 
 **Modified**:
-- `/app/frontend/src/components/DashboardLayout.js` — full rewrite (collapsible sidebar + topbar + profile)
+- `/app/frontend/src/components/DashboardLayout.js` — full rewrite (collapsible sidebar + topbar + profile). Topbar title uses longest-match algorithm to handle nested routes correctly.
+- `/app/frontend/src/components/dashboard/WelcomeBanner.js` — uses react-router `Link` (SPA) for action buttons, supports both `to` and `onClick` props
 - `/app/frontend/src/pages/UserOverview.js` — full rewrite with new components
 - `/app/frontend/src/pages/AdminDashboard.js` — full rewrite with StatCard pattern + restyled charts
 - `/app/frontend/src/pages/MarketingDashboard.js` — same pattern
 - `/app/frontend/src/index.css` — added `.dashboard-shell` scope tokens
+
+**Tested by testing agent (iteration_11.json)**: 95% pass. Two issues found and **fixed**:
+1. ✅ Topbar title now correctly shows page name on nested routes (longest `to` match)
+2. ✅ WelcomeBanner actions use SPA Link, no more full page reload
 
 **Untouched (per user request "tactical sniper bagus saat ini")**:
 - `/app/frontend/src/pages/training/FullLatihan.js`

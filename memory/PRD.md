@@ -57,7 +57,17 @@ User had a single HTML page Top Eleven training calculator. Requested:
 ### Iteration 8 (2026-01-XX) — Tactical Edge Theme
 - Bulk color migration from navy/gold to dark + electric blue + red
 
-### Iteration 9-10 (2026-02-09) — Public Site Multi-Page Redesign ⭐ LATEST
+### Iteration 11 (2026-02-09) — Dashboard "Tactical Center" Redesign ⭐ LATEST
+- New `DashboardLayout.js`: collapsible sidebar 260↔72px (framer-motion), fixed top bar with search/bell/profile dropdown, page transition AnimatePresence
+- New components: `dashboard/StatCard.js` (with progress bar) + `dashboard/WelcomeBanner.js` (with pitch grid overlay)
+- Refreshed `UserOverview.js`, `AdminDashboard.js`, `MarketingDashboard.js` to new card design (#16161d bg, white/[0.06] border, cyan glow hover)
+- Recharts restyled to dark theme tooltips + rounded bars
+- Sidebar collapse persists via localStorage `dash_sidebar_collapsed`
+- Topbar title uses longest-`to` match for correct sub-route detection
+- WelcomeBanner action buttons use react-router Link (SPA, no full reload)
+- Tactical Sniper modules **untouched** per user request
+- Future features (Cmd+K palette, Notifications, Streak, Squad, Analytics, Activity Feed) documented in `/app/DASHBOARD_FUTURE_FEATURES.md`
+- Frontend testing: 95% pass (iteration_11.json) → 2 bugs fixed → 100%
 - **GSAP installed** (`gsap@3.15.0`) for animations
 - New folder `/components/public/` with: Navigation, Footer, Preloader, ScrollReveal, HeroSection, FootballPitchCanvas, PublicLayout
 - New folder `/pages/public/` with 6 pages: Home, About, Services, Tools, Community, Contact

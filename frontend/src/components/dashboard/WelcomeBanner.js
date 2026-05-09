@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
 /**
@@ -6,7 +7,7 @@ import { motion } from "framer-motion";
  * Props:
  *  - userName: string
  *  - subtitle (optional): small line below greeting (e.g. role description)
- *  - actions: array of { to, icon, label, primary?: bool }
+ *  - actions: array of { to, icon, label, primary?: bool, onClick?: fn }
  */
 export default function WelcomeBanner({ userName, subtitle, actions = [], children }) {
   const now = new Date();
@@ -44,22 +45,25 @@ export default function WelcomeBanner({ userName, subtitle, actions = [], childr
         </div>
         {actions.length > 0 && (
           <div className="flex items-center gap-2 flex-wrap">
-            {actions.map((a, i) => (
-              <a
-                key={i}
-                href={a.to}
-                onClick={(e) => { if (a.onClick) { e.preventDefault(); a.onClick(); } }}
-                className={
-                  a.primary
-                    ? "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold uppercase tracking-wider bg-[#00A8FF] text-white hover:bg-[#33BBFF] hover:shadow-[0_0_16px_rgba(0,168,255,0.4)] transition-all duration-200"
-                    : "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold uppercase tracking-wider border border-white/[0.06] text-[#a0a0b0] hover:border-[rgba(0,168,255,0.4)] hover:text-white transition-all duration-200"
-                }
-                data-testid={`welcome-action-${i}`}
-              >
-                {a.icon && <a.icon size={16} weight="bold" />}
-                {a.label}
-              </a>
-            ))}
+            {actions.map((a, i) => {
+              const className = a.primary
+                ? "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold uppercase tracking-wider bg-[#00A8FF] text-white hover:bg-[#33BBFF] hover:shadow-[0_0_16px_rgba(0,168,255,0.4)] transition-all duration-200"
+                : "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold uppercase tracking-wider border border-white/[0.06] text-[#a0a0b0] hover:border-[rgba(0,168,255,0.4)] hover:text-white transition-all duration-200";
+              if (a.onClick) {
+                return (
+                  <button key={i} onClick={a.onClick} className={className} data-testid={`welcome-action-${i}`}>
+                    {a.icon && <a.icon size={16} weight="bold" />}
+                    {a.label}
+                  </button>
+                );
+              }
+              return (
+                <Link key={i} to={a.to} className={className} data-testid={`welcome-action-${i}`}>
+                  {a.icon && <a.icon size={16} weight="bold" />}
+                  {a.label}
+                </Link>
+              );
+            })}
           </div>
         )}
         {children}

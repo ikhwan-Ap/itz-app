@@ -41,8 +41,13 @@ export default function DashboardLayout({ children }) {
 
   const initials = (user?.name || user?.email || "U").trim().split(/\s+/).map((s) => s[0]).slice(0, 2).join("").toUpperCase();
 
-  // Page title from active nav
-  const activeItem = items.find((it) => (it.end ? loc.pathname === it.to : loc.pathname.startsWith(it.to))) || items[0];
+  // Page title from active nav — pick most-specific (longest) match
+  const activeItem = [...items]
+    .sort((a, b) => b.to.length - a.to.length)
+    .find((it) => it.end
+      ? loc.pathname === it.to
+      : (loc.pathname === it.to || loc.pathname.startsWith(it.to + "/"))
+    ) || items[0];
 
   const handleLogout = async () => { await logout(); nav("/login"); };
 
