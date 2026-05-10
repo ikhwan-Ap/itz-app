@@ -44,7 +44,13 @@ mongo_url = os.environ["MONGO_URL"]
 client = AsyncIOMotorClient(mongo_url)
 db = client[os.environ["DB_NAME"]]
 
-app = FastAPI(title="TE Sniper API")
+_debug = os.environ.get("APP_ENV", "production").lower() != "production"
+app = FastAPI(
+    title="TE Sniper API",
+    docs_url="/docs" if _debug else None,
+    redoc_url="/redoc" if _debug else None,
+    openapi_url="/openapi.json" if _debug else None,
+)
 api = APIRouter(prefix="/api")
 
 logger = logging.getLogger("tesniper")
