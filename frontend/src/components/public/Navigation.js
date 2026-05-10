@@ -49,9 +49,11 @@ export default function Navigation() {
         data-testid="public-nav"
       >
         <div className="content-max-width flex items-center justify-between h-16 md:h-20">
-          <Link to="/" className="flex items-center gap-2" data-testid="nav-logo">
-            <Logo size={36} compact={true} />
-          </Link>
+          {!["/login", "/register"].includes(location.pathname) && (
+            <Link to="/" className="flex items-center gap-2" data-testid="nav-logo">
+              <Logo size={36} compact={true} />
+            </Link>
+          )}
 
           <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => {
