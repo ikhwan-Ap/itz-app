@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import {
   Target, Crosshair, Warning, CheckCircle, Clock, Package as PkgIcon,
-  Lightning, ArrowRight, Flame, Shield, Barbell,
+  Lightning, ArrowRight, Flame, Shield, Barbell, Trophy,
 } from "@phosphor-icons/react";
 import { motion } from "framer-motion";
 import StatCard from "@/components/dashboard/StatCard";
@@ -65,14 +65,25 @@ export default function UserOverview() {
       )}
 
       {/* Stat cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+        <StatCard
+          icon={Flame}
+          iconColor="#f97316"
+          label="Streak Latihan"
+          value={`${user.current_streak || 0} hari`}
+          subtext={user.longest_streak ? `Rekor terpanjang: ${user.longest_streak} hari` : "Mulai latihan untuk membangun streak!"}
+          progress={Math.min(100, ((user.current_streak || 0) / 30) * 100)}
+          progressColor="#f97316"
+          delay={0.05}
+          testId="stat-streak"
+        />
         <StatCard
           icon={PkgIcon}
-          iconColor="#00A8FF"
+          iconColor="#38BDF8"
           label="Package"
           value={user.package?.name || "—"}
           subtext={user.package?.description || "Belum ada paket aktif"}
-          delay={0.05}
+          delay={0.1}
           testId="stat-package"
         />
         <StatCard
@@ -83,7 +94,7 @@ export default function UserOverview() {
           subtext={exp ? exp.toLocaleDateString("id-ID") : "Tanpa batas waktu"}
           progress={expiryProgress}
           progressColor={daysLeft != null && daysLeft <= 7 ? "#ef4444" : "#f59e0b"}
-          delay={0.1}
+          delay={0.15}
           testId="stat-expires"
         />
         <StatCard
@@ -94,7 +105,7 @@ export default function UserOverview() {
           subtext={`${user.clicks_used || 0} dari ${user.max_clicks || "∞"} terpakai`}
           progress={clicksProgress}
           progressColor="#10b981"
-          delay={0.15}
+          delay={0.2}
           testId="stat-clicks"
         />
       </div>
@@ -108,24 +119,24 @@ export default function UserOverview() {
           <Link key={i} to={m.to} data-testid={`overview-module-${m.to.split("/").pop()}`}>
             <motion.div
               whileHover={{ y: -3 }}
-              className="bg-[#16161d] border border-white/[0.06] rounded-xl p-6 relative overflow-hidden h-full group hover:border-[rgba(0,168,255,0.4)] hover:shadow-[0_0_24px_rgba(0,168,255,0.12)] transition-all duration-200"
+              className="bg-[#16161d] border border-white/[0.06] rounded-xl p-6 relative overflow-hidden h-full group hover:border-[rgba(56,189,248,0.4)] hover:shadow-[0_0_24px_rgba(56,189,248,0.12)] transition-all duration-200"
             >
-              <m.icon size={140} weight="duotone" className="absolute -right-6 -bottom-6 text-[#00A8FF]/[0.08] group-hover:text-[#00A8FF]/[0.18] transition-colors" />
+              <m.icon size={140} weight="duotone" className="absolute -right-6 -bottom-6 text-[#38BDF8]/[0.08] group-hover:text-[#38BDF8]/[0.18] transition-colors" />
               <div className="relative z-10">
                 <div className="flex items-center gap-3 mb-3">
                   <div
                     className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0"
-                    style={{ background: "linear-gradient(135deg, #00A8FF, #0077CC)" }}
+                    style={{ background: "linear-gradient(135deg, #38BDF8, #0EA5E9)" }}
                   >
                     <m.icon size={20} weight="fill" color="#fff" />
                   </div>
-                  <span className="px-2.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wider bg-[rgba(0,168,255,0.15)] text-[#00A8FF] border border-[rgba(0,168,255,0.35)]">
+                  <span className="px-2.5 py-1 rounded-md text-[11px] font-semibold uppercase tracking-wider bg-[rgba(56,189,248,0.15)] text-[#38BDF8] border border-[rgba(56,189,248,0.35)]">
                     {m.badge}
                   </span>
                 </div>
                 <div className="font-bold text-xl sm:text-2xl text-white">{m.title}</div>
                 <div className="text-sm text-[#a0a0b0] mt-1">{m.desc}</div>
-                <div className="mt-4 text-[#00A8FF] font-semibold text-xs uppercase tracking-widest group-hover:gap-3 flex items-center gap-2 transition-all">
+                <div className="mt-4 text-[#38BDF8] font-semibold text-xs uppercase tracking-widest group-hover:gap-3 flex items-center gap-2 transition-all">
                   Buka <ArrowRight size={14} weight="bold" />
                 </div>
               </div>

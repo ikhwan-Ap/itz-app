@@ -35,7 +35,7 @@ export default function LoginPage() {
       <div
         className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[min(640px,95vw)] h-[min(640px,95vw)] pointer-events-none"
         style={{
-          background: "radial-gradient(circle at center, rgba(0,168,255,0.15) 0%, rgba(229,9,20,0.08) 35%, transparent 70%)",
+          background: "radial-gradient(circle at center, rgba(56,189,248,0.15) 0%, rgba(229,9,20,0.08) 35%, transparent 70%)",
           filter: "blur(40px)",
         }}
       />
@@ -70,7 +70,7 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6 text-center text-sm text-[#A0AAB5]">
-            Belum punya akun? <Link to="/register" className="text-[#00A8FF] font-bold hover:text-[#33BBFF]" data-testid="login-to-register-link">Register</Link>
+            Belum punya akun? <Link to="/register" className="text-[#38BDF8] font-bold hover:text-[#7DD3FC]" data-testid="login-to-register-link">Register</Link>
           </div>
         </div>
       </div>

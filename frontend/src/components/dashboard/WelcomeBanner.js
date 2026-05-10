@@ -28,16 +28,16 @@ export default function WelcomeBanner({ userName, subtitle, actions = [], childr
         className="absolute inset-0 opacity-25 pointer-events-none"
         style={{
           backgroundImage: `
-            repeating-linear-gradient(0deg, rgba(0,168,255,0.13) 0px, transparent 1px, transparent 40px, rgba(0,168,255,0.13) 41px),
-            repeating-linear-gradient(90deg, rgba(0,168,255,0.13) 0px, transparent 1px, transparent 40px, rgba(0,168,255,0.13) 41px)
+            repeating-linear-gradient(0deg, rgba(56,189,248,0.13) 0px, transparent 1px, transparent 40px, rgba(56,189,248,0.13) 41px),
+            repeating-linear-gradient(90deg, rgba(56,189,248,0.13) 0px, transparent 1px, transparent 40px, rgba(56,189,248,0.13) 41px)
           `,
-          backgroundColor: "rgba(0,168,255,0.025)",
+          backgroundColor: "rgba(56,189,248,0.025)",
         }}
       />
       <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="min-w-0">
           <h2 className="text-base sm:text-lg font-semibold text-white">
-            Selamat datang kembali, <span className="text-[#00A8FF]">{userName}</span>
+            Selamat datang kembali, <span className="text-[#38BDF8]">{userName}</span>
           </h2>
           <p className="text-[11px] text-[#5a5a6a] mt-1 uppercase tracking-[0.08em]">
             {subtitle || dateString}
@@ -47,8 +47,8 @@ export default function WelcomeBanner({ userName, subtitle, actions = [], childr
           <div className="flex items-center gap-2 flex-wrap">
             {actions.map((a, i) => {
               const className = a.primary
-                ? "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold uppercase tracking-wider bg-[#00A8FF] text-white hover:bg-[#33BBFF] hover:shadow-[0_0_16px_rgba(0,168,255,0.4)] transition-all duration-200"
-                : "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold uppercase tracking-wider border border-white/[0.06] text-[#a0a0b0] hover:border-[rgba(0,168,255,0.4)] hover:text-white transition-all duration-200";
+                ? "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold uppercase tracking-wider bg-[#38BDF8] text-white hover:bg-[#7DD3FC] hover:shadow-[0_0_16px_rgba(56,189,248,0.4)] transition-all duration-200"
+                : "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-[12px] font-semibold uppercase tracking-wider border border-white/[0.06] text-[#a0a0b0] hover:border-[rgba(56,189,248,0.4)] hover:text-white transition-all duration-200";
               if (a.onClick) {
                 return (
                   <button key={i} onClick={a.onClick} className={className} data-testid={`welcome-action-${i}`}>

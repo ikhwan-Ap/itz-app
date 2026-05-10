@@ -163,6 +163,17 @@ async def register(body: UserRegister, request: Request, response: Response):
     }
     await db.transactions.insert_one(tx_doc)
 
+    # Notify all admins/superadmins about the new pending registration
+    admins = await db.users.find({"role": {"$in": ["admin", "superadmin"]}}, {"id": 1, "_id": 0}).to_list(50)
+    for a in admins:
+        await _create_notification(
+            a["id"],
+            "new_transaction",
+            "Registrasi Baru Menunggu Approval",
+            f"{user_doc['name']} mendaftar dengan paket {pkg['name']}. Total: Rp {int(final_amount):,}".replace(",", "."),
+            "/app/admin/transactions",
+        )
+
     return {
         "message": "Registration submitted. Awaiting admin approval.",
         "transaction_id": tx_doc["id"],
@@ -481,6 +492,15 @@ async def approve_tx(tx_id: str, body: TransactionApprove, user=Depends(require_
     # Increment promo usage if any
     if tx.get("promo_code"):
         await db.promos.update_one({"code": tx["promo_code"]}, {"$inc": {"uses": 1}})
+
+    # Notify the user
+    await _create_notification(
+        tx["user_id"],
+        "transaction_approved",
+        "Transaksi Disetujui",
+        f"Paket {pkg.get('name', '')} sudah aktif. Selamat berlatih!",
+        "/app",
+    )
     return {"message": "approved"}
 
 
@@ -496,6 +516,13 @@ async def reject_tx(tx_id: str, body: TransactionReject, user=Depends(require_ro
         {"$set": {"status": "rejected", "approved_by": user["id"], "approved_at": now_iso(), "note": body.note or ""}},
     )
     await db.users.update_one({"id": tx["user_id"]}, {"$set": {"status": "rejected"}})
+    await _create_notification(
+        tx["user_id"],
+        "transaction_rejected",
+        "Transaksi Ditolak",
+        body.note or "Silakan hubungi admin untuk informasi lebih lanjut.",
+        "/app",
+    )
     return {"message": "rejected"}
 
 
@@ -806,8 +833,9 @@ async def calc_run(body: CalculatorRunRequest, user=Depends(current_user)):
     total = sum(final_vals.values())
     overall = round(total / 15)
 
-    # Increment click count
+    # Increment click count + streak
     if user["role"] == "user":
+        await _update_streak(user["id"])
         await db.users.update_one({"id": user["id"]}, {"$inc": {"clicks_used": 1}})
 
     return {
@@ -817,6 +845,90 @@ async def calc_run(body: CalculatorRunRequest, user=Depends(current_user)):
         "total_cost": result["totalCost"],
         "white_set": list(white_set),
     }
+
+
+# =========================================================
+# STREAK TRACKING
+# =========================================================
+async def _update_streak(user_id: str):
+    """Update user's training streak based on last_training_date."""
+    u = await db.users.find_one({"id": user_id})
+    if not u:
+        return
+    today = datetime.now(timezone.utc).date()
+    last = u.get("last_training_date")
+    last_date = None
+    if last:
+        try:
+            last_date = datetime.fromisoformat(last).date()
+        except Exception:
+            last_date = None
+
+    if last_date == today:
+        return  # Already counted today
+
+    current = int(u.get("current_streak", 0) or 0)
+    longest = int(u.get("longest_streak", 0) or 0)
+
+    if last_date and (today - last_date).days == 1:
+        current += 1
+    else:
+        current = 1
+
+    if current > longest:
+        longest = current
+
+    await db.users.update_one(
+        {"id": user_id},
+        {"$set": {
+            "last_training_date": today.isoformat(),
+            "current_streak": current,
+            "longest_streak": longest,
+        }},
+    )
+
+
+# =========================================================
+# NOTIFICATIONS
+# =========================================================
+async def _create_notification(user_id: str, ntype: str, title: str, body: str = "", link: str = ""):
+    doc = {
+        "id": uid(),
+        "user_id": user_id,
+        "type": ntype,
+        "title": title,
+        "body": body,
+        "link": link,
+        "read": False,
+        "created_at": now_iso(),
+    }
+    await db.notifications.insert_one(doc)
+    return doc
+
+
+@api.get("/notifications")
+async def list_notifications(user=Depends(current_user)):
+    cursor = db.notifications.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).limit(40)
+    items = await cursor.to_list(length=40)
+    unread = await db.notifications.count_documents({"user_id": user["id"], "read": False})
+    return {"items": items, "unread": unread}
+
+
+@api.post("/notifications/{nid}/read")
+async def mark_notification_read(nid: str, user=Depends(current_user)):
+    res = await db.notifications.update_one(
+        {"id": nid, "user_id": user["id"]},
+        {"$set": {"read": True}},
+    )
+    if res.matched_count == 0:
+        raise HTTPException(404, "Notification not found")
+    return {"ok": True}
+
+
+@api.post("/notifications/read-all")
+async def mark_all_read(user=Depends(current_user)):
+    await db.notifications.update_many({"user_id": user["id"], "read": False}, {"$set": {"read": True}})
+    return {"ok": True}
 
 
 # =========================================================

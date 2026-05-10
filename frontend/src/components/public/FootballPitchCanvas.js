@@ -47,9 +47,9 @@ export default function FootballPitchCanvas() {
     resizeCanvas();
 
     const grassColor = "#0B1221";
-    const lineColor = "rgba(0, 168, 255, 0.35)";
-    const centerCircleColor = "rgba(0, 168, 255, 0.25)";
-    const teamColors = ["#00A8FF", "#E50914"];
+    const lineColor = "rgba(56, 189, 248, 0.35)";
+    const centerCircleColor = "rgba(56, 189, 248, 0.25)";
+    const teamColors = ["#38BDF8", "#E50914"];
 
     let players = [];
     let ball;
@@ -208,7 +208,7 @@ export default function FootballPitchCanvas() {
           vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
           radius: 1 + Math.random() * 3,
           opacity: 1,
-          color: Math.random() > 0.5 ? "#00A8FF" : "#FFFFFF",
+          color: Math.random() > 0.5 ? "#38BDF8" : "#FFFFFF",
           decay: 0.01 + Math.random() * 0.02,
         });
       }

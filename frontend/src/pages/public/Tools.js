@@ -49,7 +49,7 @@ export default function Tools() {
         subheadline="Interactive calculators, visual planners, dan real-time analyzers — semua dibangun untuk serious managers."
         ctaText="Launch Tactical Sniper"
         ctaLink="/login"
-        gradient="radial-gradient(ellipse at 50% 0%, rgba(0, 168, 255, 0.08) 0%, transparent 60%)"
+        gradient="radial-gradient(ellipse at 50% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 60%)"
       />
 
       <section className="section-padding bg-[#0B0C10]">
@@ -60,9 +60,9 @@ export default function Tools() {
                 <div className="rounded-xl overflow-hidden border border-[#2A2F36] card-hover h-full flex flex-col bg-[#161B22]" data-testid={`tool-${i}`}>
                   <div
                     className="min-h-[200px] flex items-center justify-center"
-                    style={{ background: "linear-gradient(135deg, rgba(0, 168, 255, 0.10), rgba(229, 9, 20, 0.05))" }}
+                    style={{ background: "linear-gradient(135deg, rgba(56, 189, 248, 0.10), rgba(229, 9, 20, 0.05))" }}
                   >
-                    <tool.icon size={56} weight="duotone" style={{ color: "rgba(0, 168, 255, 0.5)" }} />
+                    <tool.icon size={56} weight="duotone" style={{ color: "rgba(56, 189, 248, 0.5)" }} />
                   </div>
                   <div className="p-7 sm:p-8 flex-1 flex flex-col">
                     <div className="flex items-center gap-3 flex-wrap">
@@ -76,7 +76,7 @@ export default function Tools() {
                     </div>
                     <p className="mt-3 text-sm leading-relaxed flex-1 text-[#A0AAB5]">{tool.desc}</p>
                     {tool.status !== "Coming Soon" && (
-                      <Link to={tool.link} className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-[#00A8FF] hover:gap-2 transition-all">
+                      <Link to={tool.link} className="mt-5 inline-flex items-center gap-1 text-sm font-medium text-[#38BDF8] hover:gap-2 transition-all">
                         Open Tool <ArrowRight size={14} />
                       </Link>
                     )}

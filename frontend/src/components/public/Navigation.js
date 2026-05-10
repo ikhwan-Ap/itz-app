@@ -67,7 +67,7 @@ export default function Navigation() {
                 >
                   {link.label}
                   {active && (
-                    <span className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full bg-[#00A8FF]" />
+                    <span className="absolute -bottom-1 left-0 right-0 h-[2px] rounded-full bg-[#38BDF8]" />
                   )}
                 </Link>
               );
@@ -103,7 +103,7 @@ export default function Navigation() {
               <Link
                 key={link.path}
                 to={link.path}
-                className="font-space text-3xl font-semibold text-white hover:text-[#00A8FF] transition-colors"
+                className="font-space text-3xl font-semibold text-white hover:text-[#38BDF8] transition-colors"
               >
                 {link.label}
               </Link>

@@ -51,7 +51,7 @@ export default function AdminDashboard() {
 
       {/* User KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-        <StatCard icon={Users} iconColor="#00A8FF" label="Total Users" value={String(stats.total_users)} subtext="Semua user terdaftar" delay={0.05} testId="kpi-total-users" />
+        <StatCard icon={Users} iconColor="#38BDF8" label="Total Users" value={String(stats.total_users)} subtext="Semua user terdaftar" delay={0.05} testId="kpi-total-users" />
         <StatCard icon={CheckCircle} iconColor="#10b981" label="Active" value={String(stats.active_users)} subtext="Approved & belum expired" delay={0.1} testId="kpi-active" />
         <StatCard icon={Clock} iconColor="#f59e0b" label="Pending" value={String(stats.pending_users)} subtext="Menunggu approval admin" delay={0.15} testId="kpi-pending" />
         <StatCard icon={Warning} iconColor="#ef4444" label="Expiring 7D" value={String(stats.expiring_soon)} subtext="Akan expired dalam 7 hari" delay={0.2} testId="kpi-expiring" />
@@ -59,7 +59,7 @@ export default function AdminDashboard() {
 
       {/* Financial KPIs */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-        <StatCard icon={ChartBar} iconColor="#00A8FF" label="Gross Revenue" value={formatRupiah(stats.gross)} subtext="Total approved" delay={0.05} testId="kpi-gross" />
+        <StatCard icon={ChartBar} iconColor="#38BDF8" label="Gross Revenue" value={formatRupiah(stats.gross)} subtext="Total approved" delay={0.05} testId="kpi-gross" />
         <StatCard icon={ArrowUp} iconColor="#10b981" label="Net Revenue" value={formatRupiah(stats.net)} subtext="Setelah promo & marketing" delay={0.1} testId="kpi-net" />
         <StatCard icon={Ticket} iconColor="#8b5cf6" label="Marketing Cut" value={formatRupiah(stats.marketing_total)} subtext="Komisi marketing" delay={0.15} testId="kpi-marketing" />
         <StatCard icon={CreditCard} iconColor="#ef4444" label="Total Discount" value={formatRupiah(stats.discount_total)} subtext="Promo discount applied" delay={0.2} testId="kpi-discount" />
@@ -74,9 +74,9 @@ export default function AdminDashboard() {
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
               <XAxis dataKey="month" tick={{ fill: "#5a5a6a", fontSize: 11 }} axisLine={{ stroke: "rgba(255,255,255,0.06)" }} tickLine={false} />
               <YAxis tick={{ fill: "#5a5a6a", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(0,168,255,0.05)" }} />
+              <Tooltip contentStyle={tooltipStyle} cursor={{ fill: "rgba(56,189,248,0.05)" }} />
               <Legend wrapperStyle={{ fontSize: 11, color: "#a0a0b0" }} />
-              <Bar dataKey="gross" fill="#00A8FF" name="Gross" radius={[4, 4, 0, 0]} />
+              <Bar dataKey="gross" fill="#38BDF8" name="Gross" radius={[4, 4, 0, 0]} />
               <Bar dataKey="net" fill="#10b981" name="Net" radius={[4, 4, 0, 0]} />
               <Bar dataKey="marketing" fill="#8b5cf6" name="Marketing" radius={[4, 4, 0, 0]} />
             </BarChart>
@@ -88,8 +88,8 @@ export default function AdminDashboard() {
             <LineChart data={stats.chart} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
               <defs>
                 <linearGradient id="netGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#00A8FF" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#00A8FF" stopOpacity={0} />
+                  <stop offset="5%" stopColor="#38BDF8" stopOpacity={0.3} />
+                  <stop offset="95%" stopColor="#38BDF8" stopOpacity={0} />
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
@@ -97,7 +97,7 @@ export default function AdminDashboard() {
               <YAxis tick={{ fill: "#5a5a6a", fontSize: 11 }} axisLine={false} tickLine={false} />
               <Tooltip contentStyle={tooltipStyle} />
               <Legend wrapperStyle={{ fontSize: 11, color: "#a0a0b0" }} />
-              <Line type="monotone" dataKey="net" stroke="#00A8FF" strokeWidth={2.5} dot={{ r: 3, fill: "#00A8FF" }} activeDot={{ r: 5 }} />
+              <Line type="monotone" dataKey="net" stroke="#38BDF8" strokeWidth={2.5} dot={{ r: 3, fill: "#38BDF8" }} activeDot={{ r: 5 }} />
               <Line type="monotone" dataKey="gross" stroke="#10b981" strokeWidth={2} dot={{ r: 3, fill: "#10b981" }} activeDot={{ r: 5 }} />
             </LineChart>
           </ResponsiveContainer>
@@ -112,7 +112,7 @@ export default function AdminDashboard() {
               <Warning size={18} weight="duotone" className="text-[#f59e0b]" />
               Akan Expired dalam 7 Hari
             </h3>
-            <Link to="/app/admin/users" className="text-[12px] text-[#00A8FF] hover:text-[#33BBFF] transition-colors">Kelola →</Link>
+            <Link to="/app/admin/users" className="text-[12px] text-[#38BDF8] hover:text-[#7DD3FC] transition-colors">Kelola →</Link>
           </div>
           <div className="hidden md:block overflow-x-auto">
             <table className="w-full text-sm">
@@ -150,7 +150,7 @@ export default function AdminDashboard() {
       <div className="bg-[#16161d] border border-white/[0.06] rounded-xl p-5 sm:p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-base font-semibold text-white">Recent Transactions</h3>
-          <Link to="/app/admin/transactions" className="text-[12px] text-[#00A8FF] hover:text-[#33BBFF] transition-colors">Semua →</Link>
+          <Link to="/app/admin/transactions" className="text-[12px] text-[#38BDF8] hover:text-[#7DD3FC] transition-colors">Semua →</Link>
         </div>
         <div className="hidden md:block overflow-x-auto">
           <table className="w-full text-sm">
@@ -194,7 +194,7 @@ export default function AdminDashboard() {
               </div>
               <div className="flex items-center justify-between text-xs mt-1">
                 <span className="text-[#5a5a6a]">{new Date(t.created_at).toLocaleDateString("id-ID")}</span>
-                <span className="font-bold text-[#00A8FF]">{formatRupiah(t.final_amount)}</span>
+                <span className="font-bold text-[#38BDF8]">{formatRupiah(t.final_amount)}</span>
               </div>
             </div>
           ))}

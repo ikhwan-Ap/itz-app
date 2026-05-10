@@ -15,7 +15,7 @@ import { motion } from "framer-motion";
  */
 export default function StatCard({
   icon: Icon,
-  iconColor = "#00A8FF",
+  iconColor = "#38BDF8",
   label,
   value,
   subtext,
@@ -29,7 +29,7 @@ export default function StatCard({
       initial={{ opacity: 0, y: 14 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay }}
-      className="bg-[#16161d] border border-white/[0.06] rounded-xl p-5 sm:p-6 hover:border-[rgba(0,168,255,0.4)] hover:shadow-[0_0_24px_rgba(0,168,255,0.12)] hover:-translate-y-0.5 transition-all duration-200"
+      className="bg-[#16161d] border border-white/[0.06] rounded-xl p-5 sm:p-6 hover:border-[rgba(56,189,248,0.4)] hover:shadow-[0_0_24px_rgba(56,189,248,0.12)] hover:-translate-y-0.5 transition-all duration-200"
       data-testid={testId}
     >
       <div className="flex items-center gap-2 mb-3 sm:mb-4">

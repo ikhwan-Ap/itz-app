@@ -111,11 +111,11 @@ export default function SingleDrillPage() {
   return (
     <div className="space-y-6" data-testid="single-drill-page">
       <div>
-        <Link to="/app/training" className="text-xs text-[#A0AAB5] font-semibold hover:text-[#00A8FF] inline-flex items-center gap-1 transition">
+        <Link to="/app/training" className="text-xs text-[#A0AAB5] font-semibold hover:text-[#38BDF8] inline-flex items-center gap-1 transition">
           <CaretLeft size={12} /> Modul Latihan
         </Link>
         <div className="flex items-center gap-2 mt-1 mb-1">
-          <Crosshair size={18} className="text-[#00A8FF]" weight="fill" />
+          <Crosshair size={18} className="text-[#38BDF8]" weight="fill" />
           <div className="badge badge-blue">FOKUS 1 DRILL</div>
         </div>
         <h1 className="section-title text-3xl">Single Drill</h1>
@@ -137,7 +137,7 @@ export default function SingleDrillPage() {
       {step >= 2 && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card-solid p-5 sm:p-6" data-testid="drill-picker">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00A8FF] to-[#0077CC] text-[#0B0C10] font-black flex items-center justify-center">2</div>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#38BDF8] to-[#0EA5E9] text-[#0B0C10] font-black flex items-center justify-center">2</div>
             <div className="font-display font-bold text-xl">Pilih 1 Drill</div>
           </div>
           <p className="text-xs text-[#A0AAB5] mb-4">
@@ -158,12 +158,12 @@ export default function SingleDrillPage() {
                   type="button"
                   onClick={() => !noKunci && pickDrill(d.name)}
                   disabled={noKunci}
-                  className={`text-left card-solid p-4 transition-all duration-200 ${isSel ? "border-2 !border-[#00A8FF] bg-[#00A8FF]/6" : ""} ${noKunci ? "opacity-40 cursor-not-allowed" : "hover-lift cursor-pointer"}`}
+                  className={`text-left card-solid p-4 transition-all duration-200 ${isSel ? "border-2 !border-[#38BDF8] bg-[#38BDF8]/6" : ""} ${noKunci ? "opacity-40 cursor-not-allowed" : "hover-lift cursor-pointer"}`}
                   data-testid={`drill-card-${d.name}`}
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div className="font-display font-bold text-white text-base leading-tight">{d.name}</div>
-                    {isSel && <CheckCircle size={18} weight="fill" className="text-[#00A8FF] shrink-0" />}
+                    {isSel && <CheckCircle size={18} weight="fill" className="text-[#38BDF8] shrink-0" />}
                   </div>
                   <div className="flex items-center gap-2 mt-1.5 text-[11px] text-[#A0AAB5]">
                     <span>{effAttrs.length} attr aktif</span>
@@ -191,9 +191,9 @@ export default function SingleDrillPage() {
       {step >= 3 && drillObj && (
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="card-solid p-5 sm:p-6">
           <div className="flex items-center gap-3 mb-5">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00A8FF] to-[#0077CC] text-[#0B0C10] font-black flex items-center justify-center">3</div>
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#38BDF8] to-[#0EA5E9] text-[#0B0C10] font-black flex items-center justify-center">3</div>
             <div>
-              <div className="font-display font-bold text-xl">Target dari <span className="text-[#00A8FF]">{drillObj.name}</span></div>
+              <div className="font-display font-bold text-xl">Target dari <span className="text-[#38BDF8]">{drillObj.name}</span></div>
               <div className="text-xs text-[#A0AAB5] mt-0.5">Target otomatis dari atribut kuncian di drill ini. Klik card untuk toggle, atur goal.</div>
             </div>
           </div>

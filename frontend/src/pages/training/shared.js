@@ -67,7 +67,7 @@ export function PlayerForm({ meta, stats, setStats, activeRoles, setActiveRoles,
   return (
     <div className="card-solid p-5 sm:p-6">
       <div className="flex items-center gap-3 mb-5">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#00A8FF] to-[#0077CC] text-[#0B0C10] font-black flex items-center justify-center">1</div>
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#38BDF8] to-[#0EA5E9] text-[#0B0C10] font-black flex items-center justify-center">1</div>
         <div className="font-display font-bold text-xl">Data Pemain</div>
       </div>
 
@@ -146,15 +146,15 @@ export function PlayerForm({ meta, stats, setStats, activeRoles, setActiveRoles,
           <div className="grid md:grid-cols-3 gap-5">
             {groups.map(({ key, title, attrs }) => (
               <div key={key}>
-                <div className="font-display font-bold text-sm uppercase tracking-wider mb-3 pb-2 border-b border-[#00A8FF]/20 text-[#00A8FF]">{title}</div>
+                <div className="font-display font-bold text-sm uppercase tracking-wider mb-3 pb-2 border-b border-[#38BDF8]/20 text-[#38BDF8]">{title}</div>
                 {attrs.map((a) => {
                   const isW = whiteSet.has(a);
                   return (
                     <div key={a}
-                         className={`flex items-center justify-between px-3 py-2 mb-2 rounded-lg text-sm transition-all duration-200 ${isW ? "bg-[#00A8FF]/8 border-l-2 border-[#00A8FF]" : "bg-white/[0.02] border-l-2 border-transparent"}`}
+                         className={`flex items-center justify-between px-3 py-2 mb-2 rounded-lg text-sm transition-all duration-200 ${isW ? "bg-[#38BDF8]/8 border-l-2 border-[#38BDF8]" : "bg-white/[0.02] border-l-2 border-transparent"}`}
                          data-testid={`attr-row-${a}`}>
-                      <span className={isW ? "text-[#33BBFF] font-bold" : "text-[#A0AAB5]"}>{a}</span>
-                      <input type="number" className={`w-20 px-2 py-1 bg-[#0B0C10] rounded-md text-center font-bold border border-white/5 transition-all focus:border-[#00A8FF] focus:outline-none ${isW ? "text-[#33BBFF]" : "text-white"}`}
+                      <span className={isW ? "text-[#7DD3FC] font-bold" : "text-[#A0AAB5]"}>{a}</span>
+                      <input type="number" className={`w-20 px-2 py-1 bg-[#0B0C10] rounded-md text-center font-bold border border-white/5 transition-all focus:border-[#38BDF8] focus:outline-none ${isW ? "text-[#7DD3FC]" : "text-white"}`}
                              value={stats[a] ?? ''}
                              onChange={(e) => { const v = e.target.value; setStats((s) => ({ ...s, [a]: v === '' ? '' : parseInt(v) || 1 })); }}
                              data-testid={`attr-input-${a}`} />
@@ -176,13 +176,13 @@ export function TargetCard({ attr, stats, bonus, selected, onToggle, onChange, a
   const curr = parseInt(stats[attr] || 1);
   const baseVal = Math.max(1, curr - parseInt(bonus || 0));
   return (
-    <div className={`card-solid p-4 cursor-pointer transition-all border-2 ${selected ? "border-[#00A8FF] bg-[#00A8FF]/5" : "border-transparent"}`}
+    <div className={`card-solid p-4 cursor-pointer transition-all border-2 ${selected ? "border-[#38BDF8] bg-[#38BDF8]/5" : "border-transparent"}`}
          onClick={onToggle}
          data-testid={`target-card-${attr}`}>
       <div className="font-bold text-white">{attr}</div>
       <div className="text-xs text-[#A0AAB5]">Base: {baseVal}%</div>
       {selected && (
-        <div className="mt-3 pt-3 border-t border-[#00A8FF]/15 space-y-2" onClick={(e) => e.stopPropagation()}>
+        <div className="mt-3 pt-3 border-t border-[#38BDF8]/15 space-y-2" onClick={(e) => e.stopPropagation()}>
           {allowedPrios.length > 1 && (
             <select className="input-std !py-1.5 !text-xs"
                     value={selected.prio}
@@ -214,13 +214,13 @@ export function ResultSection({ result, meta, bonus, stats, gkMode = false }) {
     <motion.div id="result-section" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} data-testid="result-section">
       <div className="card-glow p-7 text-center">
         <div className="font-display font-black text-6xl brand-gradient glow-gold" data-testid="result-overall">{result.overall}%</div>
-        <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#00A8FF] mt-2">Estimasi Mutu Akhir</div>
+        <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#38BDF8] mt-2">Estimasi Mutu Akhir</div>
         <div className="mt-3 text-xs text-[#A0AAB5]">Total cost: <span className="font-bold text-[#FFFFFF]">{result.total_cost}</span></div>
       </div>
 
       <div className="mt-6 card-solid p-6">
         <h3 className="font-display font-bold text-xl mb-4 flex items-center gap-2">
-          <Lightning size={22} weight="fill" className="text-[#00A8FF]" /> Rute Latihan Optimal
+          <Lightning size={22} weight="fill" className="text-[#38BDF8]" /> Rute Latihan Optimal
         </h3>
         {result.history.length === 0 ? (
           <div className="card-solid p-5 border border-[#E50914]/40 text-center">
@@ -259,7 +259,7 @@ function DrillCard({ drill, whiteSet, expanded, onToggle }) {
             </button>
           </div>
         </div>
-        <div className="font-display font-black text-2xl text-[#00A8FF] mt-2">+{drill.gain}%</div>
+        <div className="font-display font-black text-2xl text-[#38BDF8] mt-2">+{drill.gain}%</div>
         <div className="text-xs text-[#A0AAB5] flex items-center gap-2 mt-1">
           Avg Awal: <b>{drill.startAvg}%</b> <ArrowRight size={12} /> <b className="text-white">{drill.endAvg}%</b>
         </div>
@@ -272,18 +272,18 @@ function DrillCard({ drill, whiteSet, expanded, onToggle }) {
         </div>
         <AnimatePresence>
           {expanded && drill.steps?.length > 0 && (
-            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden mt-3 pt-3 border-t border-[#00A8FF]/15">
-              <div className="text-xs font-bold uppercase tracking-widest text-[#00A8FF] mb-2">Detail Per Siklus</div>
+            <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden mt-3 pt-3 border-t border-[#38BDF8]/15">
+              <div className="text-xs font-bold uppercase tracking-widest text-[#38BDF8] mb-2">Detail Per Siklus</div>
               <div className="space-y-2">
                 {drill.steps.map((s, si) => (
                   <div key={si} className="bg-[#0B0C10]/60 rounded-lg p-3 border border-white/5">
                     <div className="flex items-center justify-between text-xs mb-2">
-                      <span className="font-bold text-[#33BBFF]">Siklus {si + 1}: +{s.step} setiap attr</span>
+                      <span className="font-bold text-[#7DD3FC]">Siklus {si + 1}: +{s.step} setiap attr</span>
                       <span className="text-[#A0AAB5]">Avg setelah: <b className="text-white">{s.endAvg}%</b></span>
                     </div>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                       {Object.entries(s.snapshot).map(([k, v]) => (
-                        <div key={k} className={`text-xs px-2 py-1 rounded flex items-center justify-between ${whiteSet.has(k) ? "bg-[#00A8FF]/10 text-[#33BBFF]" : "bg-[#E50914]/10 text-[#ff8aa0]"}`}>
+                        <div key={k} className={`text-xs px-2 py-1 rounded flex items-center justify-between ${whiteSet.has(k) ? "bg-[#38BDF8]/10 text-[#7DD3FC]" : "bg-[#E50914]/10 text-[#ff8aa0]"}`}>
                           <span>{k}</span>
                           <b>{v}</b>
                         </div>
@@ -309,7 +309,7 @@ function FinalGrid({ result, meta, bonus, stats, gkMode = false }) {
     <div className="grid md:grid-cols-3 gap-4 mt-6">
       {Object.entries(groups).map(([gName, attrs]) => (
         <div key={gName} className="card-solid p-5">
-          <div className="text-xs font-bold uppercase tracking-widest text-[#00A8FF] mb-3 text-center">{gName}</div>
+          <div className="text-xs font-bold uppercase tracking-widest text-[#38BDF8] mb-3 text-center">{gName}</div>
           {attrs.map((a) => {
             const finalVal = result.final_stats[a];
             const isW = whiteSet.has(a);
@@ -317,7 +317,7 @@ function FinalGrid({ result, meta, bonus, stats, gkMode = false }) {
             const diff = finalVal - startVal;
             return (
               <div key={a} className="flex items-center justify-between py-1.5 text-sm border-b border-white/5 last:border-0">
-                <span className={isW ? "text-[#33BBFF] font-bold" : "text-[#A0AAB5]"}>{a}</span>
+                <span className={isW ? "text-[#7DD3FC] font-bold" : "text-[#A0AAB5]"}>{a}</span>
                 <span className="flex items-center gap-2">
                   <b className="text-white">{finalVal}%</b>
                   {diff > 0 && <span className="text-[#3FCA7C] text-xs font-bold">(+{diff})</span>}

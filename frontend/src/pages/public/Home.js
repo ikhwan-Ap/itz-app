@@ -42,7 +42,7 @@ export default function Home() {
           <h1 className="text-display text-white">
             <span className="hero-headline-1 block opacity-0">Optimize Your</span>
             <span className="hero-headline-2 block opacity-0 mt-2">
-              <span className="text-glow-blue text-[#00A8FF]">Tactical</span> Edge
+              <span className="text-glow-blue text-[#38BDF8]">Tactical</span> Edge
             </span>
           </h1>
           <p className="hero-sub mt-7 italic font-light text-base sm:text-lg max-w-xl mx-auto text-[#A0AAB5] opacity-0">
@@ -87,7 +87,7 @@ export default function Home() {
             ].map((f, i) => (
               <ScrollReveal key={i} delay={0.1 * (i + 1)}>
                 <div className="card-hover rounded-xl p-9 h-full bg-[#0B0C10]" data-testid={`feature-card-${i}`}>
-                  <f.icon size={32} weight="duotone" className="text-[#00A8FF]" />
+                  <f.icon size={32} weight="duotone" className="text-[#38BDF8]" />
                   <h3 className="text-h3 text-white mt-5">{f.title}</h3>
                   <p className="mt-3 text-base text-[#A0AAB5]">{f.desc}</p>
                 </div>
@@ -109,7 +109,7 @@ export default function Home() {
             ].map((t, i) => (
               <ScrollReveal key={i} delay={0.15 * (i + 1)}>
                 <div className="rounded-xl p-9 border border-[#2A2F36] bg-[#161B22] h-full">
-                  <Quotes size={28} className="text-[#00A8FF] opacity-50" weight="fill" />
+                  <Quotes size={28} className="text-[#38BDF8] opacity-50" weight="fill" />
                   <p className="text-base sm:text-lg text-white leading-relaxed italic mt-3">{t.quote}</p>
                   <div className="flex items-center gap-4 mt-7">
                     <div className="w-12 h-12 rounded-full gradient-avatar" />
@@ -137,7 +137,7 @@ export default function Home() {
           <ScrollReveal delay={0.2}>
             <Link
               to="/register"
-              className="inline-flex items-center justify-center px-8 py-3.5 rounded-lg font-semibold text-sm tracking-wider uppercase mt-8 transition-all duration-300 hover:shadow-lg bg-[#0B0C10] text-[#00A8FF]"
+              className="inline-flex items-center justify-center px-8 py-3.5 rounded-lg font-semibold text-sm tracking-wider uppercase mt-8 transition-all duration-300 hover:shadow-lg bg-[#0B0C10] text-[#38BDF8]"
               data-testid="home-cta-banner"
             >
               Get Started Free

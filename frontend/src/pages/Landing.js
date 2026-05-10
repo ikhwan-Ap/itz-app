@@ -41,17 +41,17 @@ export default function Landing() {
       <section className="relative min-h-[88vh] flex items-center justify-center overflow-hidden">
         {/* Animated radial spotlights */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute top-1/4 left-[15%] w-[420px] h-[420px] rounded-full bg-[#00A8FF]/10 blur-[100px]" />
+          <div className="absolute top-1/4 left-[15%] w-[420px] h-[420px] rounded-full bg-[#38BDF8]/10 blur-[100px]" />
           <div className="absolute bottom-1/4 right-[10%] w-[460px] h-[460px] rounded-full bg-[#E50914]/8 blur-[110px]" />
         </div>
 
         {/* Tactical pitch lines (subtle) */}
         <svg className="absolute inset-0 w-full h-full opacity-[0.05] pointer-events-none" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
-          <rect x="100" y="100" width="1000" height="600" stroke="#00A8FF" strokeWidth="1" fill="none" />
-          <line x1="600" y1="100" x2="600" y2="700" stroke="#00A8FF" strokeWidth="1" />
-          <circle cx="600" cy="400" r="80" stroke="#00A8FF" strokeWidth="1" fill="none" />
-          <rect x="100" y="280" width="120" height="240" stroke="#00A8FF" strokeWidth="1" fill="none" />
-          <rect x="980" y="280" width="120" height="240" stroke="#00A8FF" strokeWidth="1" fill="none" />
+          <rect x="100" y="100" width="1000" height="600" stroke="#38BDF8" strokeWidth="1" fill="none" />
+          <line x1="600" y1="100" x2="600" y2="700" stroke="#38BDF8" strokeWidth="1" />
+          <circle cx="600" cy="400" r="80" stroke="#38BDF8" strokeWidth="1" fill="none" />
+          <rect x="100" y="280" width="120" height="240" stroke="#38BDF8" strokeWidth="1" fill="none" />
+          <rect x="980" y="280" width="120" height="240" stroke="#38BDF8" strokeWidth="1" fill="none" />
         </svg>
 
         <div className="relative z-10 content-max-width text-center pt-12">
@@ -66,7 +66,7 @@ export default function Landing() {
             className="text-display"
           >
             <span className="block text-white">Optimize Your</span>
-            <span className="block mt-1.5"><span className="text-glow-blue text-[#00A8FF]">Tactical</span> <span className="text-white">Edge</span></span>
+            <span className="block mt-1.5"><span className="text-glow-blue text-[#38BDF8]">Tactical</span> <span className="text-white">Edge</span></span>
           </motion.h1>
           <motion.p
             initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.4 }}
@@ -130,7 +130,7 @@ export default function Landing() {
                 className="card-hover rounded-xl p-9 h-full"
                 style={{ backgroundColor: '#0B0C10' }}
               >
-                <feature.icon size={32} weight="duotone" style={{ color: '#00A8FF' }} />
+                <feature.icon size={32} weight="duotone" style={{ color: '#38BDF8' }} />
                 <h3 className="text-h3 text-white mt-5">{feature.title}</h3>
                 <p className="mt-3 text-base text-[#A0AAB5]">{feature.desc}</p>
               </motion.div>
@@ -155,12 +155,12 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08 }}
-                className={`card-hover rounded-xl p-7 relative ${i === 1 ? "border !border-[#00A8FF]/40 glow-blue" : ""}`}
+                className={`card-hover rounded-xl p-7 relative ${i === 1 ? "border !border-[#38BDF8]/40 glow-blue" : ""}`}
                 style={{ backgroundColor: '#161B22' }}
                 data-testid={`pkg-${p.id}`}
               >
                 {i === 1 && <div className="absolute -top-3 left-6 badge badge-blue">MOST POPULAR</div>}
-                <p className="text-xs font-medium uppercase tracking-widest text-[#00A8FF]">{p.duration_type}</p>
+                <p className="text-xs font-medium uppercase tracking-widest text-[#38BDF8]">{p.duration_type}</p>
                 <h3 className="text-h3 text-white mt-1">{p.name}</h3>
                 <div className="mt-4 mb-5">
                   <div className="font-space font-bold text-4xl text-white">{formatRupiah(p.price)}</div>
@@ -171,7 +171,7 @@ export default function Landing() {
                 <ul className="space-y-2 mb-6 text-sm">
                   {(p.features || []).map((f, j) => (
                     <li key={j} className="flex items-start gap-2 text-[#FFFFFF]">
-                      <Check size={16} className="text-[#00A8FF] mt-0.5 shrink-0" weight="bold" />
+                      <Check size={16} className="text-[#38BDF8] mt-0.5 shrink-0" weight="bold" />
                       <span>{f}</span>
                     </li>
                   ))}
@@ -202,7 +202,7 @@ export default function Landing() {
                 <motion.div key={n.id} initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="card-hover rounded-xl overflow-hidden" style={{ backgroundColor: '#0B0C10' }}>
                   {n.image_url && <div className="h-44 bg-cover bg-center" style={{ backgroundImage: `url(${n.image_url})` }} />}
                   <div className="p-5">
-                    <p className="text-xs text-[#00A8FF] mb-1 font-medium tracking-widest uppercase">{new Date(n.created_at).toLocaleDateString("id-ID")}</p>
+                    <p className="text-xs text-[#38BDF8] mb-1 font-medium tracking-widest uppercase">{new Date(n.created_at).toLocaleDateString("id-ID")}</p>
                     <h3 className="font-space font-semibold text-lg text-white mt-1">{n.title}</h3>
                     <p className="text-sm text-[#A0AAB5] line-clamp-3 mt-2">{n.content}</p>
                   </div>
@@ -231,7 +231,7 @@ export default function Landing() {
                   <span className="badge badge-blue mb-2">{e.event_date ? new Date(e.event_date).toLocaleDateString("id-ID") : "TBA"}</span>
                   <h3 className="font-space font-semibold text-lg text-white mt-2">{e.title}</h3>
                   <p className="text-sm text-[#A0AAB5] line-clamp-3 mt-2">{e.content}</p>
-                  <Link to="/login" className="text-[#00A8FF] text-sm font-semibold mt-3 inline-flex items-center gap-1 hover:gap-2 transition-all">
+                  <Link to="/login" className="text-[#38BDF8] text-sm font-semibold mt-3 inline-flex items-center gap-1 hover:gap-2 transition-all">
                     Daftar <ArrowRight size={14} />
                   </Link>
                 </motion.div>
@@ -246,7 +246,7 @@ export default function Landing() {
         <div className="content-max-width text-center">
           <h2 className="text-h2 text-white">Ready to Transform Your Team?</h2>
           <p className="mt-4 text-base max-w-lg mx-auto text-white/85">Join 10,000+ managers who are already training smarter.</p>
-          <Link to="/register" className="inline-flex items-center justify-center px-8 py-3.5 rounded-lg font-semibold text-sm tracking-wider uppercase mt-8 transition-all duration-300 hover:shadow-lg" style={{ backgroundColor: '#0B0C10', color: '#00A8FF' }}>
+          <Link to="/register" className="inline-flex items-center justify-center px-8 py-3.5 rounded-lg font-semibold text-sm tracking-wider uppercase mt-8 transition-all duration-300 hover:shadow-lg" style={{ backgroundColor: '#0B0C10', color: '#38BDF8' }}>
             Get Started Free
           </Link>
         </div>
@@ -257,8 +257,8 @@ export default function Landing() {
           <Logo size={34} compact={true} />
           <div className="text-xs text-[#A0AAB5] text-center">© 2026 Indo Timezone Football Community · Tactical Edge</div>
           <div className="flex gap-4 text-xs text-[#A0AAB5]">
-            <Link to="/login" className="hover:text-[#00A8FF]">Login</Link>
-            <Link to="/register" className="hover:text-[#00A8FF]">Register</Link>
+            <Link to="/login" className="hover:text-[#38BDF8]">Login</Link>
+            <Link to="/register" className="hover:text-[#38BDF8]">Register</Link>
           </div>
         </div>
       </footer>

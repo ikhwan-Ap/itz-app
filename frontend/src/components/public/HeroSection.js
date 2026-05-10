@@ -13,7 +13,7 @@ export default function HeroSection({
   ctaLink = "/register",
   secondaryText,
   secondaryLink = "/login",
-  gradient = "radial-gradient(ellipse at 50% 0%, rgba(0, 168, 255, 0.10) 0%, transparent 60%)",
+  gradient = "radial-gradient(ellipse at 50% 0%, rgba(56, 189, 248, 0.10) 0%, transparent 60%)",
 }) {
   const sectionRef = useRef(null);
 
@@ -51,7 +51,7 @@ export default function HeroSection({
           <span className="hero-headline-2 block opacity-0 mt-2">
             {highlight ? (
               <>
-                <span className="text-glow-blue text-[#00A8FF]">{highlight}</span> {headlineLine2}
+                <span className="text-glow-blue text-[#38BDF8]">{highlight}</span> {headlineLine2}
               </>
             ) : (
               headlineLine2

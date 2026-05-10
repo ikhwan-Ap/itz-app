@@ -57,7 +57,7 @@ export default function Community() {
         subheadline="10,000+ Indonesian managers. Satu passion bersama. Zero toxicity."
         ctaText="Join Discord Server"
         ctaLink="#"
-        gradient="radial-gradient(ellipse at 50% 30%, rgba(0, 168, 255, 0.06) 0%, transparent 50%)"
+        gradient="radial-gradient(ellipse at 50% 30%, rgba(56, 189, 248, 0.06) 0%, transparent 50%)"
       />
 
       <section className="section-padding bg-[#161B22]">
@@ -70,11 +70,11 @@ export default function Community() {
             {hubs.map((hub, i) => (
               <ScrollReveal key={i} delay={0.08 * (i + 1)}>
                 <div className="card-hover rounded-xl p-9 h-full bg-[#0B0C10]" data-testid={`hub-${i}`}>
-                  <hub.icon size={32} weight="duotone" className="text-[#00A8FF]" />
+                  <hub.icon size={32} weight="duotone" className="text-[#38BDF8]" />
                   <h3 className="font-space text-lg text-white font-semibold mt-5">{hub.name}</h3>
                   <p className="mt-3 text-sm leading-relaxed text-[#A0AAB5]">{hub.desc}</p>
                   <p className="mt-4 text-sm font-medium text-[#5C6670]">{hub.count}</p>
-                  <Link to={hub.link} className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-[#00A8FF] hover:gap-2 transition-all">
+                  <Link to={hub.link} className="inline-flex items-center gap-1 mt-4 text-sm font-medium text-[#38BDF8] hover:gap-2 transition-all">
                     {hub.cta} →
                   </Link>
                 </div>
@@ -123,16 +123,16 @@ export default function Community() {
                 const d = formatDay(event.event_date);
                 return (
                   <ScrollReveal key={event.id} delay={0.07 * i}>
-                    <div className="flex flex-col md:flex-row items-start md:items-center gap-6 p-7 rounded-xl border border-[#2A2F36] bg-[#161B22] transition-all duration-200 hover:border-[#00A8FF]/40 hover:bg-[#00A8FF]/[0.04]" data-testid={`event-${i}`}>
+                    <div className="flex flex-col md:flex-row items-start md:items-center gap-6 p-7 rounded-xl border border-[#2A2F36] bg-[#161B22] transition-all duration-200 hover:border-[#38BDF8]/40 hover:bg-[#38BDF8]/[0.04]" data-testid={`event-${i}`}>
                       <div className="flex-shrink-0 text-center min-w-[60px]">
-                        <p className="font-space font-bold text-3xl text-[#00A8FF]">{d.day}</p>
+                        <p className="font-space font-bold text-3xl text-[#38BDF8]">{d.day}</p>
                         <p className="text-xs font-medium mt-1 text-[#5C6670]">{d.month}</p>
                       </div>
                       <div className="flex-1">
                         <h3 className="font-space text-base text-white font-semibold">{event.title}</h3>
                         <p className="mt-1 text-sm text-[#A0AAB5] line-clamp-2">{event.content}</p>
                       </div>
-                      <Link to="/login" className="flex-shrink-0 text-sm font-medium text-[#00A8FF] hover:underline">
+                      <Link to="/login" className="flex-shrink-0 text-sm font-medium text-[#38BDF8] hover:underline">
                         RSVP →
                       </Link>
                     </div>

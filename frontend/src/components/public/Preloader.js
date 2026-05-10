@@ -31,11 +31,11 @@ export default function Preloader({ onComplete }) {
       data-testid="preloader"
     >
       <div className="font-space text-5xl md:text-6xl font-bold tracking-tight mb-8">
-        <span className="text-[#00A8FF]">I</span>
+        <span className="text-[#38BDF8]">I</span>
         <span className="text-white">TZ</span>
       </div>
       <div className="w-[200px] h-[2px] rounded-full overflow-hidden bg-[#2A2F36]">
-        <div ref={barRef} className="h-full rounded-full bg-[#00A8FF]" style={{ width: "0%" }} />
+        <div ref={barRef} className="h-full rounded-full bg-[#38BDF8]" style={{ width: "0%" }} />
       </div>
       <p className="mt-6 text-xs uppercase tracking-[0.3em] text-[#5C6670]">Tactical Edge Loading...</p>
     </div>

@@ -27,7 +27,7 @@ export default function Contact() {
         headlineLine1="Let's Talk"
         headlineLine2="Tactics"
         subheadline="Pertanyaan, feedback, partnership ideas, atau sekedar say hello? We're all ears."
-        gradient="radial-gradient(ellipse at 50% 0%, rgba(0, 168, 255, 0.08) 0%, transparent 60%)"
+        gradient="radial-gradient(ellipse at 50% 0%, rgba(56, 189, 248, 0.08) 0%, transparent 60%)"
       />
 
       <section className="section-padding bg-[#0B0C10]">
@@ -36,8 +36,8 @@ export default function Contact() {
             <ScrollReveal>
               {submitted ? (
                 <div className="rounded-xl border border-[#2A2F36] bg-[#161B22] p-10 sm:p-12 text-center" data-testid="contact-success">
-                  <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 bg-[#00A8FF]/15">
-                    <CheckCircle size={36} className="text-[#00A8FF]" weight="fill" />
+                  <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 bg-[#38BDF8]/15">
+                    <CheckCircle size={36} className="text-[#38BDF8]" weight="fill" />
                   </div>
                   <h3 className="font-space text-xl text-white font-semibold">Pesan Terkirim!</h3>
                   <p className="mt-3 text-sm text-[#A0AAB5]">
@@ -52,7 +52,7 @@ export default function Contact() {
                       placeholder="Nama Anda"
                       value={data.name}
                       onChange={(e) => setData({ ...data, name: e.target.value })}
-                      className="w-full px-4 py-3.5 rounded-md text-white text-base outline-none transition-all border bg-[#161B22] focus:border-[#00A8FF]"
+                      className="w-full px-4 py-3.5 rounded-md text-white text-base outline-none transition-all border bg-[#161B22] focus:border-[#38BDF8]"
                       style={{ borderColor: errors.name ? "#E50914" : "#2A2F36" }}
                       data-testid="contact-name"
                     />
@@ -64,7 +64,7 @@ export default function Contact() {
                       placeholder="Email Anda"
                       value={data.email}
                       onChange={(e) => setData({ ...data, email: e.target.value })}
-                      className="w-full px-4 py-3.5 rounded-md text-white text-base outline-none transition-all border bg-[#161B22] focus:border-[#00A8FF]"
+                      className="w-full px-4 py-3.5 rounded-md text-white text-base outline-none transition-all border bg-[#161B22] focus:border-[#38BDF8]"
                       style={{ borderColor: errors.email ? "#E50914" : "#2A2F36" }}
                       data-testid="contact-email"
                     />
@@ -74,7 +74,7 @@ export default function Contact() {
                     <select
                       value={data.subject}
                       onChange={(e) => setData({ ...data, subject: e.target.value })}
-                      className="w-full px-4 py-3.5 rounded-md text-white text-base outline-none transition-all border bg-[#161B22] focus:border-[#00A8FF] appearance-none"
+                      className="w-full px-4 py-3.5 rounded-md text-white text-base outline-none transition-all border bg-[#161B22] focus:border-[#38BDF8] appearance-none"
                       style={{ borderColor: "#2A2F36" }}
                       data-testid="contact-subject"
                     >
@@ -91,7 +91,7 @@ export default function Contact() {
                       value={data.message}
                       onChange={(e) => setData({ ...data, message: e.target.value })}
                       rows={6}
-                      className="w-full px-4 py-3.5 rounded-md text-white text-base outline-none transition-all border resize-y bg-[#161B22] focus:border-[#00A8FF]"
+                      className="w-full px-4 py-3.5 rounded-md text-white text-base outline-none transition-all border resize-y bg-[#161B22] focus:border-[#38BDF8]"
                       style={{ borderColor: errors.message ? "#E50914" : "#2A2F36" }}
                       data-testid="contact-message"
                     />
@@ -106,8 +106,8 @@ export default function Contact() {
               <h3 className="font-space text-xl text-white font-semibold">Other Ways to Reach Us</h3>
               <div className="mt-7 space-y-5">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#00A8FF]/10">
-                    <ChatCircleDots size={22} className="text-[#00A8FF]" weight="duotone" />
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#38BDF8]/10">
+                    <ChatCircleDots size={22} className="text-[#38BDF8]" weight="duotone" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-white">Discord</p>
@@ -115,8 +115,8 @@ export default function Contact() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#00A8FF]/10">
-                    <EnvelopeSimple size={22} className="text-[#00A8FF]" weight="duotone" />
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#38BDF8]/10">
+                    <EnvelopeSimple size={22} className="text-[#38BDF8]" weight="duotone" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-white">Email</p>
@@ -124,8 +124,8 @@ export default function Contact() {
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#00A8FF]/10">
-                    <Clock size={22} className="text-[#00A8FF]" weight="duotone" />
+                  <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0 bg-[#38BDF8]/10">
+                    <Clock size={22} className="text-[#38BDF8]" weight="duotone" />
                   </div>
                   <div>
                     <p className="text-sm font-medium text-white">Response Time</p>

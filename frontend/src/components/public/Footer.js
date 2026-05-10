@@ -80,13 +80,13 @@ export default function Footer() {
         <div className="mt-14 pt-6 border-t border-[#2A2F36] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-[#5C6670]">© 2026 Indo Timezone Football Community · Tactical Edge.</p>
           <div className="flex items-center gap-5">
-            <a href="#" aria-label="Discord" className="text-[#5C6670] hover:text-[#00A8FF] transition-colors">
+            <a href="#" aria-label="Discord" className="text-[#5C6670] hover:text-[#38BDF8] transition-colors">
               <DiscordLogo size={20} weight="fill" />
             </a>
-            <a href="#" aria-label="YouTube" className="text-[#5C6670] hover:text-[#00A8FF] transition-colors">
+            <a href="#" aria-label="YouTube" className="text-[#5C6670] hover:text-[#38BDF8] transition-colors">
               <YoutubeLogo size={20} weight="fill" />
             </a>
-            <a href="#" aria-label="Instagram" className="text-[#5C6670] hover:text-[#00A8FF] transition-colors">
+            <a href="#" aria-label="Instagram" className="text-[#5C6670] hover:text-[#38BDF8] transition-colors">
               <InstagramLogo size={20} weight="fill" />
             </a>
           </div>

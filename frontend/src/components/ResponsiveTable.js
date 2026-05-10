@@ -86,7 +86,7 @@ function ExpandableCard({ id, primaryCols, otherCols, row, actions, testIdPrefix
             </div>
           ))}
         </div>
-        <div className="shrink-0 mt-1 w-8 h-8 rounded-full border border-[#00A8FF]/30 text-[#00A8FF] flex items-center justify-center">
+        <div className="shrink-0 mt-1 w-8 h-8 rounded-full border border-[#38BDF8]/30 text-[#38BDF8] flex items-center justify-center">
           {open ? <CaretUp size={14} weight="bold" /> : <CaretDown size={14} weight="bold" />}
         </div>
       </button>

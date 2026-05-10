@@ -102,10 +102,10 @@ export default function Services() {
                 <ScrollReveal key={i} delay={0.08 * i}>
                   <div className="grid grid-cols-1 md:grid-cols-[28%_1fr_22%] gap-8 md:gap-10 py-10 md:py-14 border-b border-[#2A2F36]" data-testid={`service-${s.key}`}>
                     <div className="flex items-start gap-5">
-                      <span className="font-space font-bold text-5xl md:text-7xl text-[#00A8FF] leading-none">
+                      <span className="font-space font-bold text-5xl md:text-7xl text-[#38BDF8] leading-none">
                         {s.num}
                       </span>
-                      <s.icon size={36} weight="duotone" className="text-[#00A8FF] mt-3 hidden md:block" />
+                      <s.icon size={36} weight="duotone" className="text-[#38BDF8] mt-3 hidden md:block" />
                     </div>
                     <div>
                       <h3 className="text-h3 text-white">{s.title}</h3>
@@ -113,7 +113,7 @@ export default function Services() {
                       <ul className="mt-5 space-y-2 max-w-xl">
                         {s.features.map((f, j) => (
                           <li key={j} className="flex items-start gap-2 text-sm text-white">
-                            <Check size={16} weight="bold" className="text-[#00A8FF] mt-0.5 shrink-0" />
+                            <Check size={16} weight="bold" className="text-[#38BDF8] mt-0.5 shrink-0" />
                             <span>{f}</span>
                           </li>
                         ))}
@@ -121,7 +121,7 @@ export default function Services() {
                     </div>
                     <div className="md:text-right">
                       <p className="text-xs uppercase tracking-widest text-[#5C6670]">Mulai dari</p>
-                      <p className="font-space font-bold text-3xl md:text-4xl text-[#00A8FF] mt-1" data-testid={`service-price-${s.key}`}>
+                      <p className="font-space font-bold text-3xl md:text-4xl text-[#38BDF8] mt-1" data-testid={`service-price-${s.key}`}>
                         {pr.label}
                       </p>
                       <p className="text-xs text-[#A0AAB5] mt-1">{pr.note}</p>

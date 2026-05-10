@@ -4,9 +4,11 @@ import { useAuth } from "@/context/AuthContext";
 import {
   SignOut, ChartBar, Users, Ticket, Package as PkgIcon, Newspaper,
   CalendarDots, CreditCard, Crown, Briefcase, Gauge, Barbell, List, X,
-  CaretLeft, CaretRight, Bell, MagnifyingGlass, CaretDown, User as UserIcon, GearSix, Crosshair,
+  CaretLeft, CaretRight, MagnifyingGlass, CaretDown, User as UserIcon, GearSix, Crosshair,
 } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
+import CommandPalette from "@/components/dashboard/CommandPalette";
+import NotificationsPanel from "@/components/dashboard/NotificationsPanel";
 
 const ALL_NAV = [
   { to: "/app", label: "Dashboard", icon: Gauge, roles: ["user", "admin", "superadmin", "marketing"], end: true },
@@ -33,6 +35,19 @@ export default function DashboardLayout({ children }) {
   });
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const [paletteOpen, setPaletteOpen] = useState(false);
+
+  // Cmd/Ctrl + K shortcut
+  useEffect(() => {
+    const handler = (e) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "k" || e.key === "K")) {
+        e.preventDefault();
+        setPaletteOpen((v) => !v);
+      }
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, []);
 
   useEffect(() => { setDrawerOpen(false); setProfileOpen(false); }, [loc.pathname]);
   useEffect(() => { localStorage.setItem("dash_sidebar_collapsed", collapsed ? "1" : "0"); }, [collapsed]);
@@ -62,7 +77,7 @@ export default function DashboardLayout({ children }) {
           className={({ isActive }) =>
             `relative flex items-center gap-3 h-11 px-3 rounded-lg transition-all duration-150 group ` +
             (isActive
-              ? "text-[#00A8FF] bg-[rgba(0,168,255,0.13)]"
+              ? "text-[#38BDF8] bg-[rgba(56,189,248,0.13)]"
               : "text-[#5a5a6a] hover:text-[#a0a0b0] hover:bg-[#1c1c25]")
           }
           data-testid={`nav-${it.label.toLowerCase().replace(/\s+/g, "-")}`}
@@ -72,7 +87,7 @@ export default function DashboardLayout({ children }) {
               {isActive && (
                 <motion.span
                   layoutId="dash-sidebar-active"
-                  className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-sm bg-[#00A8FF]"
+                  className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r-sm bg-[#38BDF8]"
                   transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
                 />
               )}
@@ -98,12 +113,15 @@ export default function DashboardLayout({ children }) {
   const SidebarLogo = () => (
     <div className="px-5 pt-5 pb-4">
       <Link to="/app" className="flex items-center gap-3" data-testid="sidebar-logo">
-        <div
-          className="w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0"
-          style={{ background: "linear-gradient(135deg, #00A8FF, #8b5cf6)" }}
-        >
-          <Crosshair className="w-5 h-5 text-white" weight="bold" />
-        </div>
+        <img
+          src="/assets/itz-logo.png"
+          alt="Indo Timezone"
+          style={{
+            width: 38, height: 38, borderRadius: "50%",
+            boxShadow: "0 0 18px rgba(56, 189, 248, 0.32)",
+          }}
+          className="object-cover shrink-0 ring-1 ring-[#38BDF8]/40"
+        />
         <AnimatePresence>
           {!collapsed && (
             <motion.div
@@ -114,7 +132,7 @@ export default function DashboardLayout({ children }) {
               className="overflow-hidden whitespace-nowrap"
             >
               <div className="font-semibold text-sm tracking-wide text-white uppercase leading-tight">Indo Timezone</div>
-              <div className="text-[11px] tracking-[0.1em] uppercase text-[#00A8FF] leading-tight mt-0.5">Tactical Center</div>
+              <div className="text-[11px] tracking-[0.1em] uppercase text-[#38BDF8] leading-tight mt-0.5">Tactical Center</div>
             </motion.div>
           )}
         </AnimatePresence>
@@ -252,20 +270,14 @@ export default function DashboardLayout({ children }) {
             <button
               className="hidden sm:flex items-center gap-2 h-10 px-3 rounded-lg bg-[#16161d] hover:bg-[#1c1c25] text-[#5a5a6a] hover:text-[#a0a0b0] transition-colors"
               data-testid="topbar-search"
-              title="Coming soon"
+              onClick={() => setPaletteOpen(true)}
+              title="Cari (⌘K)"
             >
               <MagnifyingGlass size={18} />
               <span className="text-[13px] hidden md:inline">Cari...</span>
               <kbd className="hidden md:inline-flex items-center justify-center h-5 px-1.5 rounded text-[10px] font-mono bg-[#0f0f14] text-[#5a5a6a] border border-white/[0.06]">⌘K</kbd>
             </button>
-            <button
-              className="relative w-10 h-10 flex items-center justify-center rounded-lg bg-[#16161d] hover:bg-[#1c1c25] text-[#5a5a6a] hover:text-[#a0a0b0] transition-colors"
-              data-testid="topbar-notifications"
-              title="Coming soon"
-            >
-              <Bell size={18} />
-              <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-[#ef4444]" />
-            </button>
+            <NotificationsPanel />
             <div className="relative">
               <button
                 onClick={() => setProfileOpen(!profileOpen)}
@@ -274,7 +286,7 @@ export default function DashboardLayout({ children }) {
               >
                 <div
                   className="w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold text-white flex-shrink-0"
-                  style={{ background: "linear-gradient(135deg, #00A8FF, #8b5cf6)" }}
+                  style={{ background: "linear-gradient(135deg, #38BDF8, #8b5cf6)" }}
                 >
                   {initials}
                 </div>
@@ -340,6 +352,7 @@ export default function DashboardLayout({ children }) {
           </div>
         </main>
       </div>
+      <CommandPalette open={paletteOpen} onClose={() => setPaletteOpen(false)} />
     </div>
   );
 }

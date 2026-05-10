@@ -21,7 +21,7 @@ export default function About() {
         subheadline="ITZ is the largest Indonesian community for Top Eleven Football Manager. We're on a mission to help every manager reach their full potential through data-driven tools and collaborative learning."
         ctaText="Join Our Community"
         ctaLink="/community"
-        gradient="radial-gradient(ellipse at 50% 0%, rgba(0, 168, 255, 0.10) 0%, transparent 60%)"
+        gradient="radial-gradient(ellipse at 50% 0%, rgba(56, 189, 248, 0.10) 0%, transparent 60%)"
       />
 
       <section className="section-padding bg-[#0B0C10]">
@@ -59,7 +59,7 @@ export default function About() {
                 <div className="text-center rounded-xl p-8 border border-[#2A2F36] bg-[#0B0C10] h-full" data-testid={`team-${i}`}>
                   <div className="w-20 h-20 rounded-full gradient-avatar mx-auto" />
                   <h3 className="text-white text-lg font-space font-semibold mt-5">{m.name}</h3>
-                  <p className="text-sm mt-1 text-[#00A8FF]">{m.role}</p>
+                  <p className="text-sm mt-1 text-[#38BDF8]">{m.role}</p>
                   <p className="text-sm mt-3 leading-relaxed text-[#A0AAB5]">{m.bio}</p>
                 </div>
               </ScrollReveal>

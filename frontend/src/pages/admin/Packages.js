@@ -47,7 +47,7 @@ export default function AdminPackages() {
               {!p.active && <span className="badge badge-red">INACTIVE</span>}
               {p.is_trial && <span className="badge badge-gold">TRIAL</span>}
             </div>
-            <div className="font-display font-black text-3xl text-[#00A8FF] mt-2">{formatRupiah(p.price)}</div>
+            <div className="font-display font-black text-3xl text-[#38BDF8] mt-2">{formatRupiah(p.price)}</div>
             <div className="text-xs text-[#A0AAB5] mt-1">{p.description}</div>
             <div className="text-xs text-[#A0AAB5] mt-2">Durasi: {p.duration_value} {p.duration_type === "yearly" ? "tahun" : "bulan"}{p.max_clicks ? ` · ${p.max_clicks} clicks` : ""}</div>
             <div className="flex gap-2 mt-4">
