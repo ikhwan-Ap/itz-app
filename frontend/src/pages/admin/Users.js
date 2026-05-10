@@ -115,39 +115,49 @@ export default function AdminUsers() {
 }
 
 function UserModal({ modal, packages, me, err, onClose, onSave }) {
-  const trialPkgs = packages.filter((p) => p.is_trial);
-  const defaultTrialPkg = trialPkgs[0] || null;
-
   const [form, setForm] = useState(modal.mode === "new"
     ? {
         email: "", password: "", name: "", role: "user", association: "",
-        package_id: defaultTrialPkg?.id || "",
-        max_clicks: defaultTrialPkg?.max_clicks ?? 50,
-        expires_at: "", status: "active", is_trial: true,
+        package_id: "", max_clicks: "", expires_at: "", status: "active", is_trial: false,
       }
     : { ...modal.data });
 
-  // Auto-fill max_clicks when package changes (new mode only)
+  // When package changes: auto-fill trial flag & max_clicks from package; clear manual fields
   const handlePackageChange = (pkgId) => {
+    if (!pkgId) {
+      setForm((f) => ({ ...f, package_id: "", max_clicks: "", expires_at: "", is_trial: false }));
+      return;
+    }
     const pkg = packages.find((p) => p.id === pkgId);
     setForm((f) => ({
       ...f,
       package_id: pkgId,
-      max_clicks: pkg?.max_clicks ?? f.max_clicks,
+      is_trial: pkg?.is_trial ?? false,
+      max_clicks: pkg?.max_clicks ?? null,
+      expires_at: "",  // package handles duration; admin doesn't set manually
     }));
   };
 
   const submit = (e) => {
     e.preventDefault();
     const payload = { ...form };
+    const hasPkg = !!payload.package_id;
     if (modal.mode === "edit") {
       delete payload.email; delete payload.password; delete payload.is_trial;
     }
-    if (!payload.expires_at) delete payload.expires_at;
-    else payload.expires_at = new Date(payload.expires_at.slice(0, 10)).toISOString();
-    if (!payload.package_id) delete payload.package_id;
-    if (payload.max_clicks === "" || payload.max_clicks == null) payload.max_clicks = null;
-    else payload.max_clicks = parseInt(payload.max_clicks);
+    // When package is selected: clear manual expires_at & max_clicks (backend/package defines limits)
+    if (hasPkg) {
+      delete payload.expires_at;
+      // Keep max_clicks from package auto-fill (already set in form state)
+      if (payload.max_clicks === "" || payload.max_clicks == null) payload.max_clicks = null;
+      else payload.max_clicks = parseInt(payload.max_clicks);
+    } else {
+      if (!payload.expires_at) delete payload.expires_at;
+      else payload.expires_at = new Date(payload.expires_at.slice(0, 10)).toISOString();
+      if (payload.max_clicks === "" || payload.max_clicks == null) payload.max_clicks = null;
+      else payload.max_clicks = parseInt(payload.max_clicks);
+      delete payload.package_id;
+    }
     onSave(payload);
   };
 
@@ -171,13 +181,6 @@ function UserModal({ modal, packages, me, err, onClose, onSave }) {
         <form onSubmit={submit} className="space-y-3">
           {isNew && (
             <>
-              {/* Trial toggle at top for clarity */}
-              <label className="flex items-center gap-2 text-sm p-3 rounded-lg border border-white/10 bg-white/[0.03] cursor-pointer">
-                <input type="checkbox" checked={!!form.is_trial} onChange={(e) => setForm({ ...form, is_trial: e.target.checked })} />
-                <span className="font-semibold text-white">Akun Trial / Free</span>
-                <span className="text-[#A0AAB5] text-xs ml-1">(terbatas waktu / klik)</span>
-              </label>
-
               <div><label className="label-std">Email</label>
                 <input required type="email" className="input-std" value={form.email}
                        onChange={(e) => setForm({ ...form, email: e.target.value })} data-testid="modal-email" />
@@ -217,10 +220,11 @@ function UserModal({ modal, packages, me, err, onClose, onSave }) {
             </div>
           </div>
 
+          {/* Package selector */}
           <div><label className="label-std">Paket</label>
             <select className="input-std" value={form.package_id || ""}
                     onChange={(e) => handlePackageChange(e.target.value)}>
-              <option value="">— tanpa paket —</option>
+              <option value="">— tanpa paket (akun free/trial manual) —</option>
               {packages.map((p) => (
                 <option key={p.id} value={p.id}>
                   {p.name}{p.is_trial ? " (Trial)" : ""}{p.max_clicks ? ` — ${p.max_clicks} klik` : ""}
@@ -229,22 +233,46 @@ function UserModal({ modal, packages, me, err, onClose, onSave }) {
             </select>
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="label-std">Expires (opsional)</label>
-              <input type="date" className="input-std"
-                     value={form.expires_at ? form.expires_at.slice(0, 10) : ""}
-                     onChange={(e) => setForm({ ...form, expires_at: e.target.value })} />
-              <div className="text-[10px] text-[#A0AAB5] mt-0.5">Kosong = tidak ada batas waktu</div>
+          {/* Trial toggle: hanya tampil jika TIDAK ada paket */}
+          {isNew && !form.package_id && (
+            <label className="flex items-center gap-2 text-sm p-3 rounded-lg border border-white/10 bg-white/[0.03] cursor-pointer">
+              <input type="checkbox" checked={!!form.is_trial} onChange={(e) => setForm({ ...form, is_trial: e.target.checked })} />
+              <span className="font-semibold text-white">Akun Trial / Free</span>
+              <span className="text-[#A0AAB5] text-xs ml-1">(tandai sebagai trial tanpa paket)</span>
+            </label>
+          )}
+
+          {/* Expires & max_clicks: hanya tampil jika TIDAK ada paket */}
+          {!form.package_id && (
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="label-std">Expires (opsional)</label>
+                <input type="date" className="input-std"
+                       value={form.expires_at ? form.expires_at.slice(0, 10) : ""}
+                       onChange={(e) => setForm({ ...form, expires_at: e.target.value })} />
+                <div className="text-[10px] text-[#A0AAB5] mt-0.5">Kosong = tidak ada batas waktu</div>
+              </div>
+              <div>
+                <label className="label-std">Maks Klik</label>
+                <input type="number" min="1" className="input-std"
+                       value={form.max_clicks ?? ""}
+                       onChange={(e) => setForm({ ...form, max_clicks: e.target.value })} />
+                <div className="text-[10px] text-[#A0AAB5] mt-0.5">Kosong = tidak terbatas</div>
+              </div>
             </div>
-            <div>
-              <label className="label-std">Maks Klik</label>
-              <input type="number" min="1" className="input-std"
-                     value={form.max_clicks ?? ""}
-                     onChange={(e) => setForm({ ...form, max_clicks: e.target.value })} />
-              <div className="text-[10px] text-[#A0AAB5] mt-0.5">Kosong = tidak terbatas</div>
-            </div>
-          </div>
+          )}
+
+          {/* Info paket terpilih */}
+          {form.package_id && (() => {
+            const pkg = packages.find((p) => p.id === form.package_id);
+            return pkg ? (
+              <div className="text-xs text-[#A0AAB5] p-2 rounded-lg border border-white/10 bg-white/[0.03]">
+                📦 Paket <span className="text-white font-semibold">{pkg.name}</span>:&nbsp;
+                {pkg.max_clicks ? `${pkg.max_clicks} klik` : "klik tidak terbatas"}.&nbsp;
+                Durasi & klik diatur otomatis dari paket.
+              </div>
+            ) : null;
+          })()}
 
           {err && <div className="badge badge-red w-full justify-center !py-2">{err}</div>}
           <div className="flex gap-2 pt-2">
