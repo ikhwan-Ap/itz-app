@@ -77,6 +77,11 @@ def _is_admin(user: dict) -> bool:
     return user.get("role") in ("admin", "superadmin")
 
 
+def _parse_dt(s: str) -> datetime:
+    """Parse ISO datetime string — handles Z suffix for Python 3.10 compat."""
+    return datetime.fromisoformat(s.replace("Z", "+00:00"))
+
+
 def _sanitize_user(u: dict) -> dict:
     if not u:
         return u
@@ -114,7 +119,7 @@ async def register(body: UserRegister, request: Request, response: Response):
             raise HTTPException(400, "Invalid promo code")
         now = datetime.now(timezone.utc)
         if promo.get("valid_until"):
-            vu = datetime.fromisoformat(promo["valid_until"])
+            vu = _parse_dt(promo["valid_until"])
             if vu < now:
                 raise HTTPException(400, "Promo code expired")
         if promo.get("max_uses") is not None and promo.get("uses", 0) >= promo["max_uses"]:
@@ -208,9 +213,12 @@ async def login(body: UserLogin, request: Request, response: Response):
 
     # Check expiry
     if user.get("expires_at"):
-        exp = datetime.fromisoformat(user["expires_at"])
-        if exp < datetime.now(timezone.utc):
-            raise HTTPException(403, "Account expired")
+        try:
+            exp = _parse_dt(user["expires_at"])
+            if exp < datetime.now(timezone.utc):
+                raise HTTPException(403, "Account expired")
+        except (ValueError, TypeError):
+            pass  # malformed date — skip expiry check
 
     await clear_failed_logins(db, identifier)
 
@@ -274,17 +282,20 @@ async def admin_create_user(body: AdminCreateUser, user=Depends(require_role("ad
     if body.role in ("admin", "superadmin", "marketing") and user["role"] != "superadmin":
         raise HTTPException(403, "Only superadmin can create this role")
 
+    # password2 defaults to same as password if not provided
+    pw2 = body.password2 if body.password2 else body.password
+
     doc = {
         "id": uid(),
         "email": email,
         "password_hash": hash_password(body.password),
-        "password2_hash": hash_password(body.password2),
+        "password2_hash": hash_password(pw2),
         "name": body.name,
         "role": body.role,
         "association": body.association,
-        "status": "active",
+        "status": body.status,
         "package_id": body.package_id,
-        "expires_at": body.expires_at,
+        "expires_at": body.expires_at if body.expires_at else None,
         "max_clicks": body.max_clicks,
         "clicks_used": 0,
         "created_by": user["id"],
@@ -427,7 +438,7 @@ async def validate_promo(code: str, package_id: str):
         raise HTTPException(404, "Invalid package")
     now = datetime.now(timezone.utc)
     if promo.get("valid_until"):
-        if datetime.fromisoformat(promo["valid_until"]) < now:
+        if _parse_dt(promo["valid_until"]) < now:
             raise HTTPException(400, "Promo code expired")
     if promo.get("max_uses") is not None and promo.get("uses", 0) >= promo["max_uses"]:
         raise HTTPException(400, "Limit reached")
@@ -683,9 +694,12 @@ async def admin_stats(user=Depends(require_role("admin", "superadmin"))):
     expiring_soon = []
     for u in active_users:
         if u.get("expires_at"):
-            exp = datetime.fromisoformat(u["expires_at"])
-            if exp > now and (exp - now) < timedelta(days=7):
-                expiring_soon.append(u)
+            try:
+                exp = _parse_dt(u["expires_at"])
+                if exp > now and (exp - now) < timedelta(days=7):
+                    expiring_soon.append(u)
+            except (ValueError, TypeError):
+                pass
 
     txs = await db.transactions.find({}, {"_id": 0}).sort("created_at", -1).to_list(5000)
     approved = [t for t in txs if t["status"] == "approved"]
@@ -699,7 +713,7 @@ async def admin_stats(user=Depends(require_role("admin", "superadmin"))):
     # revenue by month (last 6 months)
     months = {}
     for t in approved:
-        dt = datetime.fromisoformat(t["created_at"])
+        dt = _parse_dt(t["created_at"])
         key = dt.strftime("%Y-%m")
         if key not in months:
             months[key] = {"gross": 0, "net": 0, "marketing": 0, "count": 0}
@@ -747,7 +761,7 @@ async def marketing_stats(user=Depends(require_role("marketing", "admin", "super
 
     chart = {}
     for t in txs:
-        dt = datetime.fromisoformat(t["created_at"])
+        dt = _parse_dt(t["created_at"])
         key = dt.strftime("%Y-%m")
         if key not in chart:
             chart[key] = {"earnings": 0, "count": 0}
@@ -793,9 +807,12 @@ async def calc_run(body: CalculatorRunRequest, user=Depends(current_user)):
         if user.get("status") != "active":
             raise HTTPException(403, "Account not active")
         if user.get("expires_at"):
-            exp = datetime.fromisoformat(user["expires_at"])
-            if exp < datetime.now(timezone.utc):
-                raise HTTPException(403, "Package expired")
+            try:
+                exp = _parse_dt(user["expires_at"])
+                if exp < datetime.now(timezone.utc):
+                    raise HTTPException(403, "Package expired")
+            except (ValueError, TypeError):
+                pass
         if user.get("max_clicks") is not None:
             used = user.get("clicks_used", 0)
             if used >= user["max_clicks"]:
@@ -866,7 +883,7 @@ async def _update_streak(user_id: str):
     last_date = None
     if last:
         try:
-            last_date = datetime.fromisoformat(last).date()
+            last_date = _parse_dt(last).date()
         except Exception:
             last_date = None
 

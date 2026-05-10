@@ -32,13 +32,14 @@ class UserLogin(BaseModel):
 class AdminCreateUser(BaseModel):
     email: EmailStr
     password: str
-    password2: str
+    password2: Optional[str] = None  # Optional; defaults to same as password
     name: str
-    role: str  # user / marketing / admin / superadmin
+    role: str = "user"  # user / marketing / admin / superadmin
     association: Optional[str] = None
     package_id: Optional[str] = None
     expires_at: Optional[str] = None  # ISO
     max_clicks: Optional[int] = None
+    status: str = "active"
     is_trial: bool = False
 
 

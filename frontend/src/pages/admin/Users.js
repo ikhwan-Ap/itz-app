@@ -115,17 +115,36 @@ export default function AdminUsers() {
 }
 
 function UserModal({ modal, packages, me, err, onClose, onSave }) {
+  const trialPkgs = packages.filter((p) => p.is_trial);
+  const defaultTrialPkg = trialPkgs[0] || null;
+
   const [form, setForm] = useState(modal.mode === "new"
-    ? { email: "", password: "", password2: "", name: "", role: "user", association: "", package_id: "", max_clicks: 50, expires_at: "", is_trial: true }
+    ? {
+        email: "", password: "", name: "", role: "user", association: "",
+        package_id: defaultTrialPkg?.id || "",
+        max_clicks: defaultTrialPkg?.max_clicks ?? 50,
+        expires_at: "", status: "active", is_trial: true,
+      }
     : { ...modal.data });
+
+  // Auto-fill max_clicks when package changes (new mode only)
+  const handlePackageChange = (pkgId) => {
+    const pkg = packages.find((p) => p.id === pkgId);
+    setForm((f) => ({
+      ...f,
+      package_id: pkgId,
+      max_clicks: pkg?.max_clicks ?? f.max_clicks,
+    }));
+  };
 
   const submit = (e) => {
     e.preventDefault();
     const payload = { ...form };
     if (modal.mode === "edit") {
-      delete payload.email; delete payload.password; delete payload.password2; delete payload.is_trial;
+      delete payload.email; delete payload.password; delete payload.is_trial;
     }
     if (!payload.expires_at) delete payload.expires_at;
+    else payload.expires_at = new Date(payload.expires_at.slice(0, 10)).toISOString();
     if (!payload.package_id) delete payload.package_id;
     if (payload.max_clicks === "" || payload.max_clicks == null) payload.max_clicks = null;
     else payload.max_clicks = parseInt(payload.max_clicks);
@@ -136,25 +155,53 @@ function UserModal({ modal, packages, me, err, onClose, onSave }) {
     ? ["user", "marketing", "admin", "superadmin"]
     : ["user"];
 
+  const isNew = modal.mode === "new";
+
   return (
     <div className="popup-overlay" onClick={onClose}>
       <div className="card-glass p-6 max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <div className="font-display font-bold text-xl">{modal.mode === "new" ? "Tambah User" : `Edit: ${form.name}`}</div>
+          <div>
+            <div className="font-display font-bold text-xl">{isNew ? "Tambah User" : `Edit: ${form.name}`}</div>
+            {isNew && <div className="text-xs text-[#A0AAB5] mt-0.5">Akun langsung aktif, bisa login langsung.</div>}
+          </div>
           <button onClick={onClose} className="text-[#A0AAB5] hover:text-white" data-testid="modal-close"><X size={20} /></button>
         </div>
+
         <form onSubmit={submit} className="space-y-3">
-          {modal.mode === "new" && (
+          {isNew && (
             <>
-              <div><label className="label-std">Email</label><input required type="email" className="input-std" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} data-testid="modal-email" /></div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><label className="label-std">Password</label><input required type="password" className="input-std" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} /></div>
-                <div><label className="label-std">2nd Password</label><input required type="password" className="input-std" value={form.password2} onChange={(e) => setForm({ ...form, password2: e.target.value })} /></div>
+              {/* Trial toggle at top for clarity */}
+              <label className="flex items-center gap-2 text-sm p-3 rounded-lg border border-white/10 bg-white/[0.03] cursor-pointer">
+                <input type="checkbox" checked={!!form.is_trial} onChange={(e) => setForm({ ...form, is_trial: e.target.checked })} />
+                <span className="font-semibold text-white">Akun Trial / Free</span>
+                <span className="text-[#A0AAB5] text-xs ml-1">(terbatas waktu / klik)</span>
+              </label>
+
+              <div><label className="label-std">Email</label>
+                <input required type="email" className="input-std" value={form.email}
+                       onChange={(e) => setForm({ ...form, email: e.target.value })} data-testid="modal-email" />
+              </div>
+              <div><label className="label-std">Password</label>
+                <input required type="password" className="input-std" value={form.password}
+                       onChange={(e) => setForm({ ...form, password: e.target.value })}
+                       placeholder="Password untuk login" />
               </div>
             </>
           )}
-          <div><label className="label-std">Nama</label><input required className="input-std" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} data-testid="modal-name" /></div>
-          <div><label className="label-std">Asosiasi</label><input className="input-std" value={form.association || ""} onChange={(e) => setForm({ ...form, association: e.target.value })} /></div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div><label className="label-std">Nama Lengkap</label>
+              <input required className="input-std" value={form.name}
+                     onChange={(e) => setForm({ ...form, name: e.target.value })} data-testid="modal-name" />
+            </div>
+            <div><label className="label-std">Asosiasi</label>
+              <input className="input-std" value={form.association || ""}
+                     onChange={(e) => setForm({ ...form, association: e.target.value })}
+                     placeholder="Opsional" />
+            </div>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <div><label className="label-std">Role</label>
               <select className="input-std" value={form.role} onChange={(e) => setForm({ ...form, role: e.target.value })} data-testid="modal-role">
@@ -163,37 +210,48 @@ function UserModal({ modal, packages, me, err, onClose, onSave }) {
             </div>
             <div><label className="label-std">Status</label>
               <select className="input-std" value={form.status || "active"} onChange={(e) => setForm({ ...form, status: e.target.value })}>
-                <option value="active">active</option>
-                <option value="pending">pending</option>
-                <option value="suspended">suspended</option>
-                <option value="rejected">rejected</option>
+                <option value="active">✅ active (bisa login)</option>
+                <option value="pending">⏳ pending (tunggu approval)</option>
+                <option value="suspended">🚫 suspended</option>
               </select>
             </div>
           </div>
-          <div><label className="label-std">Package</label>
-            <select className="input-std" value={form.package_id || ""} onChange={(e) => setForm({ ...form, package_id: e.target.value })}>
-              <option value="">— none —</option>
-              {packages.map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+
+          <div><label className="label-std">Paket</label>
+            <select className="input-std" value={form.package_id || ""}
+                    onChange={(e) => handlePackageChange(e.target.value)}>
+              <option value="">— tanpa paket —</option>
+              {packages.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name}{p.is_trial ? " (Trial)" : ""}{p.max_clicks ? ` — ${p.max_clicks} klik` : ""}
+                </option>
+              ))}
             </select>
           </div>
+
           <div className="grid grid-cols-2 gap-3">
-            <div><label className="label-std">Expires</label>
-              <input type="date" className="input-std" value={form.expires_at ? form.expires_at.slice(0, 10) : ""}
-                     onChange={(e) => setForm({ ...form, expires_at: e.target.value ? new Date(e.target.value).toISOString() : "" })} />
+            <div>
+              <label className="label-std">Expires (opsional)</label>
+              <input type="date" className="input-std"
+                     value={form.expires_at ? form.expires_at.slice(0, 10) : ""}
+                     onChange={(e) => setForm({ ...form, expires_at: e.target.value })} />
+              <div className="text-[10px] text-[#A0AAB5] mt-0.5">Kosong = tidak ada batas waktu</div>
             </div>
-            <div><label className="label-std">Max Clicks (trial)</label>
-              <input type="number" className="input-std" value={form.max_clicks ?? ""} onChange={(e) => setForm({ ...form, max_clicks: e.target.value })} />
+            <div>
+              <label className="label-std">Maks Klik</label>
+              <input type="number" min="1" className="input-std"
+                     value={form.max_clicks ?? ""}
+                     onChange={(e) => setForm({ ...form, max_clicks: e.target.value })} />
+              <div className="text-[10px] text-[#A0AAB5] mt-0.5">Kosong = tidak terbatas</div>
             </div>
           </div>
-          {modal.mode === "new" && (
-            <label className="flex items-center gap-2 text-sm">
-              <input type="checkbox" checked={!!form.is_trial} onChange={(e) => setForm({ ...form, is_trial: e.target.checked })} /> Free Trial Account
-            </label>
-          )}
+
           {err && <div className="badge badge-red w-full justify-center !py-2">{err}</div>}
           <div className="flex gap-2 pt-2">
             <button type="button" onClick={onClose} className="btn-outline flex-1">Cancel</button>
-            <button type="submit" className="btn-primary flex-1" data-testid="modal-save">Save</button>
+            <button type="submit" className="btn-primary flex-1" data-testid="modal-save">
+              {isNew ? "Buat Akun" : "Simpan"}
+            </button>
           </div>
         </form>
       </div>
