@@ -35,9 +35,39 @@ from models import (
     NewsCreate, NewsUpdate,
     EventCreate, EventUpdate, EventRegister,
     PaymentConfigUpdate, CalculatorRunRequest,
+    ForgotPasswordRequest, ResetPasswordRequest, AdminResetPasswordRequest,
+    TrainingResultSave,
     now_iso, uid,
 )
 import jwt
+import hashlib
+import secrets
+from collections import defaultdict
+
+# =========================================================
+# SIMPLE IN-MEMORY RATE LIMITER (P1-RL-04, P1-RL-05)
+# =========================================================
+# Lightweight per-IP rate limiter — no Redis needed on small VPS.
+# Resets on process restart (acceptable for single-worker Uvicorn).
+# Nginx is the primary rate limiter; this is defense-in-depth.
+import time as _time
+
+_rate_buckets: dict = defaultdict(lambda: {"count": 0, "window_start": 0.0})
+_rate_lock_import = None  # asyncio.Lock created lazily on first use
+
+
+def _rate_check(key: str, max_requests: int, window_seconds: int) -> bool:
+    """
+    Returns True if request is allowed, False if rate limit exceeded.
+    Uses a fixed window counter per key.
+    """
+    now = _time.monotonic()
+    bucket = _rate_buckets[key]
+    if now - bucket["window_start"] >= window_seconds:
+        bucket["count"] = 0
+        bucket["window_start"] = now
+    bucket["count"] += 1
+    return bucket["count"] <= max_requests
 
 # --- Mongo ---
 mongo_url = os.environ["MONGO_URL"]
@@ -90,6 +120,24 @@ def _sanitize_user(u: dict) -> dict:
     u.pop("password_hash", None)
     u.pop("password2_hash", None)
     return u
+
+
+# =========================================================
+# PAGINATION HELPER (P1-PG-01)
+# =========================================================
+def _paginate_meta(page: int, limit: int, total: int) -> dict:
+    """Standard pagination meta block."""
+    limit = max(1, min(limit, 100))  # clamp 1–100
+    page = max(1, page)
+    pages = max(1, (total + limit - 1) // limit)
+    return {
+        "page": page,
+        "limit": limit,
+        "total": total,
+        "pages": pages,
+        "has_next": page < pages,
+        "has_prev": page > 1,
+    }
 
 
 # =========================================================
@@ -304,12 +352,183 @@ async def refresh_token(request: Request, response: Response):
 
 
 # =========================================================
+# FORGOT / RESET PASSWORD (P1-FP)
+# =========================================================
+# Schema — db.password_reset_tokens:
+#   id             uuid
+#   user_id        string   → users.id
+#   email          string   (denormalized for audit)
+#   token_hash     string   (sha256 of the plaintext token; plaintext never stored)
+#   expires_at     ISO datetime (UTC)
+#   used           bool
+#   created_at     ISO datetime (UTC)
+#   used_at        ISO datetime | None
+#   ip_address     string   (request IP when requested)
+#
+# Policy:
+#   - Token TTL: 60 minutes
+#   - Token is single-use (used=True after reset)
+#   - Forgot endpoint never reveals whether email exists (anti-enumeration)
+#   - Rate limited per-IP via Nginx api_auth zone (covers /api/auth/*)
+#   - On reset: invalidate all existing refresh tokens by changing password_hash
+PASSWORD_RESET_TTL_MIN = 60
+
+
+def _hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode("utf-8")).hexdigest()
+
+
+@api.post("/auth/forgot-password")
+async def forgot_password(body: ForgotPasswordRequest, request: Request):
+    """
+    Request a password reset. Always returns success to prevent email enumeration.
+    If the email exists, a reset token is created. In production, a background
+    mailer would send the link. For now, the token is logged and returned via
+    FRONTEND_URL in the server log.
+    """
+    email = body.email.lower().strip()
+    ip = request.client.host if request.client else "unknown"
+
+    user = await db.users.find_one({"email": email})
+    if user:
+        # Invalidate previous tokens for this user (defense-in-depth)
+        await db.password_reset_tokens.update_many(
+            {"user_id": user["id"], "used": False},
+            {"$set": {"used": True, "used_at": now_iso()}},
+        )
+
+        plain_token = secrets.token_urlsafe(32)
+        expires = datetime.now(timezone.utc) + timedelta(minutes=PASSWORD_RESET_TTL_MIN)
+        await db.password_reset_tokens.insert_one({
+            "id": uid(),
+            "user_id": user["id"],
+            "email": email,
+            "token_hash": _hash_token(plain_token),
+            "expires_at": expires.isoformat(),
+            "used": False,
+            "created_at": now_iso(),
+            "used_at": None,
+            "ip_address": ip,
+        })
+
+        frontend = os.environ.get("FRONTEND_URL", "https://indotimezone.store")
+        reset_link = f"{frontend}/reset-password?token={plain_token}"
+        # TODO: integrate with email provider. For now, log for ops visibility.
+        logger.info(f"[forgot-password] Reset link for {email}: {reset_link}")
+
+    # Always same response regardless of whether user exists
+    return {"message": "Jika email terdaftar, link reset password akan dikirim."}
+
+
+@api.post("/auth/reset-password")
+async def reset_password(body: ResetPasswordRequest, request: Request):
+    """Consume a reset token and set a new password."""
+    if body.password != body.password2:
+        raise HTTPException(400, "Password dan konfirmasi password harus sama")
+    if len(body.password) < 6:
+        raise HTTPException(400, "Password minimal 6 karakter")
+
+    token_hash = _hash_token(body.token)
+    rec = await db.password_reset_tokens.find_one({"token_hash": token_hash})
+    if not rec:
+        raise HTTPException(400, "Token tidak valid atau sudah dipakai")
+    if rec.get("used"):
+        raise HTTPException(400, "Token sudah pernah dipakai")
+    try:
+        exp = _parse_dt(rec["expires_at"])
+    except (ValueError, TypeError, KeyError):
+        raise HTTPException(400, "Token tidak valid")
+    if exp < datetime.now(timezone.utc):
+        raise HTTPException(400, "Token sudah kedaluwarsa")
+
+    user = await db.users.find_one({"id": rec["user_id"]})
+    if not user:
+        raise HTTPException(400, "User tidak ditemukan")
+
+    # Update password and mark token used (both inside same logical op)
+    await db.users.update_one(
+        {"id": user["id"]},
+        {"$set": {"password_hash": hash_password(body.password)}},
+    )
+    await db.password_reset_tokens.update_one(
+        {"id": rec["id"]},
+        {"$set": {"used": True, "used_at": now_iso()}},
+    )
+
+    # Clear any brute-force lockouts tied to this user's email
+    ip = request.client.host if request.client else "unknown"
+    await db.login_attempts.delete_many({"identifier": {"$regex": f":{user['email']}$"}})
+
+    await _audit_log(
+        actor={"id": user["id"], "email": user["email"], "role": user.get("role")},
+        action="user.password_reset",
+        target_type="user",
+        target_id=user["id"],
+        request=request,
+        metadata={"method": "email_token", "ip": ip},
+    )
+
+    return {"message": "Password berhasil direset. Silakan login dengan password baru."}
+
+
+@api.post("/auth/admin-reset-password")
+async def admin_reset_password(
+    body: AdminResetPasswordRequest,
+    request: Request,
+    user=Depends(require_role("superadmin")),
+):
+    """Superadmin fallback — force-reset a user's password. Audit-logged."""
+    if len(body.new_password) < 6:
+        raise HTTPException(400, "Password minimal 6 karakter")
+    target = await db.users.find_one({"id": body.user_id})
+    if not target:
+        raise HTTPException(404, "User tidak ditemukan")
+
+    await db.users.update_one(
+        {"id": body.user_id},
+        {"$set": {"password_hash": hash_password(body.new_password)}},
+    )
+    await _audit_log(
+        actor=user,
+        action="user.admin_password_reset",
+        target_type="user",
+        target_id=body.user_id,
+        request=request,
+        metadata={"target_email": target.get("email")},
+    )
+    return {"message": "Password user berhasil direset"}
+
+
+# =========================================================
 # USERS (admin)
 # =========================================================
 @api.get("/users")
-async def list_users(user=Depends(require_role("admin", "superadmin"))):
-    users = await db.users.find({}, {"_id": 0, "password_hash": 0, "password2_hash": 0}).sort("created_at", -1).to_list(1000)
-    return users
+async def list_users(
+    page: int = 1,
+    limit: int = 20,
+    search: str = None,
+    status: str = None,
+    role: str = None,
+    user=Depends(require_role("admin", "superadmin")),
+):
+    """List users with pagination, search, and filters. Default limit 20, max 100."""
+    limit = max(1, min(limit, 100))
+    skip = (max(1, page) - 1) * limit
+    q = {}
+    if status:
+        q["status"] = status
+    if role:
+        q["role"] = role
+    if search:
+        q["$or"] = [
+            {"email": {"$regex": search, "$options": "i"}},
+            {"name": {"$regex": search, "$options": "i"}},
+        ]
+    total = await db.users.count_documents(q)
+    items = await db.users.find(
+        q, {"_id": 0, "password_hash": 0, "password2_hash": 0}
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return {"items": items, "meta": _paginate_meta(page, limit, total)}
 
 
 @api.post("/users")
@@ -428,14 +647,22 @@ async def delete_package(pkg_id: str, user=Depends(require_role("superadmin"))):
 # PROMO CODES
 # =========================================================
 @api.get("/promos")
-async def list_promos(user=Depends(current_user)):
-    # marketing sees only own; admin/superadmin sees all
+async def list_promos(
+    page: int = 1,
+    limit: int = 20,
+    user=Depends(current_user),
+):
+    """List promos with pagination. Default limit 20, max 100."""
+    limit = max(1, min(limit, 100))
+    skip = (max(1, page) - 1) * limit
     q = {}
     if user["role"] == "marketing":
         q = {"owner_marketing_id": user["id"]}
     elif user["role"] not in ("admin", "superadmin"):
         raise HTTPException(403, "Not allowed")
-    return await db.promos.find(q, {"_id": 0}).sort("code", 1).to_list(500)
+    total = await db.promos.count_documents(q)
+    items = await db.promos.find(q, {"_id": 0}).sort("code", 1).skip(skip).limit(limit).to_list(limit)
+    return {"items": items, "meta": _paginate_meta(page, limit, total)}
 
 
 @api.post("/promos")
@@ -491,7 +718,12 @@ async def delete_promo(promo_id: str, user=Depends(require_role("admin", "supera
 
 
 @api.get("/promos/validate/{code}")
-async def validate_promo(code: str, package_id: str):
+async def validate_promo(code: str, package_id: str, request: Request):
+    # Rate limit: 10 req/min per IP (P1-RL-04)
+    ip = request.client.host if request.client else "unknown"
+    if not _rate_check(f"promo_validate:{ip}", max_requests=10, window_seconds=60):
+        raise HTTPException(429, "Terlalu banyak percobaan. Coba lagi dalam 1 menit.")
+
     promo = await db.promos.find_one({"code": code.upper(), "active": True}, {"_id": 0})
     if not promo:
         raise HTTPException(404, "Invalid code")
@@ -516,15 +748,27 @@ async def validate_promo(code: str, package_id: str):
 # TRANSACTIONS
 # =========================================================
 @api.get("/transactions")
-async def list_transactions(user=Depends(current_user)):
+async def list_transactions(
+    page: int = 1,
+    limit: int = 20,
+    status: str = None,
+    user=Depends(current_user),
+):
+    """List transactions with pagination. Default limit 20, max 100."""
+    limit = max(1, min(limit, 100))
+    skip = (max(1, page) - 1) * limit
     q = {}
     if user["role"] == "marketing":
-        q = {"marketing_id": user["id"]}
+        q["marketing_id"] = user["id"]
     elif user["role"] == "user":
-        q = {"user_id": user["id"]}
+        q["user_id"] = user["id"]
     elif user["role"] not in ("admin", "superadmin"):
         raise HTTPException(403, "Not allowed")
-    return await db.transactions.find(q, {"_id": 0}).sort("created_at", -1).to_list(2000)
+    if status:
+        q["status"] = status
+    total = await db.transactions.count_documents(q)
+    items = await db.transactions.find(q, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return {"items": items, "meta": _paginate_meta(page, limit, total)}
 
 
 @api.post("/transactions/{tx_id}/approve")
@@ -627,9 +871,18 @@ async def reject_tx(tx_id: str, body: TransactionReject, user=Depends(require_ro
 # NEWS
 # =========================================================
 @api.get("/news")
-async def list_news(published_only: bool = True):
+async def list_news(
+    page: int = 1,
+    limit: int = 20,
+    published_only: bool = True,
+):
+    """List news with pagination. Default limit 20, max 100."""
+    limit = max(1, min(limit, 100))
+    skip = (max(1, page) - 1) * limit
     q = {"published": True} if published_only else {}
-    return await db.news.find(q, {"_id": 0}).sort("created_at", -1).to_list(200)
+    total = await db.news.count_documents(q)
+    items = await db.news.find(q, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return {"items": items, "meta": _paginate_meta(page, limit, total)}
 
 
 @api.post("/news")
@@ -658,10 +911,18 @@ async def delete_news(nid: str, user=Depends(require_role("admin", "superadmin")
 # EVENTS
 # =========================================================
 @api.get("/events")
-async def list_events(published_only: bool = True):
+async def list_events(
+    page: int = 1,
+    limit: int = 20,
+    published_only: bool = True,
+):
+    """List events with pagination. Default limit 20, max 100."""
+    limit = max(1, min(limit, 100))
+    skip = (max(1, page) - 1) * limit
     q = {"published": True} if published_only else {}
-    evs = await db.events.find(q, {"_id": 0}).sort("created_at", -1).to_list(200)
-    return evs
+    total = await db.events.count_documents(q)
+    items = await db.events.find(q, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return {"items": items, "meta": _paginate_meta(page, limit, total)}
 
 
 @api.post("/events")
@@ -889,7 +1150,11 @@ async def calc_meta():
 
 
 @api.post("/calculator/run")
-async def calc_run(body: CalculatorRunRequest, user=Depends(current_user)):
+async def calc_run(body: CalculatorRunRequest, request: Request, user=Depends(current_user)):
+    # Rate limit: 20 req/min per user (P1-RL-05)
+    rl_key = f"calc_run:{user['id']}"
+    if not _rate_check(rl_key, max_requests=20, window_seconds=60):
+        raise HTTPException(429, "Terlalu banyak simulasi. Tunggu sebentar.")
     # Check expiry / click limits for user role
     if user["role"] == "user":
         if user.get("status") != "active":
@@ -960,6 +1225,100 @@ async def calc_run(body: CalculatorRunRequest, user=Depends(current_user)):
 
 
 # =========================================================
+# TRAINING RESULTS (P2-SR)
+# =========================================================
+@api.post("/training-results")
+async def save_training_result(body: TrainingResultSave, user=Depends(current_user)):
+    """Save a calculator result for the authenticated user."""
+    if user.get("role") not in ("user", "admin", "superadmin"):
+        raise HTTPException(403, "Not allowed")
+    doc = {
+        "id": uid(),
+        "user_id": user["id"],
+        "user_email": user["email"],
+        "mode": body.mode,
+        "position": body.position,
+        "roles": body.roles,
+        "input_stats": body.input_stats,
+        "targets": body.targets,
+        "grey_limit": body.grey_limit,
+        "white_multiplier": body.white_multiplier,
+        "final_stats": body.final_stats,
+        "overall": body.overall,
+        "total_cost": body.total_cost,
+        "history": body.history,
+        "white_set": body.white_set,
+        "note": body.note or "",
+        "is_public": False,
+        "share_slug": None,
+        "shared_count": 0,
+        "created_at": now_iso(),
+        "updated_at": now_iso(),
+    }
+    await db.training_results.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api.get("/training-results")
+async def list_training_results(
+    page: int = 1,
+    limit: int = 20,
+    mode: str = None,
+    user=Depends(current_user),
+):
+    """List training results for the authenticated user (paginated)."""
+    limit = max(1, min(limit, 100))
+    skip = (max(1, page) - 1) * limit
+    q = {"user_id": user["id"]}
+    if mode:
+        q["mode"] = mode
+    total = await db.training_results.count_documents(q)
+    items = await db.training_results.find(
+        q,
+        {"_id": 0, "history": 0},  # exclude heavy history from list view
+    ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return {"items": items, "meta": _paginate_meta(page, limit, total)}
+
+
+@api.get("/training-results/{result_id}")
+async def get_training_result(result_id: str, user=Depends(current_user)):
+    """Get full detail of a single training result (includes history)."""
+    q = {"id": result_id}
+    if user["role"] not in ("admin", "superadmin"):
+        q["user_id"] = user["id"]
+    doc = await db.training_results.find_one(q, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Result tidak ditemukan")
+    return doc
+
+
+@api.patch("/training-results/{result_id}/note")
+async def update_result_note(result_id: str, body: dict, user=Depends(current_user)):
+    """Update the note on a saved result."""
+    note = str(body.get("note", ""))[:500]
+    res = await db.training_results.update_one(
+        {"id": result_id, "user_id": user["id"]},
+        {"$set": {"note": note, "updated_at": now_iso()}},
+    )
+    if res.matched_count == 0:
+        raise HTTPException(404, "Result tidak ditemukan")
+    return {"ok": True}
+
+
+@api.delete("/training-results/{result_id}")
+async def delete_training_result(result_id: str, user=Depends(current_user)):
+    """Delete a saved training result (own only, or admin)."""
+    q = {"id": result_id}
+    if user["role"] not in ("admin", "superadmin"):
+        q["user_id"] = user["id"]
+    res = await db.training_results.delete_one(q)
+    if res.deleted_count == 0:
+        raise HTTPException(404, "Result tidak ditemukan")
+    return {"ok": True}
+
+
+# =========================================================
 # STREAK TRACKING
 # =========================================================
 async def _update_streak(user_id: str):
@@ -1019,11 +1378,19 @@ async def _create_notification(user_id: str, ntype: str, title: str, body: str =
 
 
 @api.get("/notifications")
-async def list_notifications(user=Depends(current_user)):
-    cursor = db.notifications.find({"user_id": user["id"]}, {"_id": 0}).sort("created_at", -1).limit(40)
-    items = await cursor.to_list(length=40)
+async def list_notifications(
+    page: int = 1,
+    limit: int = 20,
+    user=Depends(current_user),
+):
+    """List notifications with pagination. Default limit 20, max 100."""
+    limit = max(1, min(limit, 100))
+    skip = (max(1, page) - 1) * limit
+    q = {"user_id": user["id"]}
+    total = await db.notifications.count_documents(q)
+    items = await db.notifications.find(q, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
     unread = await db.notifications.count_documents({"user_id": user["id"], "read": False})
-    return {"items": items, "unread": unread}
+    return {"items": items, "unread": unread, "meta": _paginate_meta(page, limit, total)}
 
 
 @api.post("/notifications/{nid}/read")
@@ -1140,6 +1507,13 @@ async def on_start():
     # Audit logs index
     await db.audit_logs.create_index([("actor_user_id", 1), ("created_at", -1)])
     await db.audit_logs.create_index([("target_type", 1), ("target_id", 1)])
+    # Password reset tokens index (P1-FP)
+    await db.password_reset_tokens.create_index("token_hash", unique=True)
+    await db.password_reset_tokens.create_index([("user_id", 1), ("used", 1)])
+    await db.password_reset_tokens.create_index("expires_at")
+    # Training results index (P2-SR)
+    await db.training_results.create_index([("user_id", 1), ("created_at", -1)])
+    await db.training_results.create_index("id", unique=True)
 
     await seed_superadmin(db)
 

@@ -15,6 +15,8 @@ import Contact from "@/pages/public/Contact";
 
 import Login from "@/pages/Login";
 import Register from "@/pages/Register";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 
 import UserOverview from "@/pages/UserOverview";
 import TrainingHub from "@/pages/TrainingHub";
@@ -55,6 +57,8 @@ function App() {
             <Route path="/contact" element={<Pub><Contact /></Pub>} />
             <Route path="/login" element={<Pub><Login /></Pub>} />
             <Route path="/register" element={<Pub><Register /></Pub>} />
+            <Route path="/forgot-password" element={<Pub><ForgotPassword /></Pub>} />
+            <Route path="/reset-password" element={<Pub><ResetPassword /></Pub>} />
 
             {/* Dashboard (no public Nav) */}
             <Route path="/app" element={<ProtectedRoute><DashboardLayout><AppHome /></DashboardLayout></ProtectedRoute>} />

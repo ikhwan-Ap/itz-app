@@ -48,14 +48,14 @@ export default function LoginPage() {
             <div>
               <label className="label-std">Email</label>
               <input type="email" required className="input-std" value={email}
-                     onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
-                     data-testid="login-email-input" />
+                onChange={(e) => setEmail(e.target.value)} placeholder="you@example.com"
+                data-testid="login-email-input" />
             </div>
             <div>
               <label className="label-std">Password</label>
               <input type="password" required className="input-std" value={password}
-                     onChange={(e) => setPassword(e.target.value)} placeholder="••••••••"
-                     data-testid="login-password-input" />
+                onChange={(e) => setPassword(e.target.value)} placeholder="••••••••"
+                data-testid="login-password-input" />
             </div>
             {err && (
               <div className="badge badge-red w-full justify-center !py-2" data-testid="login-error">{err}</div>
@@ -65,7 +65,11 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-6 text-center text-sm text-[#A0AAB5]">
+          <div className="mt-4 text-center text-sm">
+            <Link to="/forgot-password" className="text-[#A0AAB5] hover:text-[#38BDF8]" data-testid="login-forgot-password-link">Lupa password?</Link>
+          </div>
+
+          <div className="mt-3 text-center text-sm text-[#A0AAB5]">
             Belum punya akun? <Link to="/register" className="text-[#38BDF8] font-bold hover:text-[#7DD3FC]" data-testid="login-to-register-link">Register</Link>
           </div>
         </div>

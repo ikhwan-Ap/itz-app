@@ -133,10 +133,10 @@ export default function SingleDrillPage() {
       </div>
 
       <PlayerForm meta={meta} stats={stats} setStats={setStats}
-                  activeRoles={activeRoles} setActiveRoles={setActiveRoles}
-                  bonus={bonus} setBonus={setBonus} greyLimit={greyLimit} setGreyLimit={setGreyLimit}
-                  playerAge={playerAge} setPlayerAge={setPlayerAge}
-                  whiteMultiplier={whiteMultiplier} setWhiteMultiplier={setWhiteMultiplier}>
+        activeRoles={activeRoles} setActiveRoles={setActiveRoles}
+        bonus={bonus} setBonus={setBonus} greyLimit={greyLimit} setGreyLimit={setGreyLimit}
+        playerAge={playerAge} setPlayerAge={setPlayerAge}
+        whiteMultiplier={whiteMultiplier} setWhiteMultiplier={setWhiteMultiplier}>
         <button onClick={goPickDrill} className="btn-primary w-full mt-6" data-testid="sd-next-drill-btn">
           Lanjut: Pilih Drill →
         </button>
@@ -231,10 +231,10 @@ export default function SingleDrillPage() {
             <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
               {drillTargetCandidates.map((a) => (
                 <TargetCard key={a} attr={a} stats={stats} bonus={bonus}
-                            selected={selectedTargets[a]}
-                            onToggle={() => toggleTarget(a)}
-                            onChange={(f, v) => updateTarget(a, f, v)}
-                            allowedPrios={[1]} />
+                  selected={selectedTargets[a]}
+                  onToggle={() => toggleTarget(a)}
+                  onChange={(f, v) => updateTarget(a, f, v)}
+                  allowedPrios={[1]} />
               ))}
             </div>
           )}
@@ -245,7 +245,21 @@ export default function SingleDrillPage() {
         </motion.div>
       )}
 
-      {step === 4 && result && <ResultSection result={result} meta={meta} bonus={bonus} stats={stats} initialOverall={initialOverall} gkMode={activeRoles.includes("GK")} />}
+      {step === 4 && result && (
+        <ResultSection
+          result={result} meta={meta} bonus={bonus} stats={stats}
+          initialOverall={initialOverall} gkMode={activeRoles.includes("GK")}
+          savePayload={{
+            mode: "single",
+            position: activeRoles.join(", "),
+            roles: activeRoles,
+            input_stats: stats,
+            targets: Object.entries(selectedTargets).map(([name, v]) => ({ name, prio: 1, goal: parseInt(v.goal) || 340 })),
+            grey_limit: parseInt(greyLimit) || 40,
+            white_multiplier: parseInt(whiteMultiplier) || 1,
+          }}
+        />
+      )}
 
       {step === 4 && (
         <div className="flex gap-3">

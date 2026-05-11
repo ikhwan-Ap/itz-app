@@ -1,7 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { api, formatApiErrorDetail } from "@/lib/api";
 import { motion, AnimatePresence } from "framer-motion";
-import { CaretDown, CaretUp, ArrowRight, Warning, Lightning } from "@phosphor-icons/react";
+import { CaretDown, CaretUp, ArrowRight, Warning, Lightning, FloppyDisk, Check, X } from "@phosphor-icons/react";
 
 export const JENJANG_OPTIONS = [
   { value: 0, label: "0 (Polos)" },
@@ -120,9 +120,9 @@ export function PlayerForm({ meta, stats, setStats, activeRoles, setActiveRoles,
           <div className="flex flex-wrap gap-2 mb-6">
             {Object.keys(meta.roles).filter((r) => !fieldOnly || r !== "GK").map((r) => (
               <button key={r} type="button"
-                      className={`pill ${activeRoles.includes(r) ? "active" : ""}`}
-                      onClick={() => toggleRole(r)}
-                      data-testid={`role-pill-${r}`}>
+                className={`pill ${activeRoles.includes(r) ? "active" : ""}`}
+                onClick={() => toggleRole(r)}
+                data-testid={`role-pill-${r}`}>
                 {r}
               </button>
             ))}
@@ -133,15 +133,15 @@ export function PlayerForm({ meta, stats, setStats, activeRoles, setActiveRoles,
       {(() => {
         const groups = isGkSelected
           ? [
-              { key: "gk1", title: "Kiper Teknis", attrs: meta.gk_attrs?.gk1 || [] },
-              { key: "gk2", title: "Kiper Atletis", attrs: meta.gk_attrs?.gk2 || [] },
-              { key: "phy", title: "Fisik & Mental", attrs: meta.gk_attrs?.phy || [] },
-            ]
+            { key: "gk1", title: "Kiper Teknis", attrs: meta.gk_attrs?.gk1 || [] },
+            { key: "gk2", title: "Kiper Atletis", attrs: meta.gk_attrs?.gk2 || [] },
+            { key: "phy", title: "Fisik & Mental", attrs: meta.gk_attrs?.phy || [] },
+          ]
           : [
-              { key: "def", title: "Pertahanan", attrs: meta.attrs.def },
-              { key: "att", title: "Menyerang", attrs: meta.attrs.att },
-              { key: "phy", title: "Fisik & Mental", attrs: meta.attrs.phy },
-            ];
+            { key: "def", title: "Pertahanan", attrs: meta.attrs.def },
+            { key: "att", title: "Menyerang", attrs: meta.attrs.att },
+            { key: "phy", title: "Fisik & Mental", attrs: meta.attrs.phy },
+          ];
         return (
           <div className="grid md:grid-cols-3 gap-5">
             {groups.map(({ key, title, attrs }) => (
@@ -151,13 +151,25 @@ export function PlayerForm({ meta, stats, setStats, activeRoles, setActiveRoles,
                   const isW = whiteSet.has(a);
                   return (
                     <div key={a}
-                         className={`flex items-center justify-between px-3 py-2 mb-2 rounded-lg text-sm transition-all duration-200 ${isW ? "bg-[#38BDF8]/8 border-l-2 border-[#38BDF8]" : "bg-white/[0.02] border-l-2 border-transparent"}`}
-                         data-testid={`attr-row-${a}`}>
+                      className={`flex items-center justify-between px-3 py-2 mb-2 rounded-lg text-sm transition-all duration-200 ${isW ? "bg-[#38BDF8]/8 border-l-2 border-[#38BDF8]" : "bg-white/[0.02] border-l-2 border-transparent"}`}
+                      data-testid={`attr-row-${a}`}>
                       <span className={isW ? "text-[#7DD3FC] font-bold" : "text-[#A0AAB5]"}>{a}</span>
                       <input type="number" className={`w-20 px-2 py-1 bg-[#0B0C10] rounded-md text-center font-bold border border-white/5 transition-all focus:border-[#38BDF8] focus:outline-none ${isW ? "text-[#7DD3FC]" : "text-white"}`}
-                             value={stats[a] ?? ''}
-                             onChange={(e) => { const v = e.target.value; setStats((s) => ({ ...s, [a]: v === '' ? '' : parseInt(v) || 1 })); }}
-                             data-testid={`attr-input-${a}`} />
+                        value={stats[a] ?? ''}
+                        min={1}
+                        max={340}
+                        onChange={(e) => {
+                          // Simpan raw string supaya user bisa hapus dan ketik ulang bebas.
+                          // Parse ke integer hanya saat runCalculator (di runCalculator helper).
+                          setStats((s) => ({ ...s, [a]: e.target.value }));
+                        }}
+                        onBlur={(e) => {
+                          // Saat focus keluar: normalisasi — kosong atau 0 → 1, > 340 → 340
+                          const parsed = parseInt(e.target.value);
+                          const clamped = isNaN(parsed) || parsed < 1 ? 1 : parsed > 340 ? 340 : parsed;
+                          setStats((s) => ({ ...s, [a]: clamped }));
+                        }}
+                        data-testid={`attr-input-${a}`} />
                     </div>
                   );
                 })}
@@ -177,28 +189,33 @@ export function TargetCard({ attr, stats, bonus, selected, onToggle, onChange, a
   const baseVal = Math.max(1, curr - parseInt(bonus || 0));
   return (
     <div className={`card-solid p-4 cursor-pointer transition-all border-2 ${selected ? "border-[#38BDF8] bg-[#38BDF8]/5" : "border-transparent"}`}
-         onClick={onToggle}
-         data-testid={`target-card-${attr}`}>
+      onClick={onToggle}
+      data-testid={`target-card-${attr}`}>
       <div className="font-bold text-white">{attr}</div>
       <div className="text-xs text-[#A0AAB5]">Base: {baseVal}%</div>
       {selected && (
         <div className="mt-3 pt-3 border-t border-[#38BDF8]/15 space-y-2" onClick={(e) => e.stopPropagation()}>
           {allowedPrios.length > 1 && (
             <select className="input-std !py-1.5 !text-xs"
-                    value={selected.prio}
-                    onChange={(e) => onChange("prio", parseInt(e.target.value))}
-                    data-testid={`target-prio-${attr}`}>
+              value={selected.prio}
+              onChange={(e) => onChange("prio", parseInt(e.target.value))}
+              data-testid={`target-prio-${attr}`}>
               {allowedPrios.includes(1) && <option value="1">Prioritas: UTAMA</option>}
               {allowedPrios.includes(2) && <option value="2">Prioritas: KEDUA</option>}
               {allowedPrios.includes(3) && <option value="3">Prioritas: KETIGA</option>}
             </select>
           )}
           <input type="number" className="input-std !py-1.5 !text-xs"
-                 value={selected.goal}
-                 min={1} max={340}
-                 onChange={(e) => onChange("goal", Math.min(340, Math.max(1, parseInt(e.target.value) || 1)))}
-                 placeholder="Target Mutu (maks 340)"
-                 data-testid={`target-goal-${attr}`} />
+            value={selected.goal}
+            min={1} max={340}
+            onChange={(e) => onChange("goal", e.target.value)}
+            onBlur={(e) => {
+              const parsed = parseInt(e.target.value);
+              const clamped = isNaN(parsed) || parsed < 1 ? 1 : parsed > 340 ? 340 : parsed;
+              onChange("goal", clamped);
+            }}
+            placeholder="Target Mutu (maks 340)"
+            data-testid={`target-goal-${attr}`} />
         </div>
       )}
     </div>
@@ -206,10 +223,30 @@ export function TargetCard({ attr, stats, bonus, selected, onToggle, onChange, a
 }
 
 /** Results: overall %, timeline, final grid (shared between modes) */
-export function ResultSection({ result, meta, bonus, stats, gkMode = false, initialOverall = null }) {
+export function ResultSection({ result, meta, bonus, stats, gkMode = false, initialOverall = null, savePayload = null }) {
   const [expanded, setExpanded] = useState({});
+  const [saveState, setSaveState] = useState("idle"); // idle | saving | saved | error
+  const [saveErr, setSaveErr] = useState("");
+  const [note, setNote] = useState("");
+  const [showNoteInput, setShowNoteInput] = useState(false);
   const whiteSet = new Set(result.white_set);
   const delta = initialOverall != null ? result.overall - initialOverall : null;
+
+  const handleSave = async () => {
+    if (saveState === "saved") return;
+    setSaveState("saving");
+    setSaveErr("");
+    try {
+      const payload = savePayload
+        ? { ...savePayload, final_stats: result.final_stats, overall: result.overall, total_cost: result.total_cost, history: result.history, white_set: result.white_set, note }
+        : { mode: gkMode ? "gk" : "full", roles: result.white_set, input_stats: stats, targets: [], grey_limit: 40, white_multiplier: 1, final_stats: result.final_stats, overall: result.overall, total_cost: result.total_cost, history: result.history, white_set: result.white_set, note };
+      await api.post("/training-results", payload);
+      setSaveState("saved");
+    } catch (e) {
+      setSaveErr(formatApiErrorDetail(e.response?.data?.detail) || e.message);
+      setSaveState("error");
+    }
+  };
 
   return (
     <motion.div id="result-section" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} data-testid="result-section">
@@ -222,6 +259,52 @@ export function ResultSection({ result, meta, bonus, stats, gkMode = false, init
           </div>
         )}
         <div className="mt-2 text-xs text-[#A0AAB5]">Total cost: <span className="font-bold text-[#FFFFFF]">{result.total_cost}</span></div>
+
+        {/* Save Result */}
+        <div className="mt-5 flex flex-col items-center gap-2">
+          {showNoteInput && saveState !== "saved" && (
+            <input
+              type="text"
+              className="input-std max-w-xs text-sm"
+              placeholder="Catatan (opsional, maks 500 karakter)"
+              value={note}
+              maxLength={500}
+              onChange={(e) => setNote(e.target.value)}
+              data-testid="save-result-note-input"
+            />
+          )}
+          <div className="flex gap-2 justify-center flex-wrap">
+            {saveState !== "saved" && (
+              <button
+                onClick={() => setShowNoteInput((v) => !v)}
+                className="btn-ghost !text-xs"
+                data-testid="save-result-toggle-note"
+              >
+                {showNoteInput ? "Sembunyikan catatan" : "Tambah catatan"}
+              </button>
+            )}
+            <button
+              onClick={handleSave}
+              disabled={saveState === "saving" || saveState === "saved"}
+              className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold transition-all ${saveState === "saved"
+                ? "bg-[#3FCA7C]/20 text-[#3FCA7C] border border-[#3FCA7C]/40 cursor-default"
+                : saveState === "error"
+                  ? "bg-[#E50914]/20 text-[#ff8aa0] border border-[#E50914]/40"
+                  : "btn-primary"
+                }`}
+              data-testid="save-result-btn"
+            >
+              {saveState === "saving" && <span className="spinner-xs" />}
+              {saveState === "saved" && <Check size={15} weight="bold" />}
+              {saveState === "error" && <X size={15} weight="bold" />}
+              {saveState === "idle" && <FloppyDisk size={15} weight="bold" />}
+              {saveState === "saving" ? "Menyimpan..." : saveState === "saved" ? "Tersimpan" : saveState === "error" ? "Gagal — Coba lagi" : "Simpan Hasil"}
+            </button>
+          </div>
+          {saveErr && (
+            <div className="text-xs text-[#ff8aa0]" data-testid="save-result-error">{saveErr}</div>
+          )}
+        </div>
       </div>
 
       <div className="mt-6 card-solid p-6">
@@ -238,8 +321,8 @@ export function ResultSection({ result, meta, bonus, stats, gkMode = false, init
           <div className="relative timeline">
             {result.history.map((h, i) => (
               <DrillCard key={i} drill={h} whiteSet={whiteSet}
-                         expanded={!!expanded[i]}
-                         onToggle={() => setExpanded((e) => ({ ...e, [i]: !e[i] }))} />
+                expanded={!!expanded[i]}
+                onToggle={() => setExpanded((e) => ({ ...e, [i]: !e[i] }))} />
             ))}
           </div>
         )}

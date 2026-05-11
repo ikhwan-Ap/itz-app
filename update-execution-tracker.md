@@ -1752,7 +1752,7 @@ A phase is done only if:
 | P1-HC-01 | Create public health endpoint | Critical | DONE | GET /api/health — returns status, env, timestamp. server.py |
 | P1-HC-02 | Create DB health endpoint | Critical | DONE | GET /api/health/db — ping MongoDB + user count. server.py |
 | P1-HC-03 | Add health check documentation | Medium | DONE | system_map.md Section 18 |
-| P1-HC-04 | Add server health check script | Medium | NOT_STARTED | optional cron |
+| P1-HC-04 | Add server health check script | Medium | DONE | scripts/health_check.sh — curl /api/health + /api/health/db + public/.git/.env + ss:port 8000 + systemd itz-backend/mongod. Safe read-only. |
 
 ---
 
@@ -1772,12 +1772,12 @@ A phase is done only if:
 
 | ID | Task | Priority | Status | Notes |
 |---|---|---:|---|---|
-| P1-FP-01 | Add password_reset_tokens collection spec | High | NOT_STARTED | token hash, expiry |
-| P1-FP-02 | Create forgot password endpoint | High | NOT_STARTED | no email enumeration |
-| P1-FP-03 | Create reset password endpoint | High | NOT_STARTED | token validation |
-| P1-FP-04 | Create ForgotPassword page | High | NOT_STARTED | public route |
-| P1-FP-05 | Create ResetPassword page | High | NOT_STARTED | token route |
-| P1-FP-06 | Add admin reset fallback | Medium | NOT_STARTED | optional |
+| P1-FP-01 | Add password_reset_tokens collection spec | High | DONE | Schema + indexes in server.py startup (token_hash unique, user_id+used, expires_at) |
+| P1-FP-02 | Create forgot password endpoint | High | DONE | POST /api/auth/forgot-password — anti-enumeration, invalidates old tokens, 60-min TTL, logs reset link |
+| P1-FP-03 | Create reset password endpoint | High | DONE | POST /api/auth/reset-password — validates token, updates password, clears brute-force lockouts, audit-logged |
+| P1-FP-04 | Create ForgotPassword page | High | DONE | frontend/src/pages/ForgotPassword.js — anti-enumeration UX, success state, link ke login |
+| P1-FP-05 | Create ResetPassword page | High | DONE | frontend/src/pages/ResetPassword.js — token dari ?token=, auto-redirect ke login setelah reset |
+| P1-FP-06 | Add admin reset fallback | Medium | DONE | POST /api/auth/admin-reset-password — superadmin only, audit-logged |
 
 ---
 
@@ -1785,13 +1785,13 @@ A phase is done only if:
 
 | ID | Task | Priority | Status | Notes |
 |---|---|---:|---|---|
-| P1-PG-01 | Define standard pagination response | High | NOT_STARTED | items + meta |
-| P1-PG-02 | Add pagination to users endpoint | High | NOT_STARTED | admin |
-| P1-PG-03 | Add pagination to transactions endpoint | High | NOT_STARTED | role-based |
-| P1-PG-04 | Add pagination to notifications endpoint | High | NOT_STARTED | user |
-| P1-PG-05 | Add pagination to promos endpoint | Medium | NOT_STARTED | marketing/admin |
-| P1-PG-06 | Add pagination to news/events | Medium | NOT_STARTED | public/admin |
-| P1-PG-07 | Update ResponsiveTable pagination UI | High | NOT_STARTED | frontend |
+| P1-PG-01 | Define standard pagination response | High | DONE | _paginate_meta() helper di server.py — {page,limit,total,pages,has_next,has_prev} |
+| P1-PG-02 | Add pagination to users endpoint | High | DONE | GET /api/users?page=1&limit=20&search=&status=&role= |
+| P1-PG-03 | Add pagination to transactions endpoint | High | DONE | GET /api/transactions?page=1&limit=20&status= |
+| P1-PG-04 | Add pagination to notifications endpoint | High | DONE | GET /api/notifications?page=1&limit=20 |
+| P1-PG-05 | Add pagination to promos endpoint | Medium | DONE | GET /api/promos?page=1&limit=20 |
+| P1-PG-06 | Add pagination to news/events | Medium | DONE | GET /api/news + /api/events?page=1&limit=20&published_only=true |
+| P1-PG-07 | Update ResponsiveTable pagination UI | High | DONE | ResponsiveTable.js: PaginationBar + loading skeleton + getPageNumbers. Props: meta, onPageChange, loading |
 
 ---
 
@@ -1814,9 +1814,9 @@ A phase is done only if:
 |---|---|---:|---|---|
 | P1-RL-01 | Add login rate limit | Critical | DONE | Nginx: api_auth zone 5r/m burst=10, /api/auth/ → 429 on exceed |
 | P1-RL-02 | Add register rate limit | High | DONE | Included in api_auth zone (same /api/auth/ location block) |
-| P1-RL-03 | Add forgot password rate limit | High | NOT_STARTED | after feature P1-FP |
-| P1-RL-04 | Add promo validate rate limit | Medium | NOT_STARTED | anti brute-force |
-| P1-RL-05 | Add calculator run rate limit | Medium | NOT_STARTED | protect resource |
+| P1-RL-03 | Add forgot password rate limit | High | DONE | Covered by api_auth Nginx zone (/api/auth/forgot-password masuk /api/auth/) |
+| P1-RL-04 | Add promo validate rate limit | Medium | DONE | Nginx zone api_promo 10r/m + backend _rate_check 10r/min per IP (defense-in-depth) |
+| P1-RL-05 | Add calculator run rate limit | Medium | DONE | Nginx zone api_calc 20r/m + backend _rate_check 20r/min per user_id |
 
 ---
 
@@ -1826,11 +1826,11 @@ A phase is done only if:
 
 | ID | Task | Priority | Status | Notes |
 |---|---|---:|---|---|
-| P2-SR-01 | Add training_results collection | Very High | NOT_STARTED | core product |
-| P2-SR-02 | Add save result endpoint | Very High | NOT_STARTED | auth user |
-| P2-SR-03 | Add Save Result button | Very High | NOT_STARTED | ResultSection |
-| P2-SR-04 | Add result note | Medium | NOT_STARTED | user note |
-| P2-SR-05 | Add result detail endpoint/page | High | NOT_STARTED | history detail |
+| P2-SR-01 | Add training_results collection | Very High | DONE | Schema di models.py TrainingResultSave, indexes di startup (user_id+created_at, id unique) |
+| P2-SR-02 | Add save result endpoint | Very High | DONE | POST /api/training-results + GET list + GET detail + PATCH note + DELETE |
+| P2-SR-03 | Add Save Result button | Very High | DONE | ResultSection di shared.js: FloppyDisk btn, note input, idle/saving/saved/error states |
+| P2-SR-04 | Add result note | Medium | DONE | Included in P2-SR-03 — toggle note input, PATCH /note endpoint |
+| P2-SR-05 | Add result detail endpoint/page | High | NOT_STARTED | history detail page |
 
 ---
 

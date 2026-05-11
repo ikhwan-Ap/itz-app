@@ -92,11 +92,11 @@ export default function GKLatihan() {
       </div>
 
       <PlayerForm meta={meta} stats={stats} setStats={setStats}
-                  activeRoles={ACTIVE_ROLES} setActiveRoles={() => {}}
-                  bonus={bonus} setBonus={setBonus} greyLimit={greyLimit} setGreyLimit={setGreyLimit}
-                  playerAge={playerAge} setPlayerAge={setPlayerAge}
-                  whiteMultiplier={whiteMultiplier} setWhiteMultiplier={setWhiteMultiplier}
-                  gkMode={true}>
+        activeRoles={ACTIVE_ROLES} setActiveRoles={() => { }}
+        bonus={bonus} setBonus={setBonus} greyLimit={greyLimit} setGreyLimit={setGreyLimit}
+        playerAge={playerAge} setPlayerAge={setPlayerAge}
+        whiteMultiplier={whiteMultiplier} setWhiteMultiplier={setWhiteMultiplier}
+        gkMode={true}>
         <button onClick={nextTargets} className="btn-primary w-full mt-6" data-testid="gk-next-target-btn">
           Lanjut: Pilih Target →
         </button>
@@ -112,9 +112,9 @@ export default function GKLatihan() {
           <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-3">
             {Array.from(whiteSet).sort().map((a) => (
               <TargetCard key={a} attr={a} stats={stats} bonus={bonus}
-                          selected={selectedTargets[a]}
-                          onToggle={() => toggleTarget(a)}
-                          onChange={(f, v) => updateTarget(a, f, v)} />
+                selected={selectedTargets[a]}
+                onToggle={() => toggleTarget(a)}
+                onChange={(f, v) => updateTarget(a, f, v)} />
             ))}
           </div>
           {err && <div className="badge badge-red mt-4 w-full justify-center !py-2" data-testid="gk-error">{err}</div>}
@@ -124,7 +124,20 @@ export default function GKLatihan() {
         </motion.div>
       )}
 
-      {step === 3 && result && <ResultSection result={result} meta={meta} bonus={bonus} stats={stats} gkMode={true} />}
+      {step === 3 && result && (
+        <ResultSection
+          result={result} meta={meta} bonus={bonus} stats={stats} gkMode={true}
+          savePayload={{
+            mode: "gk",
+            position: "GK",
+            roles: ["GK"],
+            input_stats: stats,
+            targets: Object.entries(selectedTargets).map(([name, v]) => ({ name, prio: parseInt(v.prio), goal: parseInt(v.goal) || 340 })),
+            grey_limit: parseInt(greyLimit) || 40,
+            white_multiplier: parseInt(whiteMultiplier) || 1,
+          }}
+        />
+      )}
 
       {step === 3 && (
         <div className="flex gap-3">

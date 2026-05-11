@@ -29,6 +29,24 @@ class UserLogin(BaseModel):
     password: str
 
 
+class ForgotPasswordRequest(BaseModel):
+    """Public endpoint — request a password reset link."""
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    """Public endpoint — submit reset with token."""
+    token: str
+    password: str
+    password2: str
+
+
+class AdminResetPasswordRequest(BaseModel):
+    """Superadmin fallback — force reset a user password without email flow."""
+    user_id: str
+    new_password: str
+
+
 class AdminCreateUser(BaseModel):
     email: EmailStr
     password: str
@@ -166,3 +184,21 @@ class CalculatorRunRequest(BaseModel):
     single_drill: Optional[str] = None  # drill name OR None
     player_age: Optional[int] = 18
     white_multiplier: int = 1  # how many points white attrs gain per grey unit (1=equal, 2=double)
+
+
+# ========== TRAINING RESULTS (P2-SR) ==========
+class TrainingResultSave(BaseModel):
+    """Payload to save a calculator result."""
+    mode: str = "full"                    # full / single / gk
+    position: Optional[str] = None        # e.g. "MC, ST"
+    roles: List[str] = []
+    input_stats: Dict[str, Any] = {}
+    targets: List[Dict[str, Any]] = []
+    grey_limit: int = 40
+    white_multiplier: int = 1
+    final_stats: Dict[str, Any] = {}
+    overall: int = 0
+    total_cost: int = 0
+    history: List[Dict[str, Any]] = []
+    white_set: List[str] = []
+    note: Optional[str] = ""

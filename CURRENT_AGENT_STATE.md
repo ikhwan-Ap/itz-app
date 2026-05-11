@@ -6,34 +6,43 @@
 ---
 
 ## Current Goal
-Complete System Map Cleanup (SYS-01 through SYS-06) and Immediate Fixes (FIX-01 through FIX-10), then proceed to Phase 1.
+Phase 2 — Product Value: History Latihan, Dashboard Progress, lanjut ke Phase 3.
 
 ## Current Execution Mode
 Autonomous — batch of 3 tasks
 
 ## Current Phase
-System Map Cleanup & Existing Issues
+Phase 2 — Product Value
 
 ## Last Completed Task
-None — starting fresh
+P2-SR-04 — Save Result + note (frontend + backend, build verified)
 
 ## Current Task
-SYS-01 — Update system_map.md sesuai kondisi terbaru production
+P2-SR-05 — Training result detail page
 
 ## Next Task
-SYS-02 — Reconcile deployment policy
+P2-HL-01 — Create Training History route + page
 
 ## Current Batch
-Batch 1: SYS-01, SYS-02, SYS-03
+Batch 5: P2-SR-05, P2-HL-01, P2-HL-02
 
 ## Blockers
 None
 
 ## Verification Summary
-Not yet run
+- Backend: 52 routes OK, training-results endpoints verified
+- Frontend build: SUCCESS (3x verified, 361kB gzipped)
+- Rate limit: Nginx config + backend in-memory limiter
 
 ## Changed Files Log
-None yet
+- backend/server.py — rate limit helper, training-results CRUD, pagination all endpoints
+- backend/models.py — TrainingResultSave model
+- frontend/src/pages/training/shared.js — Save button + note in ResultSection
+- frontend/src/pages/training/FullLatihan.js — savePayload prop
+- frontend/src/pages/training/GKLatihan.js — savePayload prop
+- frontend/src/pages/training/SingleDrill.js — savePayload prop
+- scripts/nginx/itz-app.nginx.conf — NEW (rate limit zones + security headers)
+- frontend/build/ — rebuilt
 
 ## Next Action
-Rewrite system_map.md to reflect actual production state
+Create Training History page /app/training/history
