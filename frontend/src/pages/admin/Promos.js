@@ -14,10 +14,10 @@ export default function AdminPromos() {
   const isAdmin = ["admin", "superadmin"].includes(user.role);
 
   const load = async () => {
-    const r = await api.get("/promos"); setItems(r.data);
+    const r = await api.get("/promos"); setItems(r.data.items || r.data || []);
     if (isAdmin) {
       const u = await api.get("/users");
-      setMarketers(u.data.filter((x) => x.role === "marketing"));
+      setMarketers((u.data.items || u.data || []).filter((x) => x.role === "marketing"));
     }
   };
   useEffect(() => { load(); }, []);

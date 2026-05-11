@@ -13,7 +13,7 @@ export default function AdminUsers() {
 
   const load = async () => {
     const [u, p] = await Promise.all([api.get("/users"), api.get("/packages")]);
-    setUsers(u.data); setPackages(p.data);
+    setUsers(u.data.items || u.data || []); setPackages(p.data);
   };
   useEffect(() => { load(); }, []);
 

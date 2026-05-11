@@ -36,7 +36,7 @@ export default function Community() {
   const [events, setEvents] = useState([]);
 
   useEffect(() => {
-    api.get("/events").then((r) => setEvents((r.data || []).slice(0, 6))).catch(() => {});
+    api.get("/events").then((r) => setEvents((r.data.items || r.data || []).slice(0, 6))).catch(() => {});
   }, []);
 
   const formatDay = (d) => {

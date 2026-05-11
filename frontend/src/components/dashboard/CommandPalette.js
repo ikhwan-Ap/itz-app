@@ -44,7 +44,7 @@ export default function CommandPalette({ open, onClose }) {
   // Lazy-load users for admin search
   useEffect(() => {
     if (!open || !["admin", "superadmin"].includes(role)) return;
-    api.get("/users").then((r) => setUsers(r.data || [])).catch(() => {});
+    api.get("/users").then((r) => setUsers(r.data.items || r.data || [])).catch(() => {});
   }, [open, role]);
 
   const navItems = useMemo(

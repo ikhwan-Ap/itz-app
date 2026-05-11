@@ -7,7 +7,7 @@ export default function AdminTransactions() {
   const [items, setItems] = useState([]);
   const [filter, setFilter] = useState("pending");
 
-  const load = () => api.get("/transactions").then((r) => setItems(r.data));
+  const load = () => api.get("/transactions").then((r) => setItems(r.data.items || r.data || []));
   useEffect(() => { load(); }, []);
 
   const approve = async (id) => {

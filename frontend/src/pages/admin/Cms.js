@@ -8,7 +8,7 @@ function makeCms(resource, label) {
     const [modal, setModal] = useState(null);
     const [err, setErr] = useState("");
 
-    const load = () => api.get(`/${resource}?published_only=false`).then((r) => setItems(r.data));
+    const load = () => api.get(`/${resource}?published_only=false`).then((r) => setItems(r.data.items || r.data || []));
     useEffect(() => { load(); }, []);
 
     const save = async (data) => {
