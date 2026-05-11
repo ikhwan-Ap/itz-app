@@ -3,7 +3,7 @@ import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import {
   SignOut, ChartBar, Users, Ticket, Package as PkgIcon, Newspaper,
-  CalendarDots, CreditCard, Crown, Briefcase, Gauge, Barbell, List, X,
+  CalendarDots, CreditCard, Crown, Briefcase, Gauge, List, X,
   CaretLeft, CaretRight, MagnifyingGlass, CaretDown, User as UserIcon, GearSix, Crosshair,
 } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
