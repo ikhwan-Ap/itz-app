@@ -1,0 +1,100 @@
+{
+  "theme": "dark",
+  "archetype": "2 (Performance Pro) / Top Eleven Football Theme",
+  "typography": {
+    "font_family": {
+      "heading": "Barlow Condensed, sans-serif",
+      "body": "Manrope, sans-serif",
+      "mono": "JetBrains Mono, monospace"
+    },
+    "scale": {
+      "h1": "text-4xl sm:text-5xl lg:text-6xl uppercase tracking-tight font-black",
+      "h2": "text-2xl sm:text-3xl lg:text-4xl uppercase tracking-tight font-bold",
+      "h3": "text-xl sm:text-2xl uppercase tracking-tight font-bold",
+      "h4": "text-lg sm:text-xl font-bold",
+      "body": "text-sm sm:text-base font-medium",
+      "small": "text-xs font-semibold uppercase tracking-wider"
+    }
+  },
+  "colors": {
+    "background": {
+      "base": "#0B1221",
+      "surface": "#131E35",
+      "surface_elevated": "#1C2B4B",
+      "surface_glass": "rgba(19, 30, 53, 0.7)"
+    },
+    "text": {
+      "primary": "#FFFFFF",
+      "secondary": "#9BA4B5",
+      "muted": "#64748B",
+      "on_accent": "#000000"
+    },
+    "brand": {
+      "primary": "#00D05E",
+      "primary_hover": "#00E96A",
+      "primary_muted": "rgba(0, 208, 94, 0.15)",
+      "secondary": "#F5C300",
+      "secondary_hover": "#FFD700"
+    },
+    "status": {
+      "success": "#00D05E",
+      "warning": "#F5C300",
+      "error": "#FF3366",
+      "info": "#00B4D8"
+    }
+  },
+  "surfaces_and_borders": {
+    "cards": "bg-[#131E35] border border-white/5 shadow-lg rounded-xl",
+    "glass": "bg-[#131E35]/70 backdrop-blur-xl border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] rounded-xl",
+    "interactive": "hover:border-[#00D05E]/50 transition-colors duration-200",
+    "inputs": "bg-[#0B1221] border border-white/10 rounded-lg focus:border-[#00D05E] focus:ring-1 focus:ring-[#00D05E]"
+  },
+  "layout_and_spacing": {
+    "spacing_scale": "Tailwind standard (p-2, p-4, p-6, p-8)",
+    "container_padding": "p-4 sm:p-6 lg:p-8",
+    "dashboard_grid": "grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6",
+    "bento_grid": "grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6"
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-[#00D05E] text-[#0B1221] font-bold uppercase tracking-wider rounded-lg px-6 py-3 hover:bg-[#00E96A] hover:shadow-[0_0_15px_rgba(0,208,94,0.4)] transition-all",
+      "secondary": "bg-[#F5C300] text-[#0B1221] font-bold uppercase tracking-wider rounded-lg px-6 py-3 hover:bg-[#FFD700] hover:shadow-[0_0_15px_rgba(245,195,0,0.4)] transition-all",
+      "outline": "border-2 border-[#1C2B4B] text-white font-bold uppercase tracking-wider rounded-lg px-6 py-3 hover:border-[#00D05E] hover:text-[#00D05E] transition-all"
+    },
+    "badges": "px-2 py-1 text-xs font-bold uppercase tracking-wider rounded bg-white/10 text-white",
+    "tactical_pill": "px-3 py-1 text-xs font-bold rounded-full bg-[#1C2B4B] border border-white/10 text-white hover:border-[#00D05E] hover:text-[#00D05E] cursor-pointer"
+  },
+  "motion": {
+    "hover": "transition-all duration-200 ease-in-out",
+    "page_load": "framer-motion standard fade/slide up (initial={opacity:0, y:20} animate={opacity:1, y:0})",
+    "micro_interactions": "scale-95 on active/click"
+  },
+  "media": {
+    "icons": "@phosphor-icons/react",
+    "images": {
+      "login_bg": {
+        "url": "https://images.unsplash.com/photo-1776160043138-52e2cf9c6e4e?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjY2NzN8MHwxfHNlYXJjaHwxfHxmb290YmFsbCUyMHN0YWRpdW0lMjBsaWdodHMlMjBuaWdodHxlbnwwfHx8fDE3NzY1MzI0NzN8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Blurry lights streak across a dark stadium field. Great for auth background overlay.",
+        "category": "auth_background"
+      },
+      "dashboard_hero": {
+        "url": "https://images.pexels.com/photos/4122451/pexels-photo-4122451.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Vibrant nighttime soccer match in an illuminated stadium. Perfect for superadmin/admin hero banners or package headers.",
+        "category": "hero_banner"
+      },
+      "news_thumbnail": {
+        "url": "https://images.unsplash.com/photo-1634114441919-7636abb21cae?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NTY2Njd8MHwxfHNlYXJjaHwxfHxzb2NjZXIlMjBiYWxsJTIwcGl0Y2h8ZW58MHx8fHwxNzc2NTMyNDczfDA&ixlib=rb-4.1.0&q=85",
+        "description": "Soccer ball on lush green field.",
+        "category": "content_thumbnail"
+      }
+    }
+  },
+  "instructions_to_main_agent": [
+    "Strictly adhere to the dark theme colors. Do not use generic gray/blue slop. The app should feel like a nighttime football stadium: deep navy with glowing stadium green and gold.",
+    "Use Barlow Condensed for all headings, labels, and numbers, and Manrope for standard body text. This contrast is critical for the 'gaming' vibe.",
+    "Implement the 'TE Sniper Calculator' tactical board using standard div grids, but style them like a football pitch (perhaps a subtle green line SVG background with dark navy base).",
+    "Ensure all interactive elements have data-testid attributes for testing.",
+    "For the dashboards (superadmin, admin, marketing, user), use dense data grids with glassmorphism 'Glass Design 2.0' effects for floating modals/popups (like the expiry warning).",
+    "Use Shadcn components but override their default styles to match the 'cards' and 'inputs' surfaces defined here. Strip out any Vercel-like light mode aesthetics."
+  ]
+}

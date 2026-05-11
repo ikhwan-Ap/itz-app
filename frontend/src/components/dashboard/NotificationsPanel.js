@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, Check, CheckCircle, Warning, ArrowRight, Receipt } from "@phosphor-icons/react";
+import { Bell, CheckCircle, Warning, ArrowRight, Receipt } from "@phosphor-icons/react";
 import { api } from "@/lib/api";
 
 const TYPE_META = {
@@ -17,7 +17,7 @@ function relativeTime(iso) {
   const d = new Date(iso);
   const diffMs = Date.now() - d.getTime();
   const sec = Math.floor(diffMs / 1000);
-  if (sec < 60) return `${sec}d`;
+  if (sec < 60) return `${sec}s`;
   const min = Math.floor(sec / 60);
   if (min < 60) return `${min}m`;
   const hr = Math.floor(min / 60);

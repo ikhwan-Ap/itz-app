@@ -10,6 +10,7 @@ const ALL_NAV_TARGETS = [
   { label: "Tactical Sniper Hub", path: "/app/training", icon: Crosshair, roles: ["user", "admin", "superadmin"] },
   { label: "Full Latihan", path: "/app/training/full", icon: Target, roles: ["user", "admin", "superadmin"] },
   { label: "Single Drill", path: "/app/training/single", icon: Crosshair, roles: ["user", "admin", "superadmin"] },
+  { label: "GK Latihan", path: "/app/training/gk", icon: Target, roles: ["user", "admin", "superadmin"] },
   { label: "Admin Overview", path: "/app/admin", icon: Crown, roles: ["admin", "superadmin"] },
   { label: "Users Management", path: "/app/admin/users", icon: Users, roles: ["admin", "superadmin"] },
   { label: "Packages", path: "/app/admin/packages", icon: PkgIcon, roles: ["admin", "superadmin"] },

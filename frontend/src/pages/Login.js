@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { api, formatApiErrorDetail } from "@/lib/api";
-import Logo from "@/components/Logo";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -40,11 +39,8 @@ export default function LoginPage() {
         }}
       />
       <div className="relative z-10 w-full max-w-[440px]">
-        <Link to="/" className="flex items-center justify-center mb-5 sm:mb-7">
-          <Logo size={52} />
-        </Link>
 
-        <div className="card-glass p-6 sm:p-8">
+        <div className="p-6 card-glass sm:p-8">
           <h1 className="font-display font-black text-2xl sm:text-[1.75rem] leading-tight brand-gradient mb-1.5">Welcome Back</h1>
           <p className="text-[#A0AAB5] text-sm mb-4 sm:mb-5">Login untuk lanjut training session Anda.</p>
 
@@ -64,7 +60,7 @@ export default function LoginPage() {
             {err && (
               <div className="badge badge-red w-full justify-center !py-2" data-testid="login-error">{err}</div>
             )}
-            <button type="submit" disabled={loading} className="btn-primary w-full" data-testid="login-submit-btn">
+            <button type="submit" disabled={loading} className="w-full btn-primary" data-testid="login-submit-btn">
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>

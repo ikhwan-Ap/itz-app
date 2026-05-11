@@ -48,14 +48,12 @@ export default function Navigation() {
         }`}
         data-testid="public-nav"
       >
-        <div className="content-max-width flex items-center justify-between h-16 md:h-20">
-          {!["/login", "/register"].includes(location.pathname) && (
-            <Link to="/" className="flex items-center gap-2" data-testid="nav-logo">
-              <Logo size={36} compact={true} />
-            </Link>
-          )}
+        <div className="flex items-center justify-between h-16 content-max-width md:h-20">
+          <Link to="/" className="flex items-center gap-2" data-testid="nav-logo">
+            <Logo size={36} compact={true} />
+          </Link>
 
-          <div className="hidden md:flex items-center gap-8">
+          <div className="items-center hidden gap-8 md:flex">
             {navLinks.map((link) => {
               const active = location.pathname === link.path;
               return (
@@ -76,7 +74,7 @@ export default function Navigation() {
             })}
           </div>
 
-          <div className="hidden md:flex items-center gap-3">
+          <div className="items-center hidden gap-3 md:flex">
             {!user && (
               <Link to="/login" className="text-sm font-medium text-[#A0AAB5] hover:text-white transition-colors" data-testid="nav-login">
                 Login
@@ -88,7 +86,7 @@ export default function Navigation() {
           </div>
 
           <button
-            className="md:hidden text-white p-2"
+            className="p-2 text-white md:hidden"
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             aria-label="Toggle menu"
             data-testid="nav-mobile-toggle"
@@ -100,7 +98,7 @@ export default function Navigation() {
 
       {isMobileMenuOpen && (
         <div className="fixed inset-0 z-[900] md:hidden bg-[#0B0C10]" data-testid="nav-mobile-menu">
-          <div className="flex flex-col items-center justify-center h-full gap-7 px-6">
+          <div className="flex flex-col items-center justify-center h-full px-6 gap-7">
             {navLinks.map((link) => (
               <Link
                 key={link.path}

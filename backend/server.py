@@ -97,8 +97,12 @@ def _sanitize_user(u: dict) -> dict:
 # =========================================================
 @api.post("/auth/register")
 async def register(body: UserRegister, request: Request, response: Response):
-    if body.password != body.password2 and len(body.password2) < 4:
-        raise HTTPException(400, "Second password must be at least 4 chars")
+    if body.password != body.password2:
+        raise HTTPException(400, "Password dan 2nd password harus sama")
+    if len(body.password) < 6:
+        raise HTTPException(400, "Password minimal 6 karakter")
+    if len(body.password2) < 4:
+        raise HTTPException(400, "Second password minimal 4 karakter")
 
     email = body.email.lower()
     existing = await db.users.find_one({"email": email})
@@ -960,7 +964,7 @@ async def mark_all_read(user=Depends(current_user)):
 # =========================================================
 @app.on_event("startup")
 async def on_start():
-    # Indexes
+    # Indexes — core unique
     await db.users.create_index("email", unique=True)
     await db.users.create_index("id", unique=True)
     await db.login_attempts.create_index("identifier")
@@ -970,6 +974,13 @@ async def on_start():
     await db.transactions.create_index("id", unique=True)
     await db.news.create_index("id", unique=True)
     await db.events.create_index("id", unique=True)
+    # Indexes — query performance (M-03 fix)
+    await db.transactions.create_index([("user_id", 1), ("status", 1)])
+    await db.transactions.create_index("marketing_id")
+    await db.notifications.create_index([("user_id", 1), ("read", 1)])
+    await db.notifications.create_index([("user_id", 1), ("created_at", -1)])
+    await db.event_registrations.create_index([("event_id", 1), ("user_id", 1)])
+    await db.users.create_index([("status", 1), ("role", 1)])
 
     await seed_superadmin(db)
 

@@ -13,6 +13,9 @@ import NotificationsPanel from "@/components/dashboard/NotificationsPanel";
 const ALL_NAV = [
   { to: "/app", label: "Dashboard", icon: Gauge, roles: ["user", "admin", "superadmin", "marketing"], end: true },
   { to: "/app/training", label: "Tactical Sniper", icon: Crosshair, roles: ["user", "admin", "superadmin"] },
+  { to: "/app/training/full", label: "Full Latihan", icon: Crosshair, roles: ["user", "admin", "superadmin"], indent: true },
+  { to: "/app/training/single", label: "Single Drill", icon: Crosshair, roles: ["user", "admin", "superadmin"], indent: true },
+  { to: "/app/training/gk", label: "GK Latihan", icon: Crosshair, roles: ["user", "admin", "superadmin"], indent: true },
   { to: "/app/admin", label: "Admin", icon: Crown, roles: ["admin", "superadmin"] },
   { to: "/app/admin/users", label: "Users", icon: Users, roles: ["admin", "superadmin"] },
   { to: "/app/admin/packages", label: "Packages", icon: PkgIcon, roles: ["admin", "superadmin"] },
@@ -75,7 +78,9 @@ export default function DashboardLayout({ children }) {
           end={!!it.end}
           onClick={onItemClick}
           className={({ isActive }) =>
-            `relative flex items-center gap-3 h-11 px-3 rounded-lg transition-all duration-150 group ` +
+            `relative flex items-center gap-3 h-11 rounded-lg transition-all duration-150 group ` +
+            (it.indent ? "pl-7 pr-3" : "px-3") +
+            " " +
             (isActive
               ? "text-[#38BDF8] bg-[rgba(56,189,248,0.13)]"
               : "text-[#5a5a6a] hover:text-[#a0a0b0] hover:bg-[#1c1c25]")
@@ -91,13 +96,13 @@ export default function DashboardLayout({ children }) {
                   transition={{ duration: 0.2, ease: [0.4, 0, 0.2, 1] }}
                 />
               )}
-              <it.icon size={18} weight="duotone" className="flex-shrink-0" />
+              <it.icon size={it.indent ? 15 : 18} weight="duotone" className="flex-shrink-0" />
               <AnimatePresence>
                 {!collapsed && (
                   <motion.span
                     initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                     transition={{ duration: 0.15 }}
-                    className="text-[13px] font-medium tracking-wide whitespace-nowrap"
+                    className={`font-medium tracking-wide whitespace-nowrap ${it.indent ? "text-[12px]" : "text-[13px]"}`}
                   >
                     {it.label}
                   </motion.span>

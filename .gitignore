@@ -18,9 +18,8 @@ frontend/.env
 *.p12
 *.pfx
 
-# ===== File Sensitif Operasional =====
+# ===== File Sensitif Operasional (JANGAN COMMIT) =====
 auth_testing.md
-system_map.md
 test_result.md
 test_reports/
 memory/
@@ -30,6 +29,13 @@ memory/
 patch_agent.sh
 mode_*.sh
 setup_server.sh
+CRITICAL_ISSUES.md
+fix_server.sh
+
+# ===== Dokumen Internal (tidak perlu di repo publik) =====
+system_map.md
+REDESIGN_EXECUTION_TRACKER.md
+DASHBOARD_FUTURE_FEATURES.md
 
 # ===== Dependencies =====
 node_modules/
@@ -53,6 +59,7 @@ __pycache__/
 *.pyo
 venv/
 .venv/
+*.egg-info/
 
 # ===== Testing =====
 /coverage
@@ -82,20 +89,3 @@ chainlit.md
 *.tar.gz
 *.tar
 *.tgz
-
-# Mobile development
-android-sdk/frontend/node_modules/.cache/default-development/0.pack
-frontend/node_modules/.cache/default-development/0.pack
-frontend/node_modules/.cache/default-development/6.pack
-frontend/node_modules/.cache/default-development/6.pack
-frontend/node_modules/.cache/default-development/7.pack
-frontend/node_modules/.cache/default-development/10.pack
-frontend/node_modules/.cache/default-development/15.pack
-frontend/node_modules/.cache/default-development/15.pack
-frontend/node_modules/.cache/default-development/1.pack
-frontend/node_modules/.cache/default-development/11.pack
-frontend/node_modules/.cache/default-development/12.pack
-frontend/node_modules/.cache/default-development/17.pack
-frontend/node_modules/.cache/default-development/3.pack
-frontend/node_modules/.cache/default-development/5.pack
-frontend/node_modules/.cache/default-development/8.pack

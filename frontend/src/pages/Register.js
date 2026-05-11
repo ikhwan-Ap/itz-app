@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api, formatApiErrorDetail, formatRupiah } from "@/lib/api";
 import { Check } from "@phosphor-icons/react";
-import Logo from "@/components/Logo";
 
 export default function RegisterPage() {
   const [sp] = useSearchParams();
@@ -43,7 +42,8 @@ export default function RegisterPage() {
   const submit = async (e) => {
     e.preventDefault();
     setErr(""); setOk("");
-    if (pw !== pw2 && pw2.length < 4) { setErr("Second password minimal 4 karakter"); return; }
+    if (pw !== pw2) { setErr("Password dan 2nd password harus sama"); return; }
+    if (pw2.length < 4) { setErr("Second password minimal 4 karakter"); return; }
     setLoading(true);
     try {
       const { data } = await api.post("/auth/register", {
@@ -71,17 +71,14 @@ export default function RegisterPage() {
           filter: "blur(40px)",
         }}
       />
-      <div className="relative z-10 max-w-3xl w-full">
-        <Link to="/" className="flex items-center justify-center mb-5 sm:mb-7">
-          <Logo size={52} />
-        </Link>
+      <div className="relative z-10 w-full max-w-3xl">
 
-        <div className="card-glass p-6 sm:p-8">
+        <div className="p-6 card-glass sm:p-8">
           <h1 className="font-display font-black text-2xl sm:text-[1.75rem] leading-tight brand-gradient mb-1.5">Bergabung dengan Komunitas</h1>
           <p className="text-[#A0AAB5] text-sm mb-4 sm:mb-5">Registrasi masuk antrian approval admin. Welcome to Indo Timezone.</p>
 
           <form onSubmit={submit} className="space-y-5" data-testid="register-form">
-            <div className="grid md:grid-cols-2 gap-4">
+            <div className="grid gap-4 md:grid-cols-2">
               <div>
                 <label className="label-std">Nama Lengkap</label>
                 <input required className="input-std" value={name} onChange={(e) => setName(e.target.value)}
@@ -111,7 +108,7 @@ export default function RegisterPage() {
 
             <div>
               <label className="label-std">Pilih Paket</label>
-              <div className="grid md:grid-cols-3 gap-3">
+              <div className="grid gap-3 md:grid-cols-3">
                 {packages.map((p) => (
                   <label
                     key={p.id}
@@ -121,9 +118,9 @@ export default function RegisterPage() {
                     <input type="radio" name="pkg" className="hidden" checked={packageId === p.id}
                            onChange={() => setPackageId(p.id)} />
                     <div className="text-xs font-bold uppercase tracking-widest text-[#A0AAB5]">{p.duration_type}</div>
-                    <div className="font-display font-bold text-lg mt-1">{p.name}</div>
+                    <div className="mt-1 text-lg font-bold font-display">{p.name}</div>
                     <div className="font-display font-black text-2xl text-[#38BDF8] mt-2">{formatRupiah(p.price)}</div>
-                    {p.is_trial && <div className="badge badge-gold mt-2">FREE TRIAL</div>}
+                    {p.is_trial && <div className="mt-2 badge badge-gold">FREE TRIAL</div>}
                   </label>
                 ))}
               </div>
@@ -145,19 +142,19 @@ export default function RegisterPage() {
             </div>
 
             {selectedPkg && (
-              <div className="card-solid p-4">
+              <div className="p-4 card-solid">
                 <div className="flex items-center justify-between text-sm">
                   <span className="text-[#A0AAB5]">Harga paket</span>
                   <span className="font-bold">{formatRupiah(selectedPkg.price)}</span>
                 </div>
                 {promoResult && (
-                  <div className="flex items-center justify-between text-sm mt-1">
+                  <div className="flex items-center justify-between mt-1 text-sm">
                     <span className="text-[#A0AAB5]">Diskon promo</span>
                     <span className="font-bold text-[#38BDF8]">- {formatRupiah(promoResult.discount)}</span>
                   </div>
                 )}
-                <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
-                  <span className="font-display font-bold uppercase text-sm">Total</span>
+                <div className="flex items-center justify-between pt-3 mt-3 border-t border-white/10">
+                  <span className="text-sm font-bold uppercase font-display">Total</span>
                   <span className="font-display font-black text-2xl text-[#38BDF8]" data-testid="register-total">
                     {formatRupiah(promoResult ? promoResult.final_amount : selectedPkg.price)}
                   </span>
@@ -168,7 +165,7 @@ export default function RegisterPage() {
             {err && <div className="badge badge-red w-full justify-center !py-2" data-testid="register-error">{err}</div>}
             {ok && <div className="badge badge-green w-full justify-center !py-2" data-testid="register-success"><Check size={14} className="mr-1" />{ok}</div>}
 
-            <button type="submit" disabled={loading} className="btn-primary w-full" data-testid="register-submit-btn">
+            <button type="submit" disabled={loading} className="w-full btn-primary" data-testid="register-submit-btn">
               {loading ? "Processing..." : "Daftar & Kirim ke Approval"}
             </button>
           </form>
