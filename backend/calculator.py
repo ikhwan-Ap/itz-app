@@ -92,6 +92,7 @@ def simulate_sniper(
     drill_filter: Optional[List[str]] = None,  # names of drills to restrict to
     white_multiplier: int = 1,  # per-session gain multiplier for white attrs vs grey attrs
     valid_attrs: Optional[set] = None,  # if set, only these attrs are counted per drill (GK mode)
+    soft_grey_cap: bool = False,  # if True: grey attrs already >= grey_limit are skipped (not blocked)
 ) -> Dict:
     stats = deepcopy(init_stats)
     # ensure defaults
@@ -159,27 +160,40 @@ def simulate_sniper(
             drill = cand["drill"]
             while True:
                 attr_list = cand["eff_attrs"]  # only valid attrs for this drill
-                total_count = len(attr_list)
                 grey_drill_attrs = [a for a in attr_list if a not in white_set]
                 white_drill_attrs = [a for a in attr_list if a in white_set]
 
-                # A. 180% avg cap — effective gain per session accounts for multiplier:
-                #    new_sum = sum + sessions*(grey_count + white_count*multiplier)
-                #    sessions <= (180*total - sum) / (grey_count + white_count*multiplier)
-                current_sum = sum(stats.get(a, 1) for a in attr_list)
+                # -- Determine participating grey attrs --
+                # soft_grey_cap (single drill): grey attrs already >= grey_limit are
+                # excluded from gain but do NOT block the drill, so white attrs can still rise.
+                # Normal mode (full latihan): blocked entirely if any grey attr is at limit.
+                if soft_grey_cap:
+                    active_grey = [a for a in grey_drill_attrs if stats.get(a, 1) < grey_limit]
+                    if not active_grey and not white_drill_attrs:
+                        break
+                else:
+                    active_grey = grey_drill_attrs
+
+                participating = active_grey + white_drill_attrs
+                total_count = len(participating)
+                if total_count == 0:
+                    break
+
+                # A. 180% avg cap — over participating attrs only
+                current_sum = sum(stats.get(a, 1) for a in participating)
                 avg = current_sum / total_count
                 if avg >= 180:
                     break
 
-                effective_per_session = len(grey_drill_attrs) + len(white_drill_attrs) * white_multiplier
+                effective_per_session = len(active_grey) + len(white_drill_attrs) * white_multiplier
                 if effective_per_session == 0:
                     break
                 room_avg = (180 * total_count - current_sum) / effective_per_session
 
-                # B. Grey limit cap — sessions limited by remaining room in grey attrs
+                # B. Grey limit cap
                 blocked = False
                 room_grey = 10**6
-                for da in grey_drill_attrs:
+                for da in active_grey:
                     r = grey_limit - stats.get(da, 1)
                     if r < room_grey:
                         room_grey = r
@@ -188,16 +202,19 @@ def simulate_sniper(
                 if blocked:
                     break
 
-                # C. Goal + ATTR_CAP cap
-                # White attrs: capped at min(explicit_goal, ATTR_CAP=340); grey attrs: explicit goal only
+                # C. Goal cap — skip already-satisfied attrs so they don't stop the loop
                 room_goal = 10**6
                 any_active_unfinished = False
-                for da in attr_list:
+                for da in participating:
                     val = stats.get(da, 1)
                     if da in white_set:
                         effective_cap = min(goal_by_name.get(da, ATTR_CAP), ATTR_CAP)
+                        if val >= effective_cap:
+                            continue  # already satisfied — skip
                         left = (effective_cap - val) / white_multiplier
                     elif da in goal_by_name:
+                        if val >= goal_by_name[da]:
+                            continue  # already satisfied — skip
                         left = goal_by_name[da] - val
                     else:
                         continue
@@ -218,7 +235,6 @@ def simulate_sniper(
                 if step >= 1:
                     step = int(step)
                 else:
-                    # micro step: allow +1 session only if all rooms allow it
                     if room_grey >= 1 and room_avg >= 1 and room_goal >= 1:
                         step = 1
                     else:
@@ -227,26 +243,24 @@ def simulate_sniper(
                 if step <= 0:
                     break
 
-                # Apply: grey attrs gain +step, white attrs gain +(step * white_multiplier)
+                # Apply gains — only participating attrs (already-capped grey attrs excluded)
                 changes = {}
-                for da in attr_list:
+                for da in participating:
                     gain = step * white_multiplier if da in white_set else step
                     stats[da] = stats.get(da, 1) + gain
                     changes[da] = gain
                 total_cost += drill["cost"] * step * 0.8
 
-                new_avg = sum(stats.get(a, 1) for a in attr_list) / total_count
-                # Merge into previous history if same drill
+                new_avg = sum(stats.get(a, 1) for a in participating) / total_count
                 if history and history[-1]["drill"] == drill["name"]:
                     last = history[-1]
                     last["gain"] += step
                     last["endAvg"] = round(new_avg)
-                    # append a per-step detail
                     last["steps"].append({
                         "step": step,
                         "endAvg": round(new_avg),
                         "changes": changes,
-                        "snapshot": {a: stats.get(a, 1) for a in attr_list},
+                        "snapshot": {a: stats.get(a, 1) for a in participating},
                     })
                     for k, v in changes.items():
                         last["changes"][k] = last["changes"].get(k, 0) + v
@@ -258,12 +272,12 @@ def simulate_sniper(
                         "endAvg": round(new_avg),
                         "changes": dict(changes),
                         "prioLevel": current_prio,
-                        "size": len(attr_list),
+                        "size": len(participating),
                         "steps": [{
                             "step": step,
                             "endAvg": round(new_avg),
                             "changes": changes,
-                            "snapshot": {a: stats.get(a, 1) for a in attr_list},
+                            "snapshot": {a: stats.get(a, 1) for a in participating},
                         }],
                     })
 

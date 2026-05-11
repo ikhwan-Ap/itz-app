@@ -206,27 +206,33 @@ export function TargetCard({ attr, stats, bonus, selected, onToggle, onChange, a
 }
 
 /** Results: overall %, timeline, final grid (shared between modes) */
-export function ResultSection({ result, meta, bonus, stats, gkMode = false }) {
+export function ResultSection({ result, meta, bonus, stats, gkMode = false, initialOverall = null }) {
   const [expanded, setExpanded] = useState({});
   const whiteSet = new Set(result.white_set);
+  const delta = initialOverall != null ? result.overall - initialOverall : null;
 
   return (
     <motion.div id="result-section" initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} data-testid="result-section">
       <div className="card-glow p-7 text-center">
         <div className="font-display font-black text-6xl brand-gradient glow-gold" data-testid="result-overall">{result.overall}%</div>
         <div className="text-[11px] font-bold uppercase tracking-[0.3em] text-[#38BDF8] mt-2">Estimasi Mutu Akhir</div>
-        <div className="mt-3 text-xs text-[#A0AAB5]">Total cost: <span className="font-bold text-[#FFFFFF]">{result.total_cost}</span></div>
+        {delta != null && (
+          <div className={`mt-2 text-sm font-bold ${delta > 0 ? "text-[#3FCA7C]" : "text-[#A0AAB5]"}`}>
+            {delta > 0 ? `+${delta}%` : `${delta}%`} dari drill ini
+          </div>
+        )}
+        <div className="mt-2 text-xs text-[#A0AAB5]">Total cost: <span className="font-bold text-[#FFFFFF]">{result.total_cost}</span></div>
       </div>
 
       <div className="mt-6 card-solid p-6">
         <h3 className="font-display font-bold text-xl mb-4 flex items-center gap-2">
-          <Lightning size={22} weight="fill" className="text-[#38BDF8]" /> Rute Latihan Optimal
+          <Lightning size={22} weight="fill" className="text-[#38BDF8]" /> {initialOverall != null ? "Detail Latihan" : "Rute Latihan Optimal"}
         </h3>
         {result.history.length === 0 ? (
           <div className="card-solid p-5 border border-[#E50914]/40 text-center">
             <Warning size={32} className="text-[#E50914] mx-auto mb-2" />
             <div className="text-[#ff8aa0] font-bold">Tidak ada langkah valid.</div>
-            <div className="text-sm text-[#A0AAB5] mt-1">Cek limit gelap atau naikkan batas limit.</div>
+            <div className="text-sm text-[#A0AAB5] mt-1">Target atribut sudah tercapai, atau cek nilai stats Anda.</div>
           </div>
         ) : (
           <div className="relative timeline">
@@ -259,9 +265,9 @@ function DrillCard({ drill, whiteSet, expanded, onToggle }) {
             </button>
           </div>
         </div>
-        <div className="font-display font-black text-2xl text-[#38BDF8] mt-2">+{drill.gain}%</div>
+        <div className="font-display font-black text-2xl text-[#38BDF8] mt-2">{drill.gain} Sesi</div>
         <div className="text-xs text-[#A0AAB5] flex items-center gap-2 mt-1">
-          Avg Awal: <b>{drill.startAvg}%</b> <ArrowRight size={12} /> <b className="text-white">{drill.endAvg}%</b>
+          Avg: <b>{drill.startAvg}%</b> <ArrowRight size={12} /> <b className="text-white">{drill.endAvg}%</b>
         </div>
         <div className="flex flex-wrap gap-1 mt-3">
           {Object.entries(drill.changes).map(([k, v]) => (

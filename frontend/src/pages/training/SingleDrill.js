@@ -3,7 +3,7 @@ import { api, formatApiErrorDetail } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Crosshair, CaretLeft, CheckCircle } from "@phosphor-icons/react";
+import { Crosshair, CaretLeft, CheckCircle, Warning } from "@phosphor-icons/react";
 import { PlayerForm, TargetCard, ResultSection, runCalculator } from "./shared";
 
 export default function SingleDrillPage() {
@@ -16,9 +16,10 @@ export default function SingleDrillPage() {
   const [playerAge, setPlayerAge] = useState(18);
   const [whiteMultiplier, setWhiteMultiplier] = useState(2);
   const [selectedDrill, setSelectedDrill] = useState("");
-  const [selectedTargets, setSelectedTargets] = useState({}); // only attrs in selected drill
+  const [selectedTargets, setSelectedTargets] = useState({});
   const [step, setStep] = useState(1);
   const [result, setResult] = useState(null);
+  const [initialOverall, setInitialOverall] = useState(null);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -96,6 +97,15 @@ export default function SingleDrillPage() {
     if (!targets.length) { setErr("Pilih minimal 1 atribut target dari drill ini."); return; }
     setLoading(true);
     try {
+      // Compute initial overall before drill for delta display
+      const isGk = activeRoles.includes("GK");
+      const scoreAttrs = isGk ? (meta.gk_all_attrs || []) : (meta.all_attrs || []);
+      const initTotal = scoreAttrs.reduce((sum, a) => {
+        let v = parseInt(stats[a]) || 1;
+        return sum + v;
+      }, 0);
+      setInitialOverall(Math.round(initTotal / 15));
+
       const data = await runCalculator({ activeRoles, stats, bonus, greyLimit, targets, singleDrill: selectedDrill, playerAge, whiteMultiplier });
       setResult(data);
       setStep(4);
@@ -197,6 +207,24 @@ export default function SingleDrillPage() {
               <div className="text-xs text-[#A0AAB5] mt-0.5">Target otomatis dari atribut kuncian di drill ini. Klik card untuk toggle, atur goal.</div>
             </div>
           </div>
+
+          {/* Info: grey attrs skipped (already above grey_limit) */}
+          {(() => {
+            const isGk = activeRoles.includes("GK");
+            const validSet = isGk ? new Set(meta.gk_all_attrs || []) : new Set(meta.all_attrs || []);
+            const greyInDrill = drillObj.attrs.filter((a) => validSet.has(a) && !whiteSet.has(a));
+            const skipped = greyInDrill.filter((a) => (parseInt(stats[a]) || 1) >= parseInt(greyLimit));
+            if (skipped.length === 0) return null;
+            return (
+              <div className="flex items-start gap-2 text-xs p-3 rounded-lg border border-[#f59e0b]/30 bg-[#f59e0b]/5 mb-4">
+                <Warning size={14} className="text-[#f59e0b] shrink-0 mt-0.5" weight="fill" />
+                <span className="text-[#f59e0b]">
+                  Atribut gelap <b>{skipped.join(", ")}</b> sudah mencapai/melebihi batas limit gelap ({greyLimit}) — atribut ini tidak akan naik, tapi tidak menghalangi drill.
+                </span>
+              </div>
+            );
+          })()}
+
           {drillTargetCandidates.length === 0 ? (
             <div className="badge badge-red w-full justify-center !py-2">Drill ini tidak punya atribut kuncian untuk posisi yang dipilih.</div>
           ) : (
@@ -217,7 +245,7 @@ export default function SingleDrillPage() {
         </motion.div>
       )}
 
-      {step === 4 && result && <ResultSection result={result} meta={meta} bonus={bonus} stats={stats} />}
+      {step === 4 && result && <ResultSection result={result} meta={meta} bonus={bonus} stats={stats} initialOverall={initialOverall} />}
 
       {step === 4 && (
         <div className="flex gap-3">

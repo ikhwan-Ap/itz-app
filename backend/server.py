@@ -843,6 +843,7 @@ async def calc_run(body: CalculatorRunRequest, user=Depends(current_user)):
         drill_filter=drill_filter,
         white_multiplier=int(body.white_multiplier or 1),
         valid_attrs=set(GK_ALL_ATTRS) if is_gk else set(FIELD_ALL_ATTRS),
+        soft_grey_cap=bool(drill_filter),  # single drill: grey attrs already capped don't block
     )
 
     # Compute overall %
