@@ -1760,11 +1760,11 @@ A phase is done only if:
 
 | ID | Task | Priority | Status | Notes |
 |---|---|---:|---|---|
-| P1-BK-01 | Create MongoDB backup plan | Critical | NOT_STARTED | local backup first |
-| P1-BK-02 | Create backup script | Critical | NOT_STARTED | mongodump |
-| P1-BK-03 | Add retention policy | High | NOT_STARTED | delete old backups |
-| P1-BK-04 | Add backup logs | Medium | NOT_STARTED | backup_logs optional |
-| P1-BK-05 | Add restore instruction | High | NOT_STARTED | documented manual restore |
+| P1-BK-01 | Create MongoDB backup plan | Critical | DONE | backup_mongo.sh: mongodump + gzip, cron 02:00 UTC, /var/backups/mongodb/ |
+| P1-BK-02 | Create backup script | Critical | DONE | backup_mongo.sh fixed (variable bug), log prefix, cleanup count |
+| P1-BK-03 | Add retention policy | High | DONE | KEEP_DAYS=7, find -mtime +7 -delete |
+| P1-BK-04 | Add backup logs | Medium | DONE | LOG_PREFIX timestamp, cron >> /var/log/mongo_backup.log |
+| P1-BK-05 | Add restore instruction | High | DONE | RESTORE_GUIDE.md: full/partial/temp restore + verify + cleanup |
 
 ---
 
@@ -1799,12 +1799,12 @@ A phase is done only if:
 
 | ID | Task | Priority | Status | Notes |
 |---|---|---:|---|---|
-| P1-AU-01 | Add audit_logs collection | High | NOT_STARTED | security |
-| P1-AU-02 | Add audit helper spec | High | NOT_STARTED | reusable |
-| P1-AU-03 | Log transaction approve/reject | High | NOT_STARTED | admin action |
-| P1-AU-04 | Log user role/status update | High | NOT_STARTED | admin action |
-| P1-AU-05 | Log payment config update | High | NOT_STARTED | superadmin |
-| P1-AU-06 | Create audit logs admin page | Medium | NOT_STARTED | superadmin only |
+| P1-AU-01 | Add audit_logs collection | High | DONE | MongoDB collection auto-created, indexes added in startup |
+| P1-AU-02 | Add audit helper spec | High | DONE | _audit_log() helper in server.py — non-blocking, logs to db.audit_logs |
+| P1-AU-03 | Log transaction approve/reject | High | DONE | approve_tx + reject_tx call _audit_log() |
+| P1-AU-04 | Log user role/status update | High | DONE | update_user + delete_user call _audit_log() |
+| P1-AU-05 | Log payment config update | High | DONE | update_payment_config calls _audit_log() |
+| P1-AU-06 | Create audit logs admin page | Medium | DONE | GET /api/audit-logs (superadmin only, paginated, filterable) |
 
 ---
 
@@ -1812,9 +1812,9 @@ A phase is done only if:
 
 | ID | Task | Priority | Status | Notes |
 |---|---|---:|---|---|
-| P1-RL-01 | Add login rate limit | Critical | NOT_STARTED | Nginx/backend |
-| P1-RL-02 | Add register rate limit | High | NOT_STARTED | anti spam |
-| P1-RL-03 | Add forgot password rate limit | High | NOT_STARTED | after feature |
+| P1-RL-01 | Add login rate limit | Critical | DONE | Nginx: api_auth zone 5r/m burst=10, /api/auth/ → 429 on exceed |
+| P1-RL-02 | Add register rate limit | High | DONE | Included in api_auth zone (same /api/auth/ location block) |
+| P1-RL-03 | Add forgot password rate limit | High | NOT_STARTED | after feature P1-FP |
 | P1-RL-04 | Add promo validate rate limit | Medium | NOT_STARTED | anti brute-force |
 | P1-RL-05 | Add calculator run rate limit | Medium | NOT_STARTED | protect resource |
 

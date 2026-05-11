@@ -93,6 +93,42 @@ def _sanitize_user(u: dict) -> dict:
 
 
 # =========================================================
+# AUDIT LOG HELPER (P1-AU)
+# =========================================================
+async def _audit_log(
+    actor: dict,
+    action: str,
+    target_type: str,
+    target_id: str,
+    request: Request = None,
+    metadata: dict = None,
+    before: dict = None,
+    after: dict = None,
+):
+    """Create an audit log entry. Called on sensitive admin/superadmin actions."""
+    doc = {
+        "id": uid(),
+        "actor_user_id": actor.get("id"),
+        "actor_email": actor.get("email"),
+        "actor_role": actor.get("role"),
+        "action": action,
+        "target_type": target_type,
+        "target_id": target_id,
+        "ip_address": request.client.host if request and request.client else None,
+        "user_agent": request.headers.get("user-agent") if request else None,
+        "metadata": metadata or {},
+        "before": before,
+        "after": after,
+        "created_at": now_iso(),
+    }
+    try:
+        await db.audit_logs.insert_one(doc)
+    except Exception as e:
+        # Audit log failure must never break the main operation
+        logger.error(f"Audit log insert failed: {e}")
+
+
+# =========================================================
 # AUTH
 # =========================================================
 @api.post("/auth/register")
@@ -311,22 +347,44 @@ async def admin_create_user(body: AdminCreateUser, user=Depends(require_role("ad
 
 
 @api.patch("/users/{user_id}")
-async def update_user(user_id: str, body: UserUpdate, user=Depends(require_role("admin", "superadmin"))):
+async def update_user(user_id: str, body: UserUpdate, user=Depends(require_role("admin", "superadmin")), request: Request = None):
     update = {k: v for k, v in body.model_dump().items() if v is not None}
     if "role" in update and update["role"] in ("admin", "superadmin") and user["role"] != "superadmin":
         raise HTTPException(403, "Only superadmin can assign admin/superadmin")
     if not update:
         raise HTTPException(400, "Nothing to update")
+    before = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0, "password2_hash": 0})
     await db.users.update_one({"id": user_id}, {"$set": update})
     u = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0, "password2_hash": 0})
+    # Audit log for role/status changes
+    if "role" in update or "status" in update:
+        await _audit_log(
+            actor=user,
+            action="user.update",
+            target_type="user",
+            target_id=user_id,
+            request=request,
+            metadata={"fields": list(update.keys())},
+            before={k: before.get(k) for k in update if before},
+            after={k: update[k] for k in update},
+        )
     return u
 
 
 @api.delete("/users/{user_id}")
-async def delete_user(user_id: str, user=Depends(require_role("superadmin"))):
+async def delete_user(user_id: str, user=Depends(require_role("superadmin")), request: Request = None):
     if user_id == user["id"]:
         raise HTTPException(400, "Cannot delete self")
+    target = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0, "password2_hash": 0})
     await db.users.delete_one({"id": user_id})
+    await _audit_log(
+        actor=user,
+        action="user.delete",
+        target_type="user",
+        target_id=user_id,
+        request=request,
+        metadata={"email": target.get("email") if target else None},
+    )
     return {"message": "deleted"}
 
 
@@ -522,6 +580,15 @@ async def approve_tx(tx_id: str, body: TransactionApprove, user=Depends(require_
         f"Paket {pkg.get('name', '')} sudah aktif. Selamat berlatih!",
         "/app",
     )
+    # Audit log
+    await _audit_log(
+        actor=user,
+        action="transaction.approve",
+        target_type="transaction",
+        target_id=tx_id,
+        request=None,
+        metadata={"package": pkg.get("name"), "user_id": tx["user_id"], "note": body.note or ""},
+    )
     return {"message": "approved"}
 
 
@@ -543,6 +610,15 @@ async def reject_tx(tx_id: str, body: TransactionReject, user=Depends(require_ro
         "Transaksi Ditolak",
         body.note or "Silakan hubungi admin untuk informasi lebih lanjut.",
         "/app",
+    )
+    # Audit log
+    await _audit_log(
+        actor=user,
+        action="transaction.reject",
+        target_type="transaction",
+        target_id=tx_id,
+        request=None,
+        metadata={"user_id": tx["user_id"], "note": body.note or ""},
     )
     return {"message": "rejected"}
 
@@ -680,9 +756,17 @@ async def get_payment_config(user=Depends(require_role("admin", "superadmin"))):
 
 
 @api.patch("/payment-config")
-async def update_payment_config(body: PaymentConfigUpdate, user=Depends(require_role("superadmin"))):
+async def update_payment_config(body: PaymentConfigUpdate, user=Depends(require_role("superadmin")), request: Request = None):
     update = {k: v for k, v in body.model_dump().items() if v is not None}
     await db.payment_config.update_one({"id": "default"}, {"$set": update}, upsert=True)
+    await _audit_log(
+        actor=user,
+        action="payment_config.update",
+        target_type="payment_config",
+        target_id="default",
+        request=request,
+        metadata={"fields": list(update.keys())},
+    )
     return await db.payment_config.find_one({"id": "default"}, {"_id": 0})
 
 
@@ -960,6 +1044,45 @@ async def mark_all_read(user=Depends(current_user)):
 
 
 # =========================================================
+# AUDIT LOGS (P1-AU-06) — superadmin only
+# =========================================================
+@api.get("/audit-logs")
+async def list_audit_logs(
+    page: int = 1,
+    limit: int = 50,
+    action: str = None,
+    target_type: str = None,
+    actor_user_id: str = None,
+    user=Depends(require_role("superadmin")),
+):
+    """List audit logs — superadmin only. Supports pagination and filtering."""
+    limit = min(limit, 100)
+    skip = (page - 1) * limit
+    q = {}
+    if action:
+        q["action"] = action
+    if target_type:
+        q["target_type"] = target_type
+    if actor_user_id:
+        q["actor_user_id"] = actor_user_id
+
+    total = await db.audit_logs.count_documents(q)
+    items = await db.audit_logs.find(q, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    pages = (total + limit - 1) // limit
+    return {
+        "items": items,
+        "meta": {
+            "page": page,
+            "limit": limit,
+            "total": total,
+            "pages": pages,
+            "has_next": page < pages,
+            "has_prev": page > 1,
+        },
+    }
+
+
+# =========================================================
 # HEALTH CHECK (P1-HC)
 # =========================================================
 @api.get("/health")
@@ -1014,6 +1137,9 @@ async def on_start():
     await db.notifications.create_index([("user_id", 1), ("created_at", -1)])
     await db.event_registrations.create_index([("event_id", 1), ("user_id", 1)])
     await db.users.create_index([("status", 1), ("role", 1)])
+    # Audit logs index
+    await db.audit_logs.create_index([("actor_user_id", 1), ("created_at", -1)])
+    await db.audit_logs.create_index([("target_type", 1), ("target_id", 1)])
 
     await seed_superadmin(db)
 
