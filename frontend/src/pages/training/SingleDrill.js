@@ -245,7 +245,7 @@ export default function SingleDrillPage() {
         </motion.div>
       )}
 
-      {step === 4 && result && <ResultSection result={result} meta={meta} bonus={bonus} stats={stats} initialOverall={initialOverall} />}
+      {step === 4 && result && <ResultSection result={result} meta={meta} bonus={bonus} stats={stats} initialOverall={initialOverall} gkMode={activeRoles.includes("GK")} />}
 
       {step === 4 && (
         <div className="flex gap-3">

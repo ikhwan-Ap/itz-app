@@ -57,6 +57,8 @@ venv/
 # ===== Testing =====
 /coverage
 .cache/
+backend/tests/
+tests/
 
 # ===== Logs =====
 npm-debug.log*
