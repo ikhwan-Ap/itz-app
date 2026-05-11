@@ -36,6 +36,7 @@ fix_server.sh
 system_map.md
 REDESIGN_EXECUTION_TRACKER.md
 DASHBOARD_FUTURE_FEATURES.md
+SERVER_DEPLOY_REPORT.md
 
 # ===== Dependencies =====
 node_modules/
@@ -50,7 +51,7 @@ node_modules/
 
 # ===== Build Output =====
 /build
-frontend/build/
+# frontend/build/ — SENGAJA DI-COMMIT untuk deploy ke server tanpa npm build
 dist/
 
 # ===== Python =====
