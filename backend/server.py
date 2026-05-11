@@ -960,6 +960,39 @@ async def mark_all_read(user=Depends(current_user)):
 
 
 # =========================================================
+# HEALTH CHECK (P1-HC)
+# =========================================================
+@api.get("/health")
+async def health_check():
+    """Public health check — returns app status and version info."""
+    return {
+        "status": "ok",
+        "app": "itz-app",
+        "env": os.environ.get("APP_ENV", "development"),
+        "timestamp": now_iso(),
+    }
+
+
+@api.get("/health/db")
+async def health_db():
+    """Public DB health check — verifies MongoDB connectivity."""
+    try:
+        # ping command is lightweight and doesn't require auth
+        await client.admin.command("ping")
+        # also check our actual DB is accessible
+        count = await db.users.estimated_document_count()
+        return {
+            "status": "ok",
+            "db": os.environ.get("DB_NAME", "itz_app"),
+            "users_count": count,
+            "timestamp": now_iso(),
+        }
+    except Exception as e:
+        logger.error(f"DB health check failed: {e}")
+        raise HTTPException(503, detail={"status": "error", "message": "Database unavailable"})
+
+
+# =========================================================
 # STARTUP
 # =========================================================
 @app.on_event("startup")
