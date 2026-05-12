@@ -1830,7 +1830,7 @@ A phase is done only if:
 | P2-SR-02 | Add save result endpoint | Very High | DONE | POST /api/training-results + GET list + GET detail + PATCH note + DELETE |
 | P2-SR-03 | Add Save Result button | Very High | DONE | ResultSection di shared.js: FloppyDisk btn, note input, idle/saving/saved/error states |
 | P2-SR-04 | Add result note | Medium | DONE | Included in P2-SR-03 — toggle note input, PATCH /note endpoint |
-| P2-SR-05 | Add result detail endpoint/page | High | NOT_STARTED | history detail page |
+| P2-SR-05 | Add result detail endpoint/page | High | DONE | GET /api/training-results/:id + ResultDetailModal in TrainingHistory.js |
 
 ---
 
@@ -1838,9 +1838,9 @@ A phase is done only if:
 
 | ID | Task | Priority | Status | Notes |
 |---|---|---:|---|---|
-| P2-HL-01 | Create Training History route | Very High | NOT_STARTED | /app/training/history |
-| P2-HL-02 | Create history list UI | Very High | NOT_STARTED | paginated |
-| P2-HL-03 | Create result detail UI | High | NOT_STARTED | route detail |
+| P2-HL-01 | Create Training History route | Very High | DONE | /app/training/history — TrainingHistory.js, route di App.js |
+| P2-HL-02 | Create history list UI | Very High | DONE | Paginated table + mode filter + loading skeleton via ResponsiveTable |
+| P2-HL-03 | Create result detail UI | High | DONE | ResultDetailModal: final stats grid, drill history, note edit |
 | P2-HL-04 | Add duplicate simulation | Medium | NOT_STARTED | reuse input |
 | P2-HL-05 | Add compare result | Medium | NOT_STARTED | optional |
 

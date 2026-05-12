@@ -1450,6 +1450,85 @@ async def list_audit_logs(
 
 
 # =========================================================
+# TRAINING RESULTS (P2-SR / P2-HL)
+# =========================================================
+@api.post("/training-results")
+async def save_training_result(body: TrainingResultSave, user=Depends(current_user)):
+    """Save a calculator result for history tracking."""
+    doc = {
+        "id": uid(),
+        "user_id": user["id"],
+        "mode": body.mode,
+        "position": body.position,
+        "roles": body.roles,
+        "input_stats": body.input_stats,
+        "targets": body.targets,
+        "grey_limit": body.grey_limit,
+        "white_multiplier": body.white_multiplier,
+        "final_stats": body.final_stats,
+        "overall": body.overall,
+        "total_cost": body.total_cost,
+        "history": body.history,
+        "white_set": body.white_set,
+        "note": body.note or "",
+        "created_at": now_iso(),
+        "updated_at": now_iso(),
+    }
+    await db.training_results.insert_one(doc)
+    doc.pop("_id", None)
+    return doc
+
+
+@api.get("/training-results")
+async def list_training_results(
+    page: int = 1,
+    limit: int = 20,
+    mode: str = None,
+    user=Depends(current_user),
+):
+    """List training results for the current user, paginated."""
+    limit = min(limit, 100)
+    skip = (page - 1) * limit
+    q = {"user_id": user["id"]}
+    if mode:
+        q["mode"] = mode
+    total = await db.training_results.count_documents(q)
+    items = await db.training_results.find(q, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
+    return {"items": items, "meta": _paginate_meta(page, limit, total)}
+
+
+@api.get("/training-results/{result_id}")
+async def get_training_result(result_id: str, user=Depends(current_user)):
+    """Get a single training result by ID."""
+    doc = await db.training_results.find_one({"id": result_id, "user_id": user["id"]}, {"_id": 0})
+    if not doc:
+        raise HTTPException(404, "Result not found")
+    return doc
+
+
+@api.patch("/training-results/{result_id}/note")
+async def update_training_result_note(result_id: str, body: dict, user=Depends(current_user)):
+    """Update the note on a saved result."""
+    note = body.get("note", "")
+    res = await db.training_results.update_one(
+        {"id": result_id, "user_id": user["id"]},
+        {"$set": {"note": note, "updated_at": now_iso()}},
+    )
+    if res.matched_count == 0:
+        raise HTTPException(404, "Result not found")
+    return {"ok": True}
+
+
+@api.delete("/training-results/{result_id}")
+async def delete_training_result(result_id: str, user=Depends(current_user)):
+    """Delete a saved training result."""
+    res = await db.training_results.delete_one({"id": result_id, "user_id": user["id"]})
+    if res.deleted_count == 0:
+        raise HTTPException(404, "Result not found")
+    return {"ok": True}
+
+
+# =========================================================
 # HEALTH CHECK (P1-HC)
 # =========================================================
 @api.get("/health")
@@ -1507,6 +1586,9 @@ async def on_start():
     # Audit logs index
     await db.audit_logs.create_index([("actor_user_id", 1), ("created_at", -1)])
     await db.audit_logs.create_index([("target_type", 1), ("target_id", 1)])
+    # Training results index
+    await db.training_results.create_index([("user_id", 1), ("created_at", -1)])
+    await db.training_results.create_index("id", unique=True)
     # Password reset tokens index (P1-FP)
     await db.password_reset_tokens.create_index("token_hash", unique=True)
     await db.password_reset_tokens.create_index([("user_id", 1), ("used", 1)])
