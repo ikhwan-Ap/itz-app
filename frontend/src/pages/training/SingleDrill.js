@@ -22,13 +22,40 @@ export default function SingleDrillPage() {
   const [initialOverall, setInitialOverall] = useState(null);
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
+  const [resumeInfo, setResumeInfo] = useState(null);
 
   useEffect(() => {
     api.get("/calculator/meta").then((r) => {
       setMeta(r.data);
-      const init = {};
-      [...(r.data.all_attrs || []), ...(r.data.gk_all_attrs || [])].forEach((a) => (init[a] = 1));
-      setStats(init);
+      const allKeys = [...(r.data.all_attrs || []), ...(r.data.gk_all_attrs || [])];
+      const resumeRaw = sessionStorage.getItem("resume_session");
+      if (resumeRaw) {
+        try {
+          const data = JSON.parse(resumeRaw);
+          if (data.mode === "single" && data.stats) {
+            const init = {};
+            allKeys.forEach((a) => (init[a] = data.stats[a] ?? 1));
+            setStats(init);
+            if (Array.isArray(data.roles) && data.roles.length) setActiveRoles(data.roles);
+            if (data.grey_limit) setGreyLimit(data.grey_limit);
+            if (data.white_multiplier) setWhiteMultiplier(data.white_multiplier);
+            setResumeInfo({ session_number: data.session_number, title: data.title });
+          } else {
+            const init = {};
+            allKeys.forEach((a) => (init[a] = 1));
+            setStats(init);
+          }
+        } catch {
+          const init = {};
+          allKeys.forEach((a) => (init[a] = 1));
+          setStats(init);
+        }
+        sessionStorage.removeItem("resume_session");
+      } else {
+        const init = {};
+        allKeys.forEach((a) => (init[a] = 1));
+        setStats(init);
+      }
     });
   }, []);
 
@@ -120,6 +147,12 @@ export default function SingleDrillPage() {
 
   return (
     <div className="space-y-6" data-testid="single-drill-page">
+      {resumeInfo && (
+        <div className="card-solid p-3 border border-[#38BDF8]/40 bg-[#38BDF8]/5 flex items-center gap-2 text-sm">
+          <span className="badge badge-blue">Lanjutan</span>
+          <span className="text-[#A0AAB5]">Melanjutkan dari Sesi #{resumeInfo.session_number}: <span className="text-white font-semibold">{resumeInfo.title}</span></span>
+        </div>
+      )}
       <div>
         <Link to="/app/training" className="text-xs text-[#A0AAB5] font-semibold hover:text-[#38BDF8] inline-flex items-center gap-1 transition">
           <CaretLeft size={12} /> Modul Latihan

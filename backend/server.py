@@ -1261,10 +1261,16 @@ async def save_training_result(body: TrainingResultSave, user=Depends(current_us
             )
 
     auto_title = body.title or f"{body.mode.upper()} — {', '.join(body.roles[:3]) or 'Custom'} — {datetime.now(timezone.utc).strftime('%d %b %Y %H:%M')}"
+    # Auto session number per user
+    last_session = await db.training_results.find_one(
+        {"user_id": user["id"]}, {"session_number": 1}, sort=[("session_number", -1)]
+    )
+    session_number = (last_session.get("session_number", 0) if last_session else 0) + 1
     doc = {
         "id": uid(),
         "user_id": user["id"],
         "user_email": user["email"],
+        "session_number": session_number,
         "title": auto_title,
         "mode": body.mode,
         "position": body.position,

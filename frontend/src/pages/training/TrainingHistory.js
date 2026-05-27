@@ -4,7 +4,7 @@ import { api, formatApiErrorDetail } from "@/lib/api";
 import { motion } from "framer-motion";
 import {
   ClockCounterClockwise, CaretLeft, Trash, NotePencil, ArrowRight,
-  Target, Crosshair, Shield, Lightning, X, Check,
+  Target, Crosshair, Shield, Lightning, X, Check, Play,
 } from "@phosphor-icons/react";
 import ResponsiveTable from "@/components/ResponsiveTable";
 
@@ -28,7 +28,7 @@ function ModeTag({ mode }) {
 // =========================================================
 // RESULT DETAIL MODAL (P2-SR-05 / P2-HL-03)
 // =========================================================
-function ResultDetailModal({ result, onClose, onDelete, onNoteUpdate }) {
+function ResultDetailModal({ result, onClose, onDelete, onNoteUpdate, onResume }) {
   const [note, setNote] = useState(result.note || "");
   const [editingNote, setEditingNote] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -136,10 +136,13 @@ function ResultDetailModal({ result, onClose, onDelete, onNoteUpdate }) {
         )}
 
         <div className="flex gap-2 pt-2 border-t border-white/[0.06]">
+          <button onClick={() => onResume(result)} className="btn-primary !text-xs flex-1" data-testid="resume-training-btn">
+            <Play size={14} weight="fill" className="inline mr-1" /> Lanjutkan Latihan
+          </button>
           <button onClick={() => onDelete(result.id)} className="btn-danger !text-xs">
             <Trash size={14} className="inline mr-1" /> Hapus
           </button>
-          <button onClick={onClose} className="btn-outline flex-1 !text-xs">Tutup</button>
+          <button onClick={onClose} className="btn-outline !text-xs">Tutup</button>
         </div>
       </div>
     </div>
@@ -191,7 +194,27 @@ export default function TrainingHistory() {
     if (selected?.id === id) setSelected((s) => ({ ...s, note }));
   };
 
+  const handleResume = (result) => {
+    const modeRoutes = { full: "/app/training/full", single: "/app/training/single", gk: "/app/training/gk" };
+    const route = modeRoutes[result.mode] || modeRoutes.full;
+    sessionStorage.setItem("resume_session", JSON.stringify({
+      stats: result.final_stats,
+      roles: result.roles || [],
+      grey_limit: result.grey_limit,
+      white_multiplier: result.white_multiplier,
+      mode: result.mode,
+      session_number: result.session_number,
+      title: result.title,
+    }));
+    nav(route);
+  };
+
   const columns = [
+    {
+      key: "session",
+      label: "#",
+      render: (r) => <span className="font-display font-bold text-[#38BDF8]">#{r.session_number || "—"}</span>,
+    },
     {
       key: "mode",
       label: "Sesi",
@@ -310,6 +333,7 @@ export default function TrainingHistory() {
           onClose={() => setSelected(null)}
           onDelete={handleDelete}
           onNoteUpdate={handleNoteUpdate}
+          onResume={handleResume}
         />
       )}
     </div>
