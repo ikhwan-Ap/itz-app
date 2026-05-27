@@ -342,9 +342,12 @@ export function ResultSection({ result, meta, bonus, stats, gkMode = false, init
         ) : (
           <div className="relative timeline">
             {result.history.map((h, i) => (
-              <DrillCard key={i} drill={h} whiteSet={whiteSet}
+              <DrillCard key={i} drill={h} drillIndex={i} totalDrills={result.history.length} whiteSet={whiteSet}
                 expanded={!!expanded[i]}
-                onToggle={() => setExpanded((e) => ({ ...e, [i]: !e[i] }))} />
+                onToggle={() => setExpanded((e) => ({ ...e, [i]: !e[i] }))}
+                showCheckpoint={savePayload?.mode !== "single"}
+                gkMode={gkMode}
+                computeCheckpoint={() => buildCheckpoint(result, i, gkMode, savePayload, stats)} />
             ))}
           </div>
         )}
@@ -355,12 +358,62 @@ export function ResultSection({ result, meta, bonus, stats, gkMode = false, init
   );
 }
 
-function DrillCard({ drill, whiteSet, expanded, onToggle }) {
+function buildCheckpoint(result, drillIndex, gkMode, savePayload, stats) {
+  // Build a checkpoint payload up-to-and-including drill at drillIndex
+  const sliced = result.history.slice(0, drillIndex + 1);
+  const lastDrill = sliced[sliced.length - 1];
+  // Snapshot at the END of this drill = last step.snapshot of the drill
+  const lastStep = lastDrill.steps?.[lastDrill.steps.length - 1];
+  const snapshot = lastStep?.snapshot || {};
+  // Merge snapshot over original final_stats so all attrs present
+  const partialFinal = { ...(result.final_stats || {}) };
+  // For attrs touched up to this drill, use snapshot; for others use original starting stats
+  Object.keys(partialFinal).forEach((k) => {
+    if (snapshot[k] != null) partialFinal[k] = snapshot[k];
+    else partialFinal[k] = parseInt(stats[k]) || 1;
+  });
+  const totalCost = sliced.reduce((sum, d) => {
+    return sum + (d.steps?.length || 0) * (d.cost || 0);
+  }, 0);
+  // Approx overall = avg of all final_stats / 15 (same logic as backend)
+  const total = Object.values(partialFinal).reduce((s, v) => s + (parseInt(v) || 0), 0);
+  const overall = Math.round(total / 15);
+  return {
+    ...(savePayload || { mode: gkMode ? "gk" : "full", roles: result.white_set, input_stats: stats, targets: [], grey_limit: 40, white_multiplier: 1 }),
+    final_stats: partialFinal,
+    overall,
+    total_cost: lastDrill.endAvg ? sliced.length * 1.5 : totalCost,  // fallback
+    history: sliced,
+    white_set: result.white_set,
+  };
+}
+
+function DrillCard({ drill, drillIndex, totalDrills, whiteSet, expanded, onToggle, showCheckpoint, gkMode, computeCheckpoint }) {
+  const [saveState, setSaveState] = React.useState("idle");
+  const [saveErr, setSaveErr] = React.useState("");
+  const handleCheckpoint = async () => {
+    if (saveState === "saved" || saveState === "saving") return;
+    setSaveState("saving"); setSaveErr("");
+    try {
+      const payload = computeCheckpoint();
+      payload.title = `${gkMode ? "GK" : "FULL"} — Sesi sampai drill ${drillIndex + 1}/${totalDrills} — ${drill.drill}`;
+      payload.note = `Checkpoint setelah drill: ${drill.drill}`;
+      await api.post("/training-results", payload);
+      setSaveState("saved");
+    } catch (e) {
+      setSaveErr(formatApiErrorDetail(e.response?.data?.detail) || e.message);
+      setSaveState("error");
+    }
+  };
   return (
     <div className="timeline-item mb-4" data-testid={`drill-item-${drill.drill}`}>
-      <div className="card-solid p-4">
+      <div className={`card-solid p-4 ${gkMode ? "border-l-4 border-[#10b981]" : "border-l-4 border-[#38BDF8]"}`}>
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="font-display font-bold text-lg text-white">{drill.drill}</div>
+          <div className="font-display font-bold text-lg text-white flex items-center gap-2">
+            {gkMode && <span className="badge" style={{background:"#10b98120",color:"#10b981",border:"1px solid #10b98140"}}>GK</span>}
+            {!gkMode && <span className="badge badge-blue">FULL</span>}
+            <span>#{drillIndex + 1} {drill.drill}</span>
+          </div>
           <div className="flex gap-2 items-center">
             <span className="badge badge-navy">P{drill.prioLevel}</span>
             <span className="badge badge-navy">{drill.size} attr</span>
@@ -381,6 +434,22 @@ function DrillCard({ drill, whiteSet, expanded, onToggle }) {
             </span>
           ))}
         </div>
+        {showCheckpoint && (
+          <div className="mt-3 pt-3 border-t border-white/[0.06] flex items-center gap-2 flex-wrap">
+            <button
+              onClick={handleCheckpoint}
+              disabled={saveState === "saving" || saveState === "saved"}
+              className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded text-xs font-bold transition ${
+                saveState === "saved" ? "bg-[#3FCA7C]/20 text-[#3FCA7C]" : saveState === "error" ? "bg-[#E50914]/20 text-[#ff8aa0]" : "bg-[#38BDF8]/15 text-[#38BDF8] hover:bg-[#38BDF8]/25"
+              }`}
+              data-testid={`drill-save-checkpoint-${drillIndex}`}
+            >
+              {saveState === "saving" && <span className="spinner-xs" />}
+              {saveState === "saved" ? "Tersimpan" : saveState === "error" ? "Gagal" : "Simpan sampai sini"}
+            </button>
+            {saveErr && <span className="text-[10px] text-[#ff8aa0]">{saveErr}</span>}
+          </div>
+        )}
         <AnimatePresence>
           {expanded && drill.steps?.length > 0 && (
             <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: "auto", opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.3 }} className="overflow-hidden mt-3 pt-3 border-t border-[#38BDF8]/15">
