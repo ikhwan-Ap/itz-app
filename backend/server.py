@@ -234,6 +234,7 @@ async def register(body: UserRegister, request: Request, response: Response):
         "package_id": body.package_id,
         "expires_at": None,
         "max_clicks": pkg.get("max_clicks"),
+        "max_history": 15,
         "clicks_used": 0,
         "created_by": None,
         "created_at": now_iso(),
@@ -556,6 +557,7 @@ async def admin_create_user(body: AdminCreateUser, user=Depends(require_role("ad
         "package_id": body.package_id,
         "expires_at": body.expires_at if body.expires_at else None,
         "max_clicks": body.max_clicks,
+        "max_history": 15,
         "clicks_used": 0,
         "created_by": user["id"],
         "is_trial": body.is_trial,
@@ -800,6 +802,7 @@ async def approve_tx(tx_id: str, body: TransactionApprove, user=Depends(require_
             "package_id": tx["package_id"],
             "expires_at": expires_at,
             "max_clicks": pkg.get("max_clicks"),
+            "max_history": 15,
             "clicks_used": 0,
         }},
     )
@@ -1234,11 +1237,8 @@ async def save_training_result(body: TrainingResultSave, user=Depends(current_us
         raise HTTPException(403, "Not allowed")
 
     # Limit: max saved sessions per user (admin/superadmin exempt)
-    # Priority: user.max_history (per-user override) > env MAX_HISTORY_PER_USER > default 15
     if user["role"] == "user":
-        user_cap = user.get("max_history")
-        if user_cap is None:
-            user_cap = int(os.environ.get("MAX_HISTORY_PER_USER", 15))
+        user_cap = user.get("max_history", 15)
         existing_count = await db.training_results.count_documents({"user_id": user["id"]})
         if existing_count >= int(user_cap):
             raise HTTPException(
@@ -1294,10 +1294,8 @@ async def list_training_results(
         q,
         {"_id": 0, "history": 0},  # exclude heavy history from list view
     ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    # Capacity info — per-user override on user doc, else global env, else default 15
-    user_cap = user.get("max_history")
-    if user_cap is None:
-        user_cap = int(os.environ.get("MAX_HISTORY_PER_USER", 15))
+    # Capacity info
+    user_cap = user.get("max_history", 15)
     is_unlimited = user["role"] in ("admin", "superadmin")
     total_saved = await db.training_results.count_documents({"user_id": user["id"]})
     return {
