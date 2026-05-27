@@ -68,6 +68,7 @@ class UserUpdate(BaseModel):
     status: Optional[str] = None
     expires_at: Optional[str] = None
     max_clicks: Optional[int] = None
+    max_history: Optional[int] = None
     package_id: Optional[str] = None
 
 

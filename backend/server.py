@@ -1234,14 +1234,16 @@ async def save_training_result(body: TrainingResultSave, user=Depends(current_us
         raise HTTPException(403, "Not allowed")
 
     # Limit: max saved sessions per user (admin/superadmin exempt)
-    # Configurable via env: MAX_HISTORY_PER_USER (default 15)
-    MAX_HISTORY_PER_USER = int(os.environ.get("MAX_HISTORY_PER_USER", 15))
+    # Priority: user.max_history (per-user override) > env MAX_HISTORY_PER_USER > default 15
     if user["role"] == "user":
+        user_cap = user.get("max_history")
+        if user_cap is None:
+            user_cap = int(os.environ.get("MAX_HISTORY_PER_USER", 15))
         existing_count = await db.training_results.count_documents({"user_id": user["id"]})
-        if existing_count >= MAX_HISTORY_PER_USER:
+        if existing_count >= int(user_cap):
             raise HTTPException(
                 400,
-                f"Batas {MAX_HISTORY_PER_USER} sesi tersimpan tercapai. Hapus sesi lama atau hubungi admin untuk menambah kapasitas.",
+                f"Batas {int(user_cap)} sesi tersimpan tercapai. Hapus sesi lama atau hubungi admin untuk menambah kapasitas.",
             )
 
     auto_title = body.title or f"{body.mode.upper()} — {', '.join(body.roles[:3]) or 'Custom'} — {datetime.now(timezone.utc).strftime('%d %b %Y %H:%M')}"
@@ -1292,7 +1294,21 @@ async def list_training_results(
         q,
         {"_id": 0, "history": 0},  # exclude heavy history from list view
     ).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    return {"items": items, "meta": _paginate_meta(page, limit, total)}
+    # Capacity info — per-user override on user doc, else global env, else default 15
+    user_cap = user.get("max_history")
+    if user_cap is None:
+        user_cap = int(os.environ.get("MAX_HISTORY_PER_USER", 15))
+    is_unlimited = user["role"] in ("admin", "superadmin")
+    total_saved = await db.training_results.count_documents({"user_id": user["id"]})
+    return {
+        "items": items,
+        "meta": _paginate_meta(page, limit, total),
+        "capacity": {
+            "max": None if is_unlimited else int(user_cap),
+            "used": total_saved,
+            "unlimited": is_unlimited,
+        },
+    }
 
 
 @api.get("/training-results/{result_id}")

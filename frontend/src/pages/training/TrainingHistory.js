@@ -152,6 +152,7 @@ function ResultDetailModal({ result, onClose, onDelete, onNoteUpdate }) {
 export default function TrainingHistory() {
   const [items, setItems] = useState([]);
   const [meta, setMeta] = useState(null);
+  const [capacity, setCapacity] = useState(null);
   const [page, setPage] = useState(1);
   const [modeFilter, setModeFilter] = useState("");
   const [loading, setLoading] = useState(false);
@@ -166,6 +167,7 @@ export default function TrainingHistory() {
       const r = await api.get(`/training-results?${params}`);
       setItems(r.data.items || []);
       setMeta(r.data.meta);
+      if (r.data.capacity) setCapacity(r.data.capacity);
     } catch (e) {
       // silent
     } finally { setLoading(false); }
@@ -248,14 +250,24 @@ export default function TrainingHistory() {
           <div className="badge badge-blue">HISTORY</div>
         </div>
         <h1 className="section-title text-3xl">Riwayat Latihan</h1>
-        <p className="text-[#A0AAB5] text-sm mt-1">Semua hasil simulasi yang pernah Anda simpan. Maks 15 sesi tersimpan — hubungi admin untuk menambah kapasitas.</p>
+        <p className="text-[#A0AAB5] text-sm mt-1">
+          Semua hasil simulasi yang pernah Anda simpan.
+          {capacity && !capacity.unlimited && capacity.max && (
+            <> Maks {capacity.max} sesi tersimpan — hubungi admin untuk menambah kapasitas.</>
+          )}
+        </p>
       </div>
 
       {/* Capacity badge */}
-      {meta?.total != null && (
+      {capacity && !capacity.unlimited && capacity.max && (
         <div className="text-xs text-[#5a5a6a]">
-          <span className={meta.total >= 15 ? "text-[#ff8aa0] font-bold" : ""}>{meta.total}</span> / 15 sesi tersimpan
-          {meta.total >= 15 && <span className="ml-2 text-[#ff8aa0]">— hapus sesi lama untuk menyimpan baru.</span>}
+          <span className={capacity.used >= capacity.max ? "text-[#ff8aa0] font-bold" : ""}>{capacity.used}</span> / {capacity.max} sesi tersimpan
+          {capacity.used >= capacity.max && <span className="ml-2 text-[#ff8aa0]">— hapus sesi lama untuk menyimpan baru.</span>}
+        </div>
+      )}
+      {capacity?.unlimited && (
+        <div className="text-xs text-[#5a5a6a]">
+          <span className="text-[#3FCA7C] font-bold">{capacity.used}</span> sesi tersimpan (unlimited)
         </div>
       )}
 
