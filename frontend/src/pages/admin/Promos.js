@@ -152,9 +152,9 @@ function PromoModal({ modal, marketers, packages, isAdmin, err, onClose, onSave 
             <div><label className="label-std">Valid Until</label><input type="date" className="input-std" value={form.valid_until ? form.valid_until.slice(0, 10) : ""} onChange={(e) => setForm({ ...form, valid_until: e.target.value ? new Date(e.target.value).toISOString() : "" })} /></div>
           </div>
           <div>
-            <label className="label-std">Nempel ke Paket (opsional — kosongkan untuk berlaku semua paket)</label>
-            <select className="input-std" value={form.package_id || ""} onChange={(e) => setForm({ ...form, package_id: e.target.value })} data-testid="promo-package-select">
-              <option value="">— Semua paket —</option>
+            <label className="label-std">Nempel ke Paket <span className="text-[#E50914]">*</span></label>
+            <select required className="input-std" value={form.package_id || ""} onChange={(e) => setForm({ ...form, package_id: e.target.value })} data-testid="promo-package-select">
+              <option value="">— Pilih paket —</option>
               {packages.filter((p) => p.active).map((p) => <option key={p.id} value={p.id}>{p.name} (Rp {Number(p.price).toLocaleString("id-ID")})</option>)}
             </select>
           </div>

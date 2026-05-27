@@ -677,6 +677,11 @@ async def create_promo(body: PromoCreate, user=Depends(current_user)):
     if await db.promos.find_one({"code": code}):
         raise HTTPException(400, "Code already exists")
 
+    # Validate package_id (required)
+    pkg = await db.packages.find_one({"id": body.package_id, "active": True}, {"_id": 0})
+    if not pkg:
+        raise HTTPException(400, "Paket tidak valid atau tidak aktif")
+
     owner_id = body.owner_marketing_id
     if user["role"] == "marketing":
         owner_id = user["id"]  # marketing can only create their own codes
