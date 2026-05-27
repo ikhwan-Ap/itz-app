@@ -46,8 +46,10 @@ backend/
 
 ### Phase 1: Foundation (no code moves)
 - [x] Plan documented
-- [ ] Create `core/` and `routes/` folders with `__init__.py`
-- [ ] Verify production endpoints still work (baseline smoke test)
+- [x] Create `core/` and `routes/` folders with `__init__.py`
+- [x] Extract `routes/health.py` (proof of concept)
+- [x] Verify production endpoints still work (baseline smoke test)
+- [x] Baseline commit: `426d05b`
 
 ### Phase 2: Extract `core/` helpers
 - [ ] `core/config.py` — env, mongo client, app instance
@@ -111,3 +113,57 @@ Server `.git` always tracks main, so rollback is immediate.
 | Auth dependency lost | Test each protected endpoint after move |
 | Production downtime | Each commit is isolated, rollback = 30 sec |
 | Frontend breaks | Test frontend manually after each phase |
+
+---
+
+## Next Session Continuation Guide
+
+**Baseline state (commit `426d05b`):**
+- `backend/core/__init__.py` — empty placeholder
+- `backend/routes/__init__.py` — empty placeholder
+- `backend/routes/health.py` — extracted, working in production
+- `backend/server.py` — still has ~1550 lines (everything except health)
+
+**Pattern proven** with `routes/health.py`:
+1. Create `routes/<name>.py` with `init_<name>_routes(deps...)` factory function
+2. Factory takes `client`, `db`, and any other shared state, returns `APIRouter`
+3. In `server.py`: `from routes.<name> import init_<name>_routes` then `api.include_router(init_<name>_routes(...))`
+4. Delete the old endpoints from `server.py`
+5. Commit, deploy, smoke test
+
+**Per-module deployment checklist:**
+```bash
+# Lokal
+git add backend/routes/<name>.py backend/server.py
+git commit -m "refactor: extract <name> routes to routes/<name>.py"
+git push origin main
+
+# Server
+ssh itzadmin@itz-prod "cd /var/www/itz-app && sudo git pull origin main && sudo systemctl restart itz-backend"
+
+# Verify
+curl https://indotimezone.store/api/<endpoint>  # quick smoke
+```
+
+**Order to extract (from safest to riskiest):**
+1. `notifications.py` — 3 endpoints, shared helper `_create_notification` should move to `core/notify.py` (used by auth, transactions, events)
+2. `payment_config.py` — 2 endpoints, isolated
+3. `cms.py` — 8 endpoints (news + events + event-registrations)
+4. `dashboard.py` — 3 endpoints, depends on transactions/users data
+5. `calculator.py` route — 2 endpoints, also need `_update_streak` to move to `core/streak.py`
+6. `training.py` — 5 endpoints, uses `max_history` config
+7. `transactions.py` — 3 endpoints, uses `_create_notification`, `_audit_log`
+8. `promos.py` — 5 endpoints, uses `_audit_log`
+9. `packages.py` — 4 endpoints
+10. `users.py` — 4 endpoints, uses `_audit_log`
+11. `auth_routes.py` — 7 endpoints (LAST — most critical, includes register/login/forgot)
+
+**Helpers to extract to `core/`:**
+- `_audit_log` → `core/audit.py` (used by users, transactions, promos, password reset)
+- `_create_notification` → `core/notify.py` (used by auth register, transactions, events)
+- `_update_streak` → `core/streak.py` (used by calculator)
+- `_rate_check` → `core/ratelimit.py` (used by calculator, promos validate, register)
+- `_paginate_meta` → `core/pagination.py` (used by all list endpoints)
+- `current_user`, `require_role`, `_is_admin`, `_parse_dt`, `_sanitize_user` → `core/deps.py`
+
+**Estimated remaining work:** 30-40 minutes if no errors. Each module = 1 commit + 1 deploy + 1 smoke test.
