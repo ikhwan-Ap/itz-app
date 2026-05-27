@@ -913,93 +913,11 @@ api.include_router(dashboard_router)
 
 
 # =========================================================
-# CALCULATOR
+# CALCULATOR — extracted to routes/calculator.py
 # =========================================================
-@api.get("/calculator/meta")
-async def calc_meta():
-    return {
-        "drills": DRILLS_DB,
-        "roles": ROLES_DB,
-        "attrs": ATTR_GROUPS,
-        "all_attrs": FIELD_ALL_ATTRS,
-        "gk_attrs": GK_ATTR_GROUPS,
-        "gk_all_attrs": GK_ALL_ATTRS,
-    }
-
-
-@api.post("/calculator/run")
-async def calc_run(body: CalculatorRunRequest, request: Request, user=Depends(current_user)):
-    # Rate limit: 20 req/min per user (P1-RL-05)
-    rl_key = f"calc_run:{user['id']}"
-    if not _rate_check(rl_key, max_requests=20, window_seconds=60):
-        raise HTTPException(429, "Terlalu banyak simulasi. Tunggu sebentar.")
-    # Check expiry / click limits for user role
-    if user["role"] == "user":
-        if user.get("status") != "active":
-            raise HTTPException(403, "Account not active")
-        if user.get("expires_at"):
-            try:
-                exp = _parse_dt(user["expires_at"])
-                if exp < datetime.now(timezone.utc):
-                    raise HTTPException(403, "Package expired")
-            except (ValueError, TypeError):
-                pass
-        if user.get("max_clicks") is not None:
-            used = user.get("clicks_used", 0)
-            if used >= user["max_clicks"]:
-                raise HTTPException(403, "Trial click limit reached")
-
-    # Build white-set from roles
-    white_set = set()
-    for r in body.roles:
-        for a in ROLES_DB.get(r, []):
-            white_set.add(a)
-
-    # Strip bonus from white attrs (frontend may send visible/bonus-inclusive values)
-    init_stats = {}
-    for a in ALL_ATTRS:
-        val = int(body.stats.get(a, 1))
-        if a in white_set:
-            val = max(1, val - int(body.bonus or 0))
-        init_stats[a] = val
-
-    # Run simulator
-    drill_filter = [body.single_drill] if body.single_drill else None
-    is_gk = "GK" in body.roles
-    result = simulate_sniper(
-        init_stats=init_stats,
-        white_set=white_set,
-        targets=body.targets,
-        grey_limit=int(body.grey_limit or 40),
-        drill_filter=drill_filter,
-        white_multiplier=int(body.white_multiplier or 1),
-        valid_attrs=set(GK_ALL_ATTRS) if is_gk else set(FIELD_ALL_ATTRS),
-        soft_grey_cap=bool(drill_filter),  # single drill: grey attrs already capped don't block
-    )
-
-    # Compute overall %
-    score_attrs = GK_ALL_ATTRS if is_gk else FIELD_ALL_ATTRS
-    final_vals = {}
-    for a in score_attrs:
-        v = int(result["stats"].get(a, 1))
-        if a in white_set:
-            v += int(body.bonus or 0)
-        final_vals[a] = v
-    total = sum(final_vals.values())
-    overall = round(total / 15)
-
-    # Increment click count + streak
-    if user["role"] == "user":
-        await _update_streak(user["id"])
-        await db.users.update_one({"id": user["id"]}, {"$inc": {"clicks_used": 1}})
-
-    return {
-        "history": result["history"],
-        "final_stats": final_vals,
-        "overall": overall,
-        "total_cost": result["totalCost"],
-        "white_set": list(white_set),
-    }
+from routes.calculator import init_calculator_routes
+calc_router = init_calculator_routes(db, current_user, _rate_check, _parse_dt, _update_streak)
+api.include_router(calc_router)
 
 
 # =========================================================
