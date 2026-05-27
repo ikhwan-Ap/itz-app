@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { api, formatApiErrorDetail } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { Plus, Pencil, Trash, X } from "@phosphor-icons/react";
+import { Plus, Pencil, Trash, X, Copy, Check } from "@phosphor-icons/react";
 import ResponsiveTable from "@/components/ResponsiveTable";
 
 export default function AdminPromos() {
@@ -9,6 +9,9 @@ export default function AdminPromos() {
   const [items, setItems] = useState([]);
   const [marketers, setMarketers] = useState([]);
   const [packages, setPackages] = useState([]);
+  const [packageFilter, setPackageFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [copiedCode, setCopiedCode] = useState("");
   const [modal, setModal] = useState(null);
   const [err, setErr] = useState("");
 
@@ -23,7 +26,21 @@ export default function AdminPromos() {
       setMarketers((u.data.items || u.data || []).filter((x) => x.role === "marketing"));
     }
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, []);
+
+  const copyCode = (code) => {
+    navigator.clipboard?.writeText(code).then(() => {
+      setCopiedCode(code);
+      setTimeout(() => setCopiedCode(""), 1500);
+    });
+  };
+
+  const filtered = items.filter((p) => {
+    if (packageFilter && p.package_id !== packageFilter) return false;
+    if (statusFilter === "active" && !p.active) return false;
+    if (statusFilter === "inactive" && p.active) return false;
+    return true;
+  });
 
   const save = async (data) => {
     setErr("");
