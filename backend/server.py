@@ -181,6 +181,10 @@ async def _audit_log(
 # =========================================================
 @api.post("/auth/register")
 async def register(body: UserRegister, request: Request, response: Response):
+    # Rate limit: 3 register attempts per IP per 10 min (prevent mass registration)
+    ip = request.client.host if request.client else "unknown"
+    if not _rate_check(f"register:{ip}", max_requests=3, window_seconds=600):
+        raise HTTPException(429, "Terlalu banyak percobaan registrasi. Coba lagi dalam 10 menit.")
     if body.password != body.password2:
         raise HTTPException(400, "Password dan 2nd password harus sama")
     if len(body.password) < 6:
