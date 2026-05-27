@@ -177,6 +177,24 @@ async def _audit_log(
 
 
 # =========================================================
+# NOTIFICATIONS HELPER (used by auth, transactions, events)
+# =========================================================
+async def _create_notification(user_id: str, ntype: str, title: str, body: str = "", link: str = ""):
+    doc = {
+        "id": uid(),
+        "user_id": user_id,
+        "type": ntype,
+        "title": title,
+        "body": body,
+        "link": link,
+        "read": False,
+        "created_at": now_iso(),
+    }
+    await db.notifications.insert_one(doc)
+    return doc
+
+
+# =========================================================
 # AUTH — extracted to routes/auth_routes.py
 # =========================================================
 from routes.auth_routes import init_auth_routes
@@ -262,25 +280,6 @@ api.include_router(calc_router)
 from routes.training import init_training_routes
 training_router = init_training_routes(db, current_user)
 api.include_router(training_router)
-
-
-
-# =========================================================
-# NOTIFICATIONS
-# =========================================================
-async def _create_notification(user_id: str, ntype: str, title: str, body: str = "", link: str = ""):
-    doc = {
-        "id": uid(),
-        "user_id": user_id,
-        "type": ntype,
-        "title": title,
-        "body": body,
-        "link": link,
-        "read": False,
-        "created_at": now_iso(),
-    }
-    await db.notifications.insert_one(doc)
-    return doc
 
 
 # =========================================================
