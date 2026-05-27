@@ -104,7 +104,8 @@ class PromoCreate(BaseModel):
     discount_value: float = 0
     max_uses: Optional[int] = None
     valid_until: Optional[str] = None  # ISO
-    owner_marketing_id: Optional[str] = None  # if null, not attributed
+    package_id: Optional[str] = None  # if set, promo only valid for this package
+    owner_marketing_id: Optional[str] = None  # superadmin assigns marketing attribution
     active: bool = True
 
 
@@ -113,6 +114,7 @@ class PromoUpdate(BaseModel):
     discount_value: Optional[float] = None
     max_uses: Optional[int] = None
     valid_until: Optional[str] = None
+    package_id: Optional[str] = None
     owner_marketing_id: Optional[str] = None
     active: Optional[bool] = None
 

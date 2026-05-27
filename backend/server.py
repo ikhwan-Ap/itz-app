@@ -205,6 +205,8 @@ async def register(body: UserRegister, request: Request, response: Response):
         promo = await db.promos.find_one({"code": body.promo_code.upper(), "active": True}, {"_id": 0})
         if not promo:
             raise HTTPException(400, "Invalid promo code")
+        if promo.get("package_id") and promo["package_id"] != body.package_id:
+            raise HTTPException(400, "Promo code tidak berlaku untuk paket ini")
         now = datetime.now(timezone.utc)
         if promo.get("valid_until"):
             vu = _parse_dt(promo["valid_until"])
@@ -686,6 +688,7 @@ async def create_promo(body: PromoCreate, user=Depends(current_user)):
         "discount_value": body.discount_value,
         "max_uses": body.max_uses,
         "valid_until": body.valid_until,
+        "package_id": body.package_id,
         "owner_marketing_id": owner_id,
         "active": body.active,
         "uses": 0,
@@ -732,6 +735,8 @@ async def validate_promo(code: str, package_id: str, request: Request):
     pkg = await db.packages.find_one({"id": package_id, "active": True}, {"_id": 0})
     if not pkg:
         raise HTTPException(404, "Invalid package")
+    if promo.get("package_id") and promo["package_id"] != package_id:
+        raise HTTPException(400, "Promo code tidak berlaku untuk paket ini")
     now = datetime.now(timezone.utc)
     if promo.get("valid_until"):
         if _parse_dt(promo["valid_until"]) < now:

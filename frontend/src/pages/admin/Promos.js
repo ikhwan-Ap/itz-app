@@ -8,6 +8,7 @@ export default function AdminPromos() {
   const { user } = useAuth();
   const [items, setItems] = useState([]);
   const [marketers, setMarketers] = useState([]);
+  const [packages, setPackages] = useState([]);
   const [modal, setModal] = useState(null);
   const [err, setErr] = useState("");
 
@@ -15,6 +16,8 @@ export default function AdminPromos() {
 
   const load = async () => {
     const r = await api.get("/promos"); setItems(r.data.items || r.data || []);
+    const p = await api.get("/packages");
+    setPackages(p.data.items || p.data || []);
     if (isAdmin) {
       const u = await api.get("/users");
       setMarketers((u.data.items || u.data || []).filter((x) => x.role === "marketing"));
@@ -59,8 +62,12 @@ export default function AdminPromos() {
       render: (p) => <>{p.uses || 0}{p.max_uses ? ` / ${p.max_uses}` : ""}</>,
     },
     {
-      key: "owner", label: "Owner (Mkt)",
+      key: "owner", label: "Marketing",
       render: (p) => p.owner_marketing_id ? (marketers.find((m) => m.id === p.owner_marketing_id)?.name || p.owner_marketing_id.slice(0, 6)) : "-",
+    },
+    {
+      key: "package", label: "Paket",
+      render: (p) => p.package_id ? (packages.find((pk) => pk.id === p.package_id)?.name || "—") : "Semua paket",
     },
     {
       key: "valid_until", label: "Valid Until",
@@ -100,13 +107,13 @@ export default function AdminPromos() {
       />
 
       {modal && (
-        <PromoModal modal={modal} marketers={marketers} isAdmin={isAdmin} err={err} onClose={() => setModal(null)} onSave={save} />
+        <PromoModal modal={modal} marketers={marketers} packages={packages} isAdmin={isAdmin} err={err} onClose={() => setModal(null)} onSave={save} />
       )}
     </div>
   );
 }
 
-function PromoModal({ modal, marketers, isAdmin, err, onClose, onSave }) {
+function PromoModal({ modal, marketers, packages, isAdmin, err, onClose, onSave }) {
   const [form, setForm] = useState(modal.data);
   const submit = (e) => {
     e.preventDefault();
@@ -116,6 +123,7 @@ function PromoModal({ modal, marketers, isAdmin, err, onClose, onSave }) {
     else payload.max_uses = parseInt(payload.max_uses);
     if (!payload.valid_until) payload.valid_until = null;
     if (payload.owner_marketing_id === "") payload.owner_marketing_id = null;
+    if (payload.package_id === "") payload.package_id = null;
     onSave(payload);
   };
   return (
@@ -142,6 +150,13 @@ function PromoModal({ modal, marketers, isAdmin, err, onClose, onSave }) {
           <div className="grid grid-cols-2 gap-3">
             <div><label className="label-std">Max Uses</label><input type="number" className="input-std" value={form.max_uses ?? ""} onChange={(e) => setForm({ ...form, max_uses: e.target.value })} /></div>
             <div><label className="label-std">Valid Until</label><input type="date" className="input-std" value={form.valid_until ? form.valid_until.slice(0, 10) : ""} onChange={(e) => setForm({ ...form, valid_until: e.target.value ? new Date(e.target.value).toISOString() : "" })} /></div>
+          </div>
+          <div>
+            <label className="label-std">Nempel ke Paket (opsional — kosongkan untuk berlaku semua paket)</label>
+            <select className="input-std" value={form.package_id || ""} onChange={(e) => setForm({ ...form, package_id: e.target.value })} data-testid="promo-package-select">
+              <option value="">— Semua paket —</option>
+              {packages.filter((p) => p.active).map((p) => <option key={p.id} value={p.id}>{p.name} (Rp {Number(p.price).toLocaleString("id-ID")})</option>)}
+            </select>
           </div>
           {isAdmin && (
             <div><label className="label-std">Owner Marketing (opsional)</label>
