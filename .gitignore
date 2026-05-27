@@ -31,12 +31,14 @@ mode_*.sh
 setup_server.sh
 CRITICAL_ISSUES.md
 fix_server.sh
+itz-backend.service
 
 # ===== Dokumen Internal (tidak perlu di repo publik) =====
 system_map.md
 REDESIGN_EXECUTION_TRACKER.md
 DASHBOARD_FUTURE_FEATURES.md
 SERVER_DEPLOY_REPORT.md
+DEV_SETUP.md
 
 # ===== Dependencies =====
 node_modules/
