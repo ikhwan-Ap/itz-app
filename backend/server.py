@@ -1232,6 +1232,18 @@ async def save_training_result(body: TrainingResultSave, user=Depends(current_us
     """Save a calculator result for the authenticated user."""
     if user.get("role") not in ("user", "admin", "superadmin"):
         raise HTTPException(403, "Not allowed")
+
+    # Limit: max saved sessions per user (admin/superadmin exempt)
+    # Configurable via env: MAX_HISTORY_PER_USER (default 15)
+    MAX_HISTORY_PER_USER = int(os.environ.get("MAX_HISTORY_PER_USER", 15))
+    if user["role"] == "user":
+        existing_count = await db.training_results.count_documents({"user_id": user["id"]})
+        if existing_count >= MAX_HISTORY_PER_USER:
+            raise HTTPException(
+                400,
+                f"Batas {MAX_HISTORY_PER_USER} sesi tersimpan tercapai. Hapus sesi lama atau hubungi admin untuk menambah kapasitas.",
+            )
+
     auto_title = body.title or f"{body.mode.upper()} — {', '.join(body.roles[:3]) or 'Custom'} — {datetime.now(timezone.utc).strftime('%d %b %Y %H:%M')}"
     doc = {
         "id": uid(),

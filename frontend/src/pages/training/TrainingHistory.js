@@ -53,10 +53,13 @@ function ResultDetailModal({ result, onClose, onDelete, onNoteUpdate }) {
           <div>
             <ModeTag mode={result.mode} />
             <div className="font-display font-bold text-xl mt-1 text-white">
-              {result.position || "—"} · {result.overall}% Overall
+              {result.title || result.position || "Sesi Latihan"}
+            </div>
+            <div className="text-xs text-[#a0a0b0] mt-0.5">
+              {result.overall}% Overall · Cost {result.total_cost} sesi {result.position && `· ${result.position}`}
             </div>
             <div className="text-xs text-[#5a5a6a] mt-0.5">
-              {new Date(result.created_at).toLocaleString("id-ID")} · Cost: {result.total_cost}
+              {new Date(result.created_at).toLocaleString("id-ID")}
             </div>
           </div>
           <button onClick={onClose} className="text-[#5a5a6a] hover:text-white"><X size={20} /></button>
@@ -189,12 +192,13 @@ export default function TrainingHistory() {
   const columns = [
     {
       key: "mode",
-      label: "Mode",
+      label: "Sesi",
       primary: true,
       render: (r) => (
         <div>
           <ModeTag mode={r.mode} />
-          <div className="text-white font-semibold mt-1">{r.position || "—"}</div>
+          <div className="text-white font-semibold mt-1 line-clamp-1">{r.title || r.position || "Tanpa judul"}</div>
+          {r.position && r.title && <div className="text-[10px] text-[#5a5a6a] uppercase tracking-wider mt-0.5">{r.position}</div>}
           {r.note && <div className="text-xs text-[#5a5a6a] mt-0.5 truncate max-w-[180px]">{r.note}</div>}
         </div>
       ),
@@ -244,8 +248,16 @@ export default function TrainingHistory() {
           <div className="badge badge-blue">HISTORY</div>
         </div>
         <h1 className="section-title text-3xl">Riwayat Latihan</h1>
-        <p className="text-[#A0AAB5] text-sm mt-1">Semua hasil simulasi yang pernah Anda simpan.</p>
+        <p className="text-[#A0AAB5] text-sm mt-1">Semua hasil simulasi yang pernah Anda simpan. Maks 15 sesi tersimpan — hubungi admin untuk menambah kapasitas.</p>
       </div>
+
+      {/* Capacity badge */}
+      {meta?.total != null && (
+        <div className="text-xs text-[#5a5a6a]">
+          <span className={meta.total >= 15 ? "text-[#ff8aa0] font-bold" : ""}>{meta.total}</span> / 15 sesi tersimpan
+          {meta.total >= 15 && <span className="ml-2 text-[#ff8aa0]">— hapus sesi lama untuk menyimpan baru.</span>}
+        </div>
+      )}
 
       {/* Filter */}
       <div className="flex gap-2 flex-wrap">
