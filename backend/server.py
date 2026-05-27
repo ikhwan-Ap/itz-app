@@ -616,42 +616,11 @@ api.include_router(notif_router)
 
 
 # =========================================================
-# AUDIT LOGS (P1-AU-06) — superadmin only
+# AUDIT LOGS — extracted inline (1 endpoint, keep simple)
 # =========================================================
-@api.get("/audit-logs")
-async def list_audit_logs(
-    page: int = 1,
-    limit: int = 50,
-    action: str = None,
-    target_type: str = None,
-    actor_user_id: str = None,
-    user=Depends(require_role("superadmin")),
-):
-    """List audit logs — superadmin only. Supports pagination and filtering."""
-    limit = min(limit, 100)
-    skip = (page - 1) * limit
-    q = {}
-    if action:
-        q["action"] = action
-    if target_type:
-        q["target_type"] = target_type
-    if actor_user_id:
-        q["actor_user_id"] = actor_user_id
-
-    total = await db.audit_logs.count_documents(q)
-    items = await db.audit_logs.find(q, {"_id": 0}).sort("created_at", -1).skip(skip).limit(limit).to_list(limit)
-    pages = (total + limit - 1) // limit
-    return {
-        "items": items,
-        "meta": {
-            "page": page,
-            "limit": limit,
-            "total": total,
-            "pages": pages,
-            "has_next": page < pages,
-            "has_prev": page > 1,
-        },
-    }
+from routes.audit_logs import init_audit_routes
+audit_router = init_audit_routes(db, require_role)
+api.include_router(audit_router)
 
 
 # =========================================================
