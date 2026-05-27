@@ -177,28 +177,31 @@ class PaymentConfigUpdate(BaseModel):
 # ========== CALCULATOR ==========
 class CalculatorRunRequest(BaseModel):
     roles: List[str]
-    stats: Dict[str, int]  # current visible values (include bonus)
-    bonus: int = 0
-    grey_limit: int = 40
+    stats: Dict[str, float]  # current visible values (lenient: accept float, coerced to int internally)
+    bonus: float = 0
+    grey_limit: float = 40
     targets: List[Dict[str, Any]]  # [{name, goal, prio}]
     single_drill: Optional[str] = None  # drill name OR None
-    player_age: Optional[int] = 18
-    white_multiplier: int = 1  # how many points white attrs gain per grey unit (1=equal, 2=double)
+    player_age: Optional[float] = 18
+    white_multiplier: float = 1  # how many points white attrs gain per grey unit (1=equal, 2=double)
 
 
 # ========== TRAINING RESULTS (P2-SR) ==========
 class TrainingResultSave(BaseModel):
-    """Payload to save a calculator result."""
+    """Payload to save a calculator result. Lenient typing for frontend flexibility."""
+    model_config = ConfigDict(extra="ignore")
+
     mode: str = "full"                    # full / single / gk
+    title: Optional[str] = None           # custom session name (NEW: user-friendly label)
     position: Optional[str] = None        # e.g. "MC, ST"
     roles: List[str] = []
     input_stats: Dict[str, Any] = {}
     targets: List[Dict[str, Any]] = []
-    grey_limit: int = 40
-    white_multiplier: int = 1
+    grey_limit: float = 40                # accept float to avoid pydantic strict errors
+    white_multiplier: float = 1
     final_stats: Dict[str, Any] = {}
-    overall: int = 0
-    total_cost: int = 0
+    overall: float = 0
+    total_cost: float = 0                 # calculator returns fractional cost
     history: List[Dict[str, Any]] = []
     white_set: List[str] = []
     note: Optional[str] = ""

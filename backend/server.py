@@ -1232,20 +1232,22 @@ async def save_training_result(body: TrainingResultSave, user=Depends(current_us
     """Save a calculator result for the authenticated user."""
     if user.get("role") not in ("user", "admin", "superadmin"):
         raise HTTPException(403, "Not allowed")
+    auto_title = body.title or f"{body.mode.upper()} — {', '.join(body.roles[:3]) or 'Custom'} — {datetime.now(timezone.utc).strftime('%d %b %Y %H:%M')}"
     doc = {
         "id": uid(),
         "user_id": user["id"],
         "user_email": user["email"],
+        "title": auto_title,
         "mode": body.mode,
         "position": body.position,
         "roles": body.roles,
         "input_stats": body.input_stats,
         "targets": body.targets,
-        "grey_limit": body.grey_limit,
-        "white_multiplier": body.white_multiplier,
+        "grey_limit": int(body.grey_limit),
+        "white_multiplier": int(body.white_multiplier),
         "final_stats": body.final_stats,
-        "overall": body.overall,
-        "total_cost": body.total_cost,
+        "overall": int(body.overall),
+        "total_cost": round(body.total_cost, 2),
         "history": body.history,
         "white_set": body.white_set,
         "note": body.note or "",

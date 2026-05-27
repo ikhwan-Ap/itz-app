@@ -228,7 +228,8 @@ export function ResultSection({ result, meta, bonus, stats, gkMode = false, init
   const [saveState, setSaveState] = useState("idle"); // idle | saving | saved | error
   const [saveErr, setSaveErr] = useState("");
   const [note, setNote] = useState("");
-  const [showNoteInput, setShowNoteInput] = useState(false);
+  const [title, setTitle] = useState("");
+  const [showExtra, setShowExtra] = useState(false);
   const whiteSet = new Set(result.white_set);
   const delta = initialOverall != null ? result.overall - initialOverall : null;
 
@@ -237,9 +238,19 @@ export function ResultSection({ result, meta, bonus, stats, gkMode = false, init
     setSaveState("saving");
     setSaveErr("");
     try {
-      const payload = savePayload
-        ? { ...savePayload, final_stats: result.final_stats, overall: result.overall, total_cost: result.total_cost, history: result.history, white_set: result.white_set, note }
-        : { mode: gkMode ? "gk" : "full", roles: result.white_set, input_stats: stats, targets: [], grey_limit: 40, white_multiplier: 1, final_stats: result.final_stats, overall: result.overall, total_cost: result.total_cost, history: result.history, white_set: result.white_set, note };
+      const base = savePayload
+        ? { ...savePayload }
+        : { mode: gkMode ? "gk" : "full", roles: result.white_set, input_stats: stats, targets: [], grey_limit: 40, white_multiplier: 1 };
+      const payload = {
+        ...base,
+        title: title.trim() || null,
+        final_stats: result.final_stats,
+        overall: result.overall,
+        total_cost: result.total_cost,
+        history: result.history,
+        white_set: result.white_set,
+        note,
+      };
       await api.post("/training-results", payload);
       setSaveState("saved");
     } catch (e) {
@@ -262,25 +273,36 @@ export function ResultSection({ result, meta, bonus, stats, gkMode = false, init
 
         {/* Save Result */}
         <div className="mt-5 flex flex-col items-center gap-2">
-          {showNoteInput && saveState !== "saved" && (
-            <input
-              type="text"
-              className="input-std max-w-xs text-sm"
-              placeholder="Catatan (opsional, maks 500 karakter)"
-              value={note}
-              maxLength={500}
-              onChange={(e) => setNote(e.target.value)}
-              data-testid="save-result-note-input"
-            />
+          {showExtra && saveState !== "saved" && (
+            <div className="flex flex-col gap-2 w-full max-w-xs">
+              <input
+                type="text"
+                className="input-std text-sm"
+                placeholder="Judul sesi (opsional, auto-generate jika kosong)"
+                value={title}
+                maxLength={100}
+                onChange={(e) => setTitle(e.target.value)}
+                data-testid="save-result-title-input"
+              />
+              <input
+                type="text"
+                className="input-std text-sm"
+                placeholder="Catatan (opsional, maks 500 karakter)"
+                value={note}
+                maxLength={500}
+                onChange={(e) => setNote(e.target.value)}
+                data-testid="save-result-note-input"
+              />
+            </div>
           )}
           <div className="flex gap-2 justify-center flex-wrap">
             {saveState !== "saved" && (
               <button
-                onClick={() => setShowNoteInput((v) => !v)}
+                onClick={() => setShowExtra((v) => !v)}
                 className="btn-ghost !text-xs"
                 data-testid="save-result-toggle-note"
               >
-                {showNoteInput ? "Sembunyikan catatan" : "Tambah catatan"}
+                {showExtra ? "Sembunyikan detail" : "Tambah judul/catatan"}
               </button>
             )}
             <button
