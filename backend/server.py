@@ -916,6 +916,12 @@ api.include_router(dashboard_router)
 # CALCULATOR — extracted to routes/calculator.py
 # =========================================================
 from routes.calculator import init_calculator_routes
+from core.streak import update_streak as _streak_update
+
+async def _update_streak(user_id: str):
+    """Wrapper for streak update with bound db + parse_dt."""
+    return await _streak_update(db, user_id, _parse_dt)
+
 calc_router = init_calculator_routes(db, current_user, _rate_check, _parse_dt, _update_streak)
 api.include_router(calc_router)
 
@@ -1044,46 +1050,6 @@ async def delete_training_result(result_id: str, user=Depends(current_user)):
         raise HTTPException(404, "Result tidak ditemukan")
     return {"ok": True}
 
-
-# =========================================================
-# STREAK TRACKING
-# =========================================================
-async def _update_streak(user_id: str):
-    """Update user's training streak based on last_training_date."""
-    u = await db.users.find_one({"id": user_id})
-    if not u:
-        return
-    today = datetime.now(timezone.utc).date()
-    last = u.get("last_training_date")
-    last_date = None
-    if last:
-        try:
-            last_date = _parse_dt(last).date()
-        except Exception:
-            last_date = None
-
-    if last_date == today:
-        return  # Already counted today
-
-    current = int(u.get("current_streak", 0) or 0)
-    longest = int(u.get("longest_streak", 0) or 0)
-
-    if last_date and (today - last_date).days == 1:
-        current += 1
-    else:
-        current = 1
-
-    if current > longest:
-        longest = current
-
-    await db.users.update_one(
-        {"id": user_id},
-        {"$set": {
-            "last_training_date": today.isoformat(),
-            "current_streak": current,
-            "longest_streak": longest,
-        }},
-    )
 
 
 # =========================================================
