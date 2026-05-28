@@ -20,6 +20,7 @@ from auth import (
     get_jwt_secret, JWT_ALGORITHM,
 )
 from core.notify import create_notification
+from core.expiry import maybe_warn_expiry
 
 logger = logging.getLogger("tesniper")
 PASSWORD_RESET_TTL_MIN = 60
@@ -268,6 +269,7 @@ def init_auth_routes(db, current_user, require_role, rate_check, parse_dt, sanit
         refresh = create_refresh_token(user["id"])
         set_auth_cookies(response, access, refresh)
 
+        await maybe_warn_expiry(db, user, parse_dt)
         return sanitize_user(user)
 
     @router.post("/auth/logout")
@@ -280,6 +282,7 @@ def init_auth_routes(db, current_user, require_role, rate_check, parse_dt, sanit
         pkg = None
         if user.get("package_id"):
             pkg = await db.packages.find_one({"id": user["package_id"]}, {"_id": 0})
+        await maybe_warn_expiry(db, user, parse_dt)
         return {**user, "package": pkg}
 
     @router.post("/auth/refresh")

@@ -169,19 +169,21 @@ function UserSection({ user }) {
       {exp && daysLeft <= 0 && (
         <div className="bg-[#16161d] border border-[#ef4444]/40 rounded-xl p-4 flex items-center gap-3">
           <Warning size={24} weight="fill" className="text-[#ef4444] shrink-0" />
-          <div>
+          <div className="flex-1">
             <div className="font-semibold text-white">Akun Sudah Expired</div>
-            <div className="text-sm text-[#a0a0b0]">Hubungi admin untuk perpanjang paket.</div>
+            <div className="text-sm text-[#a0a0b0]">Perpanjang paket untuk lanjut latihan.</div>
           </div>
+          <Link to="/app/upgrade" className="btn-primary !py-2 !px-4 !text-xs shrink-0"><ArrowUp size={12} className="inline mr-1" />Perpanjang</Link>
         </div>
       )}
       {expiring && (
         <div className="bg-[#16161d] border border-[#f59e0b]/40 rounded-xl p-4 flex items-center gap-3">
           <Warning size={24} weight="fill" className="text-[#f59e0b] shrink-0" />
-          <div>
+          <div className="flex-1">
             <div className="font-semibold text-white">Akun akan expired dalam {daysLeft} hari</div>
             <div className="text-sm text-[#a0a0b0]">Perpanjang sekarang agar training tidak terputus.</div>
           </div>
+          <Link to="/app/upgrade" className="btn-outline !py-2 !px-4 !text-xs shrink-0"><ArrowUp size={12} className="inline mr-1" />Upgrade</Link>
         </div>
       )}
 
