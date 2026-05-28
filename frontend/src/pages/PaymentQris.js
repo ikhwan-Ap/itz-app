@@ -97,8 +97,16 @@ export default function PaymentQrisPage() {
   );
 
   return (
-    <div className="min-h-[calc(100dvh-160px)] flex flex-col items-center justify-center px-4 py-12" data-testid="payment-qris-page">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-[#0B0C10] flex flex-col items-center justify-center px-4 py-8 relative overflow-hidden" data-testid="payment-qris-page">
+      <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(circle at center, rgba(56,189,248,0.08) 0%, transparent 70%)" }} />
+
+      {/* Minimal header */}
+      <header className="absolute top-0 left-0 right-0 px-6 py-5 flex items-center justify-between z-10">
+        <Link to="/" className="font-display font-black text-lg brand-gradient">ITZ</Link>
+        <Link to="/login" className="text-xs text-[#A0AAB5] hover:text-[#38BDF8] transition">Sudah punya akun? Login</Link>
+      </header>
+
+      <div className="w-full max-w-md relative z-10">
 
         {err && (
           <div className="card-glass p-8 text-center">
