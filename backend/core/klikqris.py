@@ -6,6 +6,8 @@ import requests
 logger = logging.getLogger("tesniper")
 
 KLIKQRIS_BASE_URL = os.environ.get("KLIKQRIS_BASE_URL", "https://klikqris.com/api")
+KLIKQRIS_CREATE_PATH = os.environ.get("KLIKQRIS_CREATE_PATH", "/qrisv2/create")
+KLIKQRIS_STATUS_PATH = os.environ.get("KLIKQRIS_STATUS_PATH", "/qris/status")
 
 
 def _headers():
@@ -13,6 +15,8 @@ def _headers():
     merchant_id = os.environ.get("KLIKQRIS_MERCHANT_ID", "")
     return {
         "Content-Type": "application/json",
+        "Accept": "application/json",
+        "User-Agent": "Mozilla/5.0 (KlikQRIS Adapter; Independent Service)",
         "x-api-key": api_key,
         "id_merchant": merchant_id,
     }
@@ -26,12 +30,12 @@ def create_qris_invoice(order_id: str, amount: int, keterangan: str = "") -> dic
 
     payload = {
         "order_id": order_id,
-        "id_merchant": int(merchant_id) if merchant_id.isdigit() else merchant_id,
+        "id_merchant": merchant_id,  # send as string per adapter convention
         "amount": int(amount),
         "keterangan": keterangan or "",
     }
     try:
-        r = requests.post(f"{KLIKQRIS_BASE_URL}/qris/create", json=payload, headers=_headers(), timeout=15)
+        r = requests.post(f"{KLIKQRIS_BASE_URL}{KLIKQRIS_CREATE_PATH}", json=payload, headers=_headers(), timeout=15)
         r.raise_for_status()
         body = r.json()
         if not body.get("status"):
@@ -45,7 +49,7 @@ def create_qris_invoice(order_id: str, amount: int, keterangan: str = "") -> dic
 def check_qris_status(order_id: str) -> dict:
     """Manually check status of a QRIS transaction."""
     try:
-        r = requests.get(f"{KLIKQRIS_BASE_URL}/qris/status/{order_id}", headers=_headers(), timeout=10)
+        r = requests.get(f"{KLIKQRIS_BASE_URL}{KLIKQRIS_STATUS_PATH}/{order_id}", headers=_headers(), timeout=10)
         r.raise_for_status()
         body = r.json()
         if not body.get("status"):
