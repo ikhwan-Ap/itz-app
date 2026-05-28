@@ -177,7 +177,7 @@ export default function RegisterPage() {
             {ok && <div className="badge badge-green w-full justify-center !py-2" data-testid="register-success"><Check size={14} className="mr-1" />{ok}</div>}
 
             <Turnstile onVerify={onTurnstileVerify} />
-            <button type="submit" disabled={loading || !turnstileToken} className="w-full btn-primary" data-testid="register-submit-btn">
+            <button type="submit" disabled={loading} className="w-full btn-primary" data-testid="register-submit-btn">
               {loading ? "Processing..." : "Daftar & Kirim ke Approval"}
             </button>
           </form>

@@ -64,7 +64,7 @@ export default function LoginPage() {
               <div className="badge badge-red w-full justify-center !py-2" data-testid="login-error">{err}</div>
             )}
             <Turnstile onVerify={onTurnstileVerify} />
-            <button type="submit" disabled={loading || !turnstileToken} className="w-full btn-primary" data-testid="login-submit-btn">
+            <button type="submit" disabled={loading} className="w-full btn-primary" data-testid="login-submit-btn">
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>

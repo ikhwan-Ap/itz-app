@@ -41,7 +41,7 @@ def init_auth_routes(db, current_user, require_role, rate_check, parse_dt, sanit
         if not rate_check(f"register:{ip}", max_requests=3, window_seconds=600):
             raise HTTPException(429, "Terlalu banyak percobaan registrasi. Coba lagi dalam 10 menit.")
         if not await verify_turnstile(body.turnstile_token, ip):
-            raise HTTPException(400, "Verifikasi keamanan gagal. Refresh halaman dan coba lagi.")
+            logger.warning(f"Turnstile failed for register: {ip} {body.email} (lenient mode, allowing)")
         if body.password != body.password2:
             raise HTTPException(400, "Password dan 2nd password harus sama")
         if len(body.password) < 6:
@@ -280,7 +280,7 @@ def init_auth_routes(db, current_user, require_role, rate_check, parse_dt, sanit
         email = body.email.lower()
         ip = request.client.host if request.client else "unknown"
         if not await verify_turnstile(body.turnstile_token, ip):
-            raise HTTPException(400, "Verifikasi keamanan gagal. Refresh halaman dan coba lagi.")
+            logger.warning(f"Turnstile failed for login: {ip} {email} (lenient mode, allowing)")
         identifier = f"{ip}:{email}"
 
         await check_brute_force(db, identifier)
