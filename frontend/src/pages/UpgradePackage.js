@@ -51,9 +51,9 @@ export default function UpgradePackagePage() {
         promo_code: promoCode || null,
       });
       const action = data.tx_type === "renewal" ? "perpanjang" : "upgrade";
-      setOk(`Permintaan ${action} berhasil dikirim. Menunggu approval admin. Total: ${formatRupiah(data.final_amount)}`);
+      setOk(`Permintaan ${action} dibuat. Mengarahkan ke pembayaran...`);
       await refresh();
-      setTimeout(() => nav("/app"), 4000);
+      setTimeout(() => nav(`/app/payment?tx=${data.transaction_id}`), 1500);
     } catch (e) {
       setErr(formatApiErrorDetail(e.response?.data?.detail) || e.message);
     } finally {

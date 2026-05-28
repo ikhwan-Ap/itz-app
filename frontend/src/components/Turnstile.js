@@ -18,7 +18,7 @@ export default function Turnstile({ onVerify }) {
         callback: (token) => onVerify(token),
         "expired-callback": () => onVerify(""),
         "error-callback": () => onVerify(""),
-        appearance: "managed",
+        appearance: "interaction-only",
         size: "flexible",
       });
     };
