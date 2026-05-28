@@ -20,7 +20,17 @@ export default function PaymentQrisPage() {
   const createOrFetch = async () => {
     setLoading(true); setErr("");
     try {
-      const { data } = await api.post("/payment/qris/create", { transaction_id: txId });
+      // Try public endpoint first (for register flow), fallback to auth endpoint
+      let data;
+      try {
+        const res = await api.post("/payment/qris/public-create", { transaction_id: txId });
+        data = res.data;
+      } catch (e) {
+        if (e.response?.status === 401) {
+          const res = await api.post("/payment/qris/create", { transaction_id: txId });
+          data = res.data;
+        } else throw e;
+      }
       setPayment(data);
       if (data.status === "pending") startPolling(data.order_id);
     } catch (e) {
@@ -32,7 +42,14 @@ export default function PaymentQrisPage() {
     if (pollRef.current) clearInterval(pollRef.current);
     pollRef.current = setInterval(async () => {
       try {
-        const { data } = await api.get(`/payment/qris/status/${orderId}`);
+        let data;
+        try {
+          const res = await api.get(`/payment/qris/public-status/${orderId}`);
+          data = res.data;
+        } catch {
+          const res = await api.get(`/payment/qris/status/${orderId}`);
+          data = res.data;
+        }
         setPayment((prev) => ({ ...prev, ...data }));
         if (data.status !== "pending") {
           clearInterval(pollRef.current);

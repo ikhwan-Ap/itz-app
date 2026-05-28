@@ -102,6 +102,104 @@ def init_qris_routes(db, current_user, require_role):
             "remote": remote,
         }
 
+    # ===== PUBLIC: Create payment by transaction_id (untuk register flow, no auth) =====
+    @router.post("/payment/qris/public-create")
+    async def public_create_payment(request: Request):
+        """Public endpoint — create QRIS for a pending transaction (used after register, before login)."""
+        body = await request.json()
+        transaction_id = body.get("transaction_id")
+        if not transaction_id:
+            raise HTTPException(400, "transaction_id required")
+
+        tx = await db.transactions.find_one({"id": transaction_id, "status": "pending"})
+        if not tx:
+            raise HTTPException(404, "Transaksi pending tidak ditemukan")
+
+        # Reuse existing payment if pending
+        existing = await db.payments.find_one({"transaction_id": transaction_id, "status": "pending"})
+        if existing:
+            return {
+                "payment_id": existing["id"],
+                "order_id": existing["order_id"],
+                "qr_code_url": existing.get("qr_code_url"),
+                "qr_image": existing.get("qr_image"),
+                "total_amount": existing.get("total_amount"),
+                "expires_at": existing.get("expires_at"),
+                "status": existing["status"],
+            }
+
+        order_id = f"ITZ-{uid()[:8].upper()}-{int(datetime.now(timezone.utc).timestamp())}"
+        amount = int(tx["final_amount"])
+        if amount <= 0:
+            raise HTTPException(400, "Paket trial tidak butuh pembayaran")
+
+        pkg = await db.packages.find_one({"id": tx["package_id"]}, {"name": 1, "_id": 0})
+        keterangan = f"Pembayaran {pkg.get('name', 'Paket')} - {tx.get('user_name', tx.get('user_email', ''))}"
+
+        try:
+            qris_data = create_qris_invoice(order_id, amount, keterangan)
+        except RuntimeError as e:
+            raise HTTPException(502, str(e))
+
+        payment_doc = {
+            "id": uid(),
+            "user_id": tx["user_id"],
+            "transaction_id": transaction_id,
+            "package_id": tx["package_id"],
+            "provider": "klikqris",
+            "order_id": order_id,
+            "amount": amount,
+            "total_amount": float(qris_data.get("total_amount", amount)),
+            "qr_code_url": qris_data.get("qris_url"),
+            "qr_image": qris_data.get("qris_image"),
+            "signature": qris_data.get("signature", ""),
+            "status": "pending",
+            "is_test": False,
+            "expires_at": qris_data.get("expired_at"),
+            "paid_at": None,
+            "callback_payload": None,
+            "created_at": now_iso(),
+            "updated_at": now_iso(),
+        }
+        await db.payments.insert_one(payment_doc)
+
+        return {
+            "payment_id": payment_doc["id"],
+            "order_id": order_id,
+            "qr_code_url": payment_doc["qr_code_url"],
+            "qr_image": payment_doc["qr_image"],
+            "total_amount": payment_doc["total_amount"],
+            "expires_at": payment_doc["expires_at"],
+            "status": "pending",
+        }
+
+    @router.get("/payment/qris/public-status/{order_id}")
+    async def public_payment_status(order_id: str):
+        """Public endpoint — check status by order_id (no auth)."""
+        payment = await db.payments.find_one({"order_id": order_id}, {"_id": 0})
+        if not payment:
+            raise HTTPException(404, "Payment tidak ditemukan")
+
+        if payment["status"] == "pending":
+            try:
+                remote = check_qris_status(order_id)
+                remote_status = remote.get("status", "").upper()
+                if remote_status in ("SUCCESS", "PAID"):
+                    await _process_paid(db, payment, remote)
+                    payment["status"] = "paid"
+                elif remote_status == "EXPIRED":
+                    await db.payments.update_one({"id": payment["id"]}, {"$set": {"status": "expired", "updated_at": now_iso()}})
+                    payment["status"] = "expired"
+            except Exception:
+                pass
+
+        return {
+            "order_id": payment["order_id"],
+            "status": payment["status"],
+            "total_amount": payment.get("total_amount"),
+            "paid_at": payment.get("paid_at"),
+        }
+
     # ===== PRODUCTION: Create payment for real transaction =====
     @router.post("/payment/qris/create")
     async def create_payment(request: Request, user=Depends(current_user)):

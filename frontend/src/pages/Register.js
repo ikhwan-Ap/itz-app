@@ -57,8 +57,14 @@ export default function RegisterPage() {
         promo_code: promoCode || null,
         turnstile_token: turnstileToken,
       });
-      setOk(`Registrasi berhasil! ID transaksi: ${data.transaction_id.slice(0, 8)}. Akun akan diaktifkan setelah admin approve.`);
-      setTimeout(() => nav("/login"), 4000);
+      const selectedPkg = packages.find((p) => p.id === packageId);
+      if (selectedPkg?.is_trial || data.final_amount === 0) {
+        setOk(`Registrasi trial berhasil! Akun akan diaktifkan setelah admin approve.`);
+        setTimeout(() => nav("/login"), 4000);
+      } else {
+        setOk("Registrasi berhasil. Menuju pembayaran...");
+        setTimeout(() => nav(`/payment?tx=${data.transaction_id}`), 1500);
+      }
     } catch (e) {
       setErr(formatApiErrorDetail(e.response?.data?.detail) || e.message);
     } finally {

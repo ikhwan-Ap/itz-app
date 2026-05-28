@@ -60,6 +60,7 @@ function App() {
             <Route path="/contact" element={<Pub><Contact /></Pub>} />
             <Route path="/login" element={<Pub><Login /></Pub>} />
             <Route path="/register" element={<Pub><Register /></Pub>} />
+            <Route path="/payment" element={<Pub><PaymentQris /></Pub>} />
             <Route path="/forgot-password" element={<Pub><ForgotPassword /></Pub>} />
             <Route path="/reset-password" element={<Pub><ResetPassword /></Pub>} />
 
