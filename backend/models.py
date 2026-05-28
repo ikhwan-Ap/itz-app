@@ -28,16 +28,6 @@ class UserLogin(BaseModel):
     email: EmailStr
     password: str
     turnstile_token: Optional[str] = None
-    password2: str
-    name: str
-    association: Optional[str] = None
-    package_id: str
-    promo_code: Optional[str] = None
-
-
-class UserLogin(BaseModel):
-    email: EmailStr
-    password: str
 
 
 class ForgotPasswordRequest(BaseModel):
