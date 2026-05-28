@@ -6,7 +6,7 @@ import requests
 logger = logging.getLogger("tesniper")
 
 KLIKQRIS_BASE_URL = os.environ.get("KLIKQRIS_BASE_URL", "https://klikqris.com/api")
-KLIKQRIS_CREATE_PATH = os.environ.get("KLIKQRIS_CREATE_PATH", "/qrisv2/create")
+KLIKQRIS_CREATE_PATH = os.environ.get("KLIKQRIS_CREATE_PATH", "/qris/create")
 KLIKQRIS_STATUS_PATH = os.environ.get("KLIKQRIS_STATUS_PATH", "/qris/status")
 
 
@@ -35,7 +35,7 @@ def create_qris_invoice(order_id: str, amount: int, keterangan: str = "") -> dic
 
     payload = {
         "order_id": order_id,
-        "id_merchant": merchant_id,  # send as string per adapter convention
+        "id_merchant": int(merchant_id) if merchant_id.isdigit() else merchant_id,
         "amount": int(amount),
         "keterangan": keterangan or "",
     }
