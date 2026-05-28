@@ -299,6 +299,14 @@ api.include_router(audit_router)
 
 
 # =========================================================
+# QRIS PAYMENT (KlikQRIS) — extracted to routes/payment_qris.py
+# =========================================================
+from routes.payment_qris import init_qris_routes
+qris_router = init_qris_routes(db, current_user, require_role)
+api.include_router(qris_router)
+
+
+# =========================================================
 # HEALTH CHECK — extracted to routes/health.py
 # =========================================================
 from routes.health import init_health_routes

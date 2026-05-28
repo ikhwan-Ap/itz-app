@@ -17,6 +17,7 @@ frontend/.env
 *.key
 *.p12
 *.pfx
+klikqris.md
 
 # ===== File Sensitif Operasional (JANGAN COMMIT) =====
 auth_testing.md

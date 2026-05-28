@@ -26,6 +26,7 @@ import GKLatihan from "@/pages/training/GKLatihan";
 import TrainingHistory from "@/pages/training/TrainingHistory";
 import AdminDashboard from "@/pages/AdminDashboard";
 import UpgradePackage from "@/pages/UpgradePackage";
+import PaymentTest from "@/pages/admin/PaymentTest";
 import AdminUsers from "@/pages/admin/Users";
 import AdminPackages from "@/pages/admin/Packages";
 import AdminPromos from "@/pages/admin/Promos";
@@ -69,6 +70,7 @@ function App() {
             <Route path="/app/training/gk" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><GKLatihan /></DashboardLayout></ProtectedRoute>} />
             <Route path="/app/training/history" element={<ProtectedRoute roles={["user", "admin", "superadmin"]}><DashboardLayout><TrainingHistory /></DashboardLayout></ProtectedRoute>} />
             <Route path="/app/upgrade" element={<ProtectedRoute roles={["user"]}><DashboardLayout><UpgradePackage /></DashboardLayout></ProtectedRoute>} />
+            <Route path="/app/admin/payment-test" element={<ProtectedRoute roles={["superadmin"]}><DashboardLayout><PaymentTest /></DashboardLayout></ProtectedRoute>} />
             <Route path="/app/calculator" element={<Navigate to="/app/training" replace />} />
 
             <Route path="/app/admin" element={<ProtectedRoute roles={["admin", "superadmin"]}><DashboardLayout><AdminDashboard /></DashboardLayout></ProtectedRoute>} />

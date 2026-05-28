@@ -5,7 +5,7 @@ import {
   SignOut, ChartBar, Users, Ticket, Package as PkgIcon, Newspaper,
   CalendarDots, CreditCard, Crown, Briefcase, Gauge, List, X,
   CaretLeft, CaretRight, MagnifyingGlass, CaretDown, User as UserIcon, GearSix, Crosshair,
-  ClockCounterClockwise, ArrowUp,
+  ClockCounterClockwise, ArrowUp, QrCode,
 } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
 import CommandPalette from "@/components/dashboard/CommandPalette";
@@ -27,6 +27,7 @@ const ALL_NAV = [
   { to: "/app/admin/news", label: "News CMS", icon: Newspaper, roles: ["admin", "superadmin"] },
   { to: "/app/admin/events", label: "Events CMS", icon: CalendarDots, roles: ["admin", "superadmin"] },
   { to: "/app/admin/payment", label: "Payment Config", icon: CreditCard, roles: ["superadmin"] },
+  { to: "/app/admin/payment-test", label: "QRIS Test", icon: QrCode, roles: ["superadmin"] },
   { to: "/app/marketing", label: "Marketing", icon: Briefcase, roles: ["marketing", "admin", "superadmin"] },
 ];
 
