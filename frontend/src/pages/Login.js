@@ -1,24 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useCallback } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
 import { api, formatApiErrorDetail } from "@/lib/api";
+import Turnstile from "@/components/Turnstile";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [err, setErr] = useState("");
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
   const loc = useLocation();
   const { login } = useAuth();
 
+  const onTurnstileVerify = useCallback((token) => setTurnstileToken(token), []);
+
   const submit = async (e) => {
     e.preventDefault();
     setErr(""); setLoading(true);
     try {
-      const u = await login(email, password);
+      const u = await login(email, password, turnstileToken);
       const dest = loc.state?.from || "/app";
-      // Role-based landing
       if (u.role === "marketing") nav("/app/marketing", { replace: true });
       else if (u.role === "admin" || u.role === "superadmin") nav("/app/admin", { replace: true });
       else nav(dest, { replace: true });
@@ -60,7 +63,8 @@ export default function LoginPage() {
             {err && (
               <div className="badge badge-red w-full justify-center !py-2" data-testid="login-error">{err}</div>
             )}
-            <button type="submit" disabled={loading} className="w-full btn-primary" data-testid="login-submit-btn">
+            <Turnstile onVerify={onTurnstileVerify} />
+            <button type="submit" disabled={loading || !turnstileToken} className="w-full btn-primary" data-testid="login-submit-btn">
               {loading ? "Signing in..." : "Sign In"}
             </button>
           </form>

@@ -22,8 +22,8 @@ export function AuthProvider({ children }) {
     refresh();
   }, []);
 
-  const login = async (email, password) => {
-    const { data } = await api.post("/auth/login", { email, password });
+  const login = async (email, password, turnstileToken) => {
+    const { data } = await api.post("/auth/login", { email, password, turnstile_token: turnstileToken });
     await refresh();
     return data;
   };

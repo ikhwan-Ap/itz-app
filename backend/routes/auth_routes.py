@@ -21,6 +21,7 @@ from auth import (
 )
 from core.notify import create_notification
 from core.expiry import maybe_warn_expiry
+from core.turnstile import verify_turnstile
 
 logger = logging.getLogger("tesniper")
 PASSWORD_RESET_TTL_MIN = 60
@@ -39,6 +40,8 @@ def init_auth_routes(db, current_user, require_role, rate_check, parse_dt, sanit
         ip = request.client.host if request.client else "unknown"
         if not rate_check(f"register:{ip}", max_requests=3, window_seconds=600):
             raise HTTPException(429, "Terlalu banyak percobaan registrasi. Coba lagi dalam 10 menit.")
+        if not await verify_turnstile(body.turnstile_token, ip):
+            raise HTTPException(400, "Verifikasi keamanan gagal. Refresh halaman dan coba lagi.")
         if body.password != body.password2:
             raise HTTPException(400, "Password dan 2nd password harus sama")
         if len(body.password) < 6:
@@ -241,6 +244,8 @@ def init_auth_routes(db, current_user, require_role, rate_check, parse_dt, sanit
     async def login(body: UserLogin, request: Request, response: Response):
         email = body.email.lower()
         ip = request.client.host if request.client else "unknown"
+        if not await verify_turnstile(body.turnstile_token, ip):
+            raise HTTPException(400, "Verifikasi keamanan gagal. Refresh halaman dan coba lagi.")
         identifier = f"{ip}:{email}"
 
         await check_brute_force(db, identifier)

@@ -1,7 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { api, formatApiErrorDetail, formatRupiah } from "@/lib/api";
 import { Check } from "@phosphor-icons/react";
+import Turnstile from "@/components/Turnstile";
 
 export default function RegisterPage() {
   const [sp] = useSearchParams();
@@ -14,10 +15,13 @@ export default function RegisterPage() {
   const [association, setAssociation] = useState("");
   const [promoCode, setPromoCode] = useState("");
   const [promoResult, setPromoResult] = useState(null);
+  const [turnstileToken, setTurnstileToken] = useState("");
   const [err, setErr] = useState("");
   const [ok, setOk] = useState("");
   const [loading, setLoading] = useState(false);
   const nav = useNavigate();
+
+  const onTurnstileVerify = useCallback((token) => setTurnstileToken(token), []);
 
   useEffect(() => {
     api.get("/packages").then((r) => {
@@ -51,6 +55,7 @@ export default function RegisterPage() {
         association: association || null,
         package_id: packageId,
         promo_code: promoCode || null,
+        turnstile_token: turnstileToken,
       });
       setOk(`Registrasi berhasil! ID transaksi: ${data.transaction_id.slice(0, 8)}. Akun akan diaktifkan setelah admin approve.`);
       setTimeout(() => nav("/login"), 4000);
@@ -165,7 +170,8 @@ export default function RegisterPage() {
             {err && <div className="badge badge-red w-full justify-center !py-2" data-testid="register-error">{err}</div>}
             {ok && <div className="badge badge-green w-full justify-center !py-2" data-testid="register-success"><Check size={14} className="mr-1" />{ok}</div>}
 
-            <button type="submit" disabled={loading} className="w-full btn-primary" data-testid="register-submit-btn">
+            <Turnstile onVerify={onTurnstileVerify} />
+            <button type="submit" disabled={loading || !turnstileToken} className="w-full btn-primary" data-testid="register-submit-btn">
               {loading ? "Processing..." : "Daftar & Kirim ke Approval"}
             </button>
           </form>
