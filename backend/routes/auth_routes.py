@@ -8,7 +8,7 @@ from fastapi import APIRouter, Depends, HTTPException, Request, Response
 
 import jwt
 from models import (
-    UserRegister, UserLogin,
+    UserRegister, UserLogin, UpgradePackageRequest,
     ForgotPasswordRequest, ResetPasswordRequest, AdminResetPasswordRequest,
     uid, now_iso,
 )
@@ -135,6 +135,103 @@ def init_auth_routes(db, current_user, require_role, rate_check, parse_dt, sanit
         return {
             "message": "Registration submitted. Awaiting admin approval.",
             "transaction_id": tx_doc["id"],
+            "final_amount": final_amount,
+            "discount": discount,
+        }
+
+    @router.post("/auth/upgrade-package")
+    async def upgrade_package(body: UpgradePackageRequest, request: Request, user=Depends(current_user)):
+        """Existing user upgrades or renews their package. Creates a pending transaction for admin approval."""
+        ip = request.client.host if request.client else "unknown"
+        if not rate_check(f"upgrade:{ip}", max_requests=5, window_seconds=600):
+            raise HTTPException(429, "Terlalu banyak percobaan upgrade. Coba lagi dalam 10 menit.")
+
+        if user.get("role") != "user":
+            raise HTTPException(403, "Hanya user biasa yang bisa upgrade paket")
+
+        # Check no pending transaction already
+        pending = await db.transactions.find_one({"user_id": user["id"], "status": "pending"})
+        if pending:
+            raise HTTPException(400, "Anda sudah punya transaksi pending. Tunggu approval admin atau hubungi admin untuk membatalkan.")
+
+        # Validate package
+        pkg = await db.packages.find_one({"id": body.package_id, "active": True}, {"_id": 0})
+        if not pkg:
+            raise HTTPException(400, "Paket tidak valid")
+        if pkg.get("is_trial"):
+            raise HTTPException(400, "Tidak bisa upgrade ke paket trial")
+
+        # Validate promo code (if provided)
+        promo = None
+        discount = 0.0
+        if body.promo_code:
+            promo = await db.promos.find_one({"code": body.promo_code.upper(), "active": True}, {"_id": 0})
+            if not promo:
+                raise HTTPException(400, "Invalid promo code")
+            if not promo.get("package_id"):
+                raise HTTPException(400, "Promo code belum di-assign ke paket. Hubungi admin.")
+            if promo["package_id"] != body.package_id:
+                raise HTTPException(400, "Promo code tidak berlaku untuk paket ini")
+            now = datetime.now(timezone.utc)
+            if promo.get("valid_until"):
+                vu = parse_dt(promo["valid_until"])
+                if vu < now:
+                    raise HTTPException(400, "Promo code expired")
+            if promo.get("max_uses") is not None and promo.get("uses", 0) >= promo["max_uses"]:
+                raise HTTPException(400, "Promo code usage limit reached")
+            if promo["discount_type"] == "percent":
+                discount = pkg["price"] * (promo["discount_value"] / 100.0)
+            else:
+                discount = promo["discount_value"]
+            discount = min(discount, pkg["price"])
+
+        final_amount = max(0.0, pkg["price"] - discount)
+        marketing_cut = discount if promo and promo.get("owner_marketing_id") else 0.0
+
+        # Determine if this is renewal (same package) or upgrade (different package)
+        is_renewal = user.get("package_id") == body.package_id
+        tx_type = "renewal" if is_renewal else "upgrade"
+
+        tx_doc = {
+            "id": uid(),
+            "user_id": user["id"],
+            "user_email": user["email"],
+            "user_name": user.get("name"),
+            "package_id": body.package_id,
+            "package_name": pkg["name"],
+            "amount": pkg["price"],
+            "promo_code": body.promo_code.upper() if body.promo_code else None,
+            "discount_amount": discount,
+            "final_amount": final_amount,
+            "marketing_id": promo.get("owner_marketing_id") if promo else None,
+            "marketing_cut": marketing_cut,
+            "status": "pending",
+            "payment_method": "manual",
+            "tx_type": tx_type,
+            "previous_package_id": user.get("package_id"),
+            "note": "",
+            "approved_by": None,
+            "approved_at": None,
+            "created_at": now_iso(),
+        }
+        await db.transactions.insert_one(tx_doc)
+
+        # Notify admins
+        admins = await db.users.find({"role": {"$in": ["admin", "superadmin"]}}, {"id": 1, "_id": 0}).to_list(50)
+        action_label = "Perpanjang" if is_renewal else "Upgrade"
+        for a in admins:
+            await create_notif_local(
+                a["id"],
+                "new_transaction",
+                f"{action_label} Paket Menunggu Approval",
+                f"{user.get('name', user['email'])} {action_label.lower()} ke {pkg['name']}. Total: Rp {int(final_amount):,}".replace(",", "."),
+                "/app/admin/transactions",
+            )
+
+        return {
+            "message": f"Permintaan {action_label.lower()} berhasil dikirim. Menunggu approval admin.",
+            "transaction_id": tx_doc["id"],
+            "tx_type": tx_type,
             "final_amount": final_amount,
             "discount": discount,
         }

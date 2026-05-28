@@ -47,6 +47,12 @@ class AdminResetPasswordRequest(BaseModel):
     new_password: str
 
 
+class UpgradePackageRequest(BaseModel):
+    """Upgrade or renew a user's package (existing user picks new package)."""
+    package_id: str
+    promo_code: Optional[str] = None
+
+
 class AdminCreateUser(BaseModel):
     email: EmailStr
     password: str

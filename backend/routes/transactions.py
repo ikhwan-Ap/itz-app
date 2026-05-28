@@ -41,15 +41,35 @@ def init_transaction_routes(db, current_user, require_role, audit_log):
             raise HTTPException(400, "Package missing")
 
         now = datetime.now(timezone.utc)
-        expires_at = None
-        if not pkg.get("is_trial"):
-            if pkg.get("duration_type") == "yearly":
-                expires_at = (now + timedelta(days=365 * pkg.get("duration_value", 1))).isoformat()
-            else:
-                expires_at = (now + timedelta(days=30 * pkg.get("duration_value", 1))).isoformat()
-        elif pkg.get("duration_value"):
-            expires_at = (now + timedelta(days=pkg["duration_value"])).isoformat()
+        tx_type = tx.get("tx_type", "register")  # register / upgrade / renewal
 
+        # Calculate expiry
+        if not pkg.get("is_trial"):
+            duration_days = 365 * pkg.get("duration_value", 1) if pkg.get("duration_type") == "yearly" else 30 * pkg.get("duration_value", 1)
+        elif pkg.get("duration_value"):
+            duration_days = pkg["duration_value"]
+        else:
+            duration_days = 0
+
+        # Renewal: extend from current expiry (if not yet expired) — else from now
+        if tx_type == "renewal" and duration_days > 0:
+            current_user = await db.users.find_one({"id": tx["user_id"]}, {"expires_at": 1, "_id": 0})
+            base = now
+            if current_user and current_user.get("expires_at"):
+                try:
+                    cur_exp = datetime.fromisoformat(current_user["expires_at"].replace("Z", "+00:00"))
+                    if cur_exp > now:
+                        base = cur_exp
+                except (ValueError, TypeError):
+                    pass
+            expires_at = (base + timedelta(days=duration_days)).isoformat()
+        elif duration_days > 0:
+            # New register or upgrade: from now
+            expires_at = (now + timedelta(days=duration_days)).isoformat()
+        else:
+            expires_at = None
+
+        # Reset clicks_used on approve (fresh quota for new period)
         await db.users.update_one(
             {"id": tx["user_id"]},
             {"$set": {
@@ -73,23 +93,24 @@ def init_transaction_routes(db, current_user, require_role, audit_log):
         if tx.get("promo_code"):
             await db.promos.update_one({"code": tx["promo_code"]}, {"$inc": {"uses": 1}})
 
+        action_label = {"renewal": "Perpanjang", "upgrade": "Upgrade"}.get(tx_type, "Aktivasi")
         await create_notification(
             db,
             tx["user_id"],
             "transaction_approved",
-            "Transaksi Disetujui",
+            f"{action_label} Disetujui",
             f"Paket {pkg.get('name', '')} sudah aktif. Selamat berlatih!",
             "/app",
         )
         await audit_log(
             actor=user,
-            action="transaction.approve",
+            action=f"transaction.approve_{tx_type}",
             target_type="transaction",
             target_id=tx_id,
             request=None,
-            metadata={"package": pkg.get("name"), "user_id": tx["user_id"], "note": body.note or ""},
+            metadata={"package": pkg.get("name"), "user_id": tx["user_id"], "tx_type": tx_type, "note": body.note or ""},
         )
-        return {"message": "approved"}
+        return {"message": "approved", "tx_type": tx_type}
 
     @router.post("/transactions/{tx_id}/reject")
     async def reject_tx(tx_id: str, body: TransactionReject, user=Depends(require_role("admin", "superadmin"))):
