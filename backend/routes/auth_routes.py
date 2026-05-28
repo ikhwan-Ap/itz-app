@@ -108,6 +108,16 @@ def init_auth_routes(db, current_user, require_role, rate_check, parse_dt, sanit
         final_amount = max(0.0, pkg["price"] - discount)
         marketing_cut = discount if promo and promo.get("owner_marketing_id") else 0.0
 
+        # Trial / free package: auto-activate (no admin approval needed)
+        is_trial_or_free = pkg.get("is_trial") or final_amount == 0
+        from datetime import timedelta
+        trial_expires_at = None
+        if is_trial_or_free and pkg.get("duration_value"):
+            days = pkg["duration_value"] if pkg.get("is_trial") else (
+                30 * pkg["duration_value"] if pkg.get("duration_type") != "yearly" else 365 * pkg["duration_value"]
+            )
+            trial_expires_at = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
+
         user_id = uid()
         user_doc = {
             "id": user_id,
@@ -117,9 +127,9 @@ def init_auth_routes(db, current_user, require_role, rate_check, parse_dt, sanit
             "name": body.name,
             "role": "user",
             "association": body.association,
-            "status": "pending",
+            "status": "active" if is_trial_or_free else "pending",
             "package_id": body.package_id,
-            "expires_at": None,
+            "expires_at": trial_expires_at,
             "max_clicks": pkg.get("max_clicks"),
             "max_history": 15,
             "clicks_used": 0,
@@ -141,24 +151,25 @@ def init_auth_routes(db, current_user, require_role, rate_check, parse_dt, sanit
             "final_amount": final_amount,
             "marketing_id": promo.get("owner_marketing_id") if promo else None,
             "marketing_cut": marketing_cut,
-            "status": "pending",
-            "payment_method": "manual",
-            "note": "",
-            "approved_by": None,
-            "approved_at": None,
+            "status": "approved" if is_trial_or_free else "pending",
+            "payment_method": "trial" if is_trial_or_free else "manual",
+            "note": "Auto-approved (trial/free)" if is_trial_or_free else "",
+            "approved_by": "system" if is_trial_or_free else None,
+            "approved_at": now_iso() if is_trial_or_free else None,
             "created_at": now_iso(),
         }
         await db.transactions.insert_one(tx_doc)
 
-        admins = await db.users.find({"role": {"$in": ["admin", "superadmin"]}}, {"id": 1, "_id": 0}).to_list(50)
-        for a in admins:
-            await create_notif_local(
-                a["id"],
-                "new_transaction",
-                "Registrasi Baru Menunggu Approval",
-                f"{user_doc['name']} mendaftar dengan paket {pkg['name']}. Total: Rp {int(final_amount):,}".replace(",", "."),
-                "/app/admin/transactions",
-            )
+        if not is_trial_or_free:
+            admins = await db.users.find({"role": {"$in": ["admin", "superadmin"]}}, {"id": 1, "_id": 0}).to_list(50)
+            for a in admins:
+                await create_notif_local(
+                    a["id"],
+                    "new_transaction",
+                    "Registrasi Baru Menunggu Pembayaran",
+                    f"{user_doc['name']} mendaftar dengan paket {pkg['name']}. Total: Rp {int(final_amount):,}".replace(",", "."),
+                    "/app/admin/transactions",
+                )
 
         return {
             "message": "Registration submitted. Awaiting admin approval.",

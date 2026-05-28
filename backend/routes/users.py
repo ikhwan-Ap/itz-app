@@ -82,10 +82,19 @@ def init_user_routes(db, require_role, sanitize_user, audit_log):
         if "package_id" in update and before and update["package_id"] != before.get("package_id"):
             new_pkg = await db.packages.find_one({"id": update["package_id"]}, {"_id": 0})
             if new_pkg:
-                # Only override max_clicks if admin didn't explicitly set it in this update
                 if "max_clicks" not in update:
                     update["max_clicks"] = new_pkg.get("max_clicks")
                 update["clicks_used"] = 0
+
+        # If status changed to "active": auto-approve pending transactions
+        if "status" in update and update["status"] == "active" and before and before.get("status") != "active":
+            pending_tx = await db.transactions.find_one({"user_id": user_id, "status": "pending"})
+            if pending_tx:
+                from models import now_iso
+                await db.transactions.update_one(
+                    {"id": pending_tx["id"]},
+                    {"$set": {"status": "approved", "approved_by": user["id"], "approved_at": now_iso(), "note": "Auto-approved via user status change"}},
+                )
 
         await db.users.update_one({"id": user_id}, {"$set": update})
         u = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0, "password2_hash": 0})

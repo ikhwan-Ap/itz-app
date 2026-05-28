@@ -59,8 +59,8 @@ export default function RegisterPage() {
       });
       const selectedPkg = packages.find((p) => p.id === packageId);
       if (selectedPkg?.is_trial || data.final_amount === 0) {
-        setOk(`Registrasi trial berhasil! Akun akan diaktifkan setelah admin approve.`);
-        setTimeout(() => nav("/login"), 4000);
+        setOk("Registrasi trial berhasil! Akun langsung aktif. Mengarahkan ke login...");
+        setTimeout(() => nav("/login"), 2000);
       } else {
         setOk("Registrasi berhasil. Menuju pembayaran...");
         setTimeout(() => nav(`/payment?tx=${data.transaction_id}`), 1500);
