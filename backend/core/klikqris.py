@@ -13,13 +13,18 @@ KLIKQRIS_STATUS_PATH = os.environ.get("KLIKQRIS_STATUS_PATH", "/qris/status")
 def _headers():
     api_key = os.environ.get("KLIKQRIS_API_KEY", "")
     merchant_id = os.environ.get("KLIKQRIS_MERCHANT_ID", "")
-    return {
+    proxy_secret = os.environ.get("KLIKQRIS_PROXY_SECRET", "")
+    headers = {
         "Content-Type": "application/json",
         "Accept": "application/json",
         "User-Agent": "Mozilla/5.0 (KlikQRIS Adapter; Independent Service)",
         "x-api-key": api_key,
         "id_merchant": merchant_id,
     }
+    # If using Cloudflare Worker proxy, attach proxy secret
+    if proxy_secret:
+        headers["x-proxy-secret"] = proxy_secret
+    return headers
 
 
 def create_qris_invoice(order_id: str, amount: int, keterangan: str = "") -> dict:
