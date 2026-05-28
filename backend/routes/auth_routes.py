@@ -52,7 +52,31 @@ def init_auth_routes(db, current_user, require_role, rate_check, parse_dt, sanit
         email = body.email.lower()
         existing = await db.users.find_one({"email": email})
         if existing:
-            raise HTTPException(400, "Email already registered")
+            # Allow re-register if previous registration is unpaid + stale (>30 min)
+            # OR cancel the old pending registration if user wants to retry
+            if existing.get("status") == "pending":
+                # Check if there's any successful payment
+                paid = await db.payments.find_one({"user_id": existing["id"], "status": "paid"})
+                if paid:
+                    raise HTTPException(400, "Email sudah terdaftar dan sudah membayar. Silakan login.")
+
+                # Check stale (created > 30 min ago)
+                from datetime import timedelta
+                try:
+                    created = datetime.fromisoformat(existing.get("created_at", "").replace("Z", "+00:00"))
+                    age_min = (datetime.now(timezone.utc) - created).total_seconds() / 60
+                except Exception:
+                    age_min = 9999
+
+                if age_min < 30:
+                    raise HTTPException(400, f"Email ini sudah didaftarkan {int(age_min)} menit lalu. Tunggu {30 - int(age_min)} menit untuk daftar ulang, atau lanjutkan pembayaran sebelumnya.")
+
+                # Stale: cleanup old data
+                await db.users.delete_one({"id": existing["id"]})
+                await db.transactions.delete_many({"user_id": existing["id"]})
+                await db.payments.delete_many({"user_id": existing["id"]})
+            else:
+                raise HTTPException(400, "Email sudah terdaftar")
 
         pkg = await db.packages.find_one({"id": body.package_id, "active": True}, {"_id": 0})
         if not pkg:
