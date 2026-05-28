@@ -5,7 +5,7 @@ import {
   SignOut, ChartBar, Users, Ticket, Package as PkgIcon, Newspaper,
   CalendarDots, CreditCard, Crown, Briefcase, Gauge, List, X,
   CaretLeft, CaretRight, MagnifyingGlass, CaretDown, User as UserIcon, GearSix, Crosshair,
-  ClockCounterClockwise,
+  ClockCounterClockwise, ArrowUp,
 } from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
 import CommandPalette from "@/components/dashboard/CommandPalette";
@@ -18,6 +18,7 @@ const ALL_NAV = [
   { to: "/app/training/single", label: "Single Drill", icon: Crosshair, roles: ["user", "admin", "superadmin"], indent: true },
   { to: "/app/training/gk", label: "GK Latihan", icon: Crosshair, roles: ["user", "admin", "superadmin"], indent: true },
   { to: "/app/training/history", label: "Riwayat", icon: ClockCounterClockwise, roles: ["user", "admin", "superadmin"], indent: true },
+  { to: "/app/upgrade", label: "Upgrade Paket", icon: ArrowUp, roles: ["user"] },
   { to: "/app/admin", label: "Admin", icon: Crown, roles: ["admin", "superadmin"] },
   { to: "/app/admin/users", label: "Users", icon: Users, roles: ["admin", "superadmin"] },
   { to: "/app/admin/packages", label: "Packages", icon: PkgIcon, roles: ["admin", "superadmin"] },

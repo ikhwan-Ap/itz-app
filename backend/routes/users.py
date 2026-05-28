@@ -77,9 +77,19 @@ def init_user_routes(db, require_role, sanitize_user, audit_log):
         if not update:
             raise HTTPException(400, "Nothing to update")
         before = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0, "password2_hash": 0})
+
+        # If package_id changed: sync max_clicks from new package + reset clicks_used
+        if "package_id" in update and before and update["package_id"] != before.get("package_id"):
+            new_pkg = await db.packages.find_one({"id": update["package_id"]}, {"_id": 0})
+            if new_pkg:
+                # Only override max_clicks if admin didn't explicitly set it in this update
+                if "max_clicks" not in update:
+                    update["max_clicks"] = new_pkg.get("max_clicks")
+                update["clicks_used"] = 0
+
         await db.users.update_one({"id": user_id}, {"$set": update})
         u = await db.users.find_one({"id": user_id}, {"_id": 0, "password_hash": 0, "password2_hash": 0})
-        if "role" in update or "status" in update:
+        if "role" in update or "status" in update or "package_id" in update:
             await audit_log(
                 actor=user,
                 action="user.update",
