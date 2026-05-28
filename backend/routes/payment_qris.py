@@ -67,14 +67,25 @@ def init_qris_routes(db, current_user, require_role):
     # ===== ADMIN: Check status manually =====
     @router.get("/payment/qris/check/{order_id}")
     async def admin_check_status(order_id: str, user=Depends(require_role("superadmin"))):
-        """Superadmin: manually check KlikQRIS status + compare with local DB."""
+        """Superadmin: manually check KlikQRIS status + auto-sync if paid."""
         payment = await db.payments.find_one({"order_id": order_id}, {"_id": 0})
         if not payment:
             raise HTTPException(404, "Payment tidak ditemukan di DB")
 
         remote = None
+        synced = False
         try:
             remote = check_qris_status(order_id)
+            remote_status = remote.get("status", "").upper()
+            # Auto-sync if remote is paid but local still pending
+            if payment["status"] == "pending" and remote_status in ("SUCCESS", "PAID"):
+                await _process_paid(db, payment, remote)
+                payment["status"] = "paid"
+                synced = True
+            elif payment["status"] == "pending" and remote_status == "EXPIRED":
+                await db.payments.update_one({"id": payment["id"]}, {"$set": {"status": "expired", "updated_at": now_iso()}})
+                payment["status"] = "expired"
+                synced = True
         except Exception as e:
             remote = {"error": str(e)}
 
@@ -86,6 +97,7 @@ def init_qris_routes(db, current_user, require_role):
                 "total_amount": payment.get("total_amount"),
                 "paid_at": payment.get("paid_at"),
                 "callback_received": payment.get("callback_payload") is not None,
+                "synced": synced,
             },
             "remote": remote,
         }
